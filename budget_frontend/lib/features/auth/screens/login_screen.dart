@@ -1,19 +1,17 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
 
+import 'package:budget_frontend/app/app_controllers.dart';
 import 'package:budget_frontend/app/app_routes.dart';
 import 'package:budget_frontend/core/utils/app_validators.dart';
 import 'package:budget_frontend/core/widgets/app_link_button.dart';
 import 'package:budget_frontend/core/widgets/app_text_field.dart';
-import 'package:budget_frontend/features/auth/providers/auth_provider.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_error_text.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_footer_link.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_notice_banner.dart';
 import 'package:budget_frontend/core/widgets/sheet_scaffold.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_submit_button.dart';
-import 'package:budget_frontend/features/setup/providers/setup_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,7 +28,7 @@ class LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => context.read<AuthProvider>().clearError());
+    WidgetsBinding.instance.addPostFrameCallback((_) => authController.clearError());
   }
 
   @override
@@ -42,12 +40,12 @@ class LoginScreenState extends State<LoginScreen> {
 
   Future<void> submit() async {
     if (!formKey.currentState!.validate()) return;
-    final isSuccess = await context.read<AuthProvider>().login(
+    final isSuccess = await authController.login(
           email: emailController.text.trim(),
           password: passwordController.text,
         );
     if (!isSuccess || !mounted) return;
-    final nextRoute = context.read<SetupProvider>().isComplete ? AppRoutes.home : AppRoutes.setup;
+    final nextRoute = setupController.isComplete ? AppRoutes.home : AppRoutes.setup;
     Navigator.of(context).pushNamedAndRemoveUntil(nextRoute, (route) => false);
   }
 

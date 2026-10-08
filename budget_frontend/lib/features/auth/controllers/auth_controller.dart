@@ -4,8 +4,8 @@ import 'package:budget_frontend/features/auth/models/user_model.dart';
 import 'package:budget_frontend/features/auth/services/auth_exception.dart';
 import 'package:budget_frontend/features/auth/services/auth_service.dart';
 
-class AuthProvider extends ChangeNotifier {
-  AuthProvider({required this.authService});
+class AuthController extends ChangeNotifier {
+  AuthController({required this.authService});
 
   final AuthService authService;
 
@@ -29,7 +29,7 @@ class AuthProvider extends ChangeNotifier {
       errorMessage = e.message;
       return false;
     } catch (e, stack) {
-      debugPrint('AuthProvider error: $e\n$stack');
+      debugPrint('AuthController error: $e\n$stack');
       errorMessage = 'Something went wrong. Please try again.';
       return false;
     } finally {

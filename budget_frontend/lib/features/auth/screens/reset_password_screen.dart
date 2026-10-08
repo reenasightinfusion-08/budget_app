@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
 
+import 'package:budget_frontend/app/app_controllers.dart';
 import 'package:budget_frontend/app/app_routes.dart';
 import 'package:budget_frontend/core/utils/app_validators.dart';
 import 'package:budget_frontend/core/widgets/app_link_button.dart';
 import 'package:budget_frontend/core/widgets/app_text_field.dart';
-import 'package:budget_frontend/features/auth/providers/auth_provider.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_demo_code_banner.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_error_text.dart';
 import 'package:budget_frontend/core/widgets/sheet_scaffold.dart';
@@ -29,7 +28,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => context.read<AuthProvider>().clearError());
+    WidgetsBinding.instance.addPostFrameCallback((_) => authController.clearError());
   }
 
   @override
@@ -42,7 +41,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   Future<void> submit() async {
     if (!formKey.currentState!.validate()) return;
-    final isSuccess = await context.read<AuthProvider>().resetPassword(
+    final isSuccess = await authController.resetPassword(
           code: codeController.text.trim(),
           newPassword: passwordController.text,
         );
@@ -101,7 +100,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   const Expanded(child: AuthErrorText()),
                   AppLinkButton(
                     label: 'Get a new code',
-                    onPressed: () => context.read<AuthProvider>().resendResetCode(),
+                    onPressed: () => authController.resendResetCode(),
                   ),
                 ],
               ),

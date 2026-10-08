@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
 
+import 'package:budget_frontend/app/app_controllers.dart';
 import 'package:budget_frontend/app/app_routes.dart';
 import 'package:budget_frontend/core/utils/app_validators.dart';
 import 'package:budget_frontend/core/widgets/app_text_field.dart';
-import 'package:budget_frontend/features/auth/providers/auth_provider.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_error_text.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_footer_link.dart';
 import 'package:budget_frontend/core/widgets/sheet_scaffold.dart';
@@ -28,7 +27,7 @@ class SignupScreenState extends State<SignupScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => context.read<AuthProvider>().clearError());
+    WidgetsBinding.instance.addPostFrameCallback((_) => authController.clearError());
   }
 
   @override
@@ -41,7 +40,7 @@ class SignupScreenState extends State<SignupScreen> {
 
   Future<void> submit() async {
     if (!formKey.currentState!.validate()) return;
-    final isSuccess = await context.read<AuthProvider>().signup(
+    final isSuccess = await authController.signup(
           email: emailController.text.trim(),
           password: passwordController.text,
         );
