@@ -13,7 +13,6 @@ import 'package:budget_frontend/core/widgets/sheet_scaffold.dart';
 import 'package:budget_frontend/features/setup/providers/setup_provider.dart';
 import 'package:budget_frontend/features/setup/widgets/setup_budget_card.dart';
 import 'package:budget_frontend/features/setup/widgets/setup_quick_amounts.dart';
-import 'package:budget_frontend/features/setup/widgets/setup_sample_toggle.dart';
 
 class SetupScreen extends StatefulWidget {
   const SetupScreen({super.key});
@@ -75,8 +74,6 @@ class SetupScreenState extends State<SetupScreen> {
               SetupBudgetCard(controller: budgetController, onChanged: onBudgetChanged),
               18.verticalSpace,
               SetupQuickAmounts(onSelected: selectAmount),
-              18.verticalSpace,
-              const SetupSampleToggle(),
               54.verticalSpace,
               AppButton(label: 'Start budgeting', onPressed: submit),
             ],
