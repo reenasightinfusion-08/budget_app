@@ -7,11 +7,12 @@ import 'package:budget_frontend/app/app_routes.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/widgets/app_button.dart';
 import 'package:budget_frontend/core/widgets/app_link_button.dart';
+import 'package:budget_frontend/core/widgets/common_container.dart';
 import 'package:budget_frontend/core/widgets/sheet_scaffold.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_footer_link.dart';
-import 'package:budget_frontend/features/auth/widgets/auth_submit_button.dart';
 
 import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
 
@@ -69,6 +70,20 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          CommonContainer(
+            backgroundColor: AppColors.warningSoft,
+            borderRadius: AppBorderRadius.md,
+            borderColor: Colors.transparent,
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            margin: EdgeInsets.only(bottom: 20.h),
+            child: Text(
+              'Enter the 6-digit verification code sent to your email address to verify your account and continue.',
+              style: AppTextStyle.body.copyWith(
+                color: AppColors.ink,
+                height: 1.4,
+              ),
+            ),
+          ),
           Stack(
             children: [
               // Single hidden TextField capturing typing, pasting, and focus
@@ -88,50 +103,55 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 ),
               ),
               // 6 OTP digit containers in a horizontal row
-              GestureDetector(
-                onTap: () => focusNode.requestFocus(),
-                behavior: HitTestBehavior.opaque,
-                child: ListenableBuilder(
-                  listenable: Listenable.merge([otpController, focusNode]),
-                  builder: (context, _) {
-                    final codeText = otpController.text;
-                    final isFocused = focusNode.hasFocus;
+              MouseRegion(
+                cursor: SystemMouseCursors.text,
+                child: GestureDetector(
+                  onTap: () => focusNode.requestFocus(),
+                  behavior: HitTestBehavior.opaque,
+                  child: ListenableBuilder(
+                    listenable: Listenable.merge([otpController, focusNode]),
+                    builder: (context, _) {
+                      final codeText = otpController.text;
+                      final isFocused = focusNode.hasFocus;
 
-                    return Row(
-                      children: List.generate(6, (index) {
-                        final isCurrentBoxFocused = isFocused &&
-                            (codeText.length == index || (codeText.length == 6 && index == 5));
-                        final hasValue = index < codeText.length;
-                        final char = hasValue ? codeText[index] : '';
+                      return Row(
+                        children: List.generate(6, (index) {
+                          final isCurrentBoxFocused = isFocused &&
+                              (codeText.length == index || (codeText.length == 6 && index == 5));
+                          final hasValue = index < codeText.length;
+                          final char = hasValue ? codeText[index] : '';
 
-                        return Expanded(
-                          child: Container(
-                            height: 56.h,
-                            margin: EdgeInsets.symmetric(horizontal: 4.w),
-                            decoration: BoxDecoration(
-                              color: hasValue ? AppColors.surface : AppColors.fill,
+                          return Expanded(
+                            child: CommonContainer(
+                              height: 56.h,
+                              margin: EdgeInsets.symmetric(horizontal: 4.w),
+                              backgroundColor: isCurrentBoxFocused
+                                  ? AppColors.surface
+                                  : AppColors.fill,
                               borderRadius: AppBorderRadius.md,
-                              border: Border.all(
-                                color: isCurrentBoxFocused
-                                    ? AppColors.accent
-                                    : (hasValue ? AppColors.ink : AppColors.line),
-                                width: isCurrentBoxFocused ? 2.w : 1.w,
-                              ),
+                              borderColor: isCurrentBoxFocused
+                                  ? AppColors.accent
+                                  : (hasValue ? AppColors.accent : AppColors.line),
+                              isFocused: isCurrentBoxFocused,
+                              alignment: Alignment.center,
+                              child: hasValue
+                                  ? Text(
+                                      char,
+                                      style: AppTextStyle.title.copyWith(
+                                        fontSize: 22.sp,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.ink,
+                                      ),
+                                    )
+                                  : (isCurrentBoxFocused
+                                      ? const _BlinkingCursor()
+                                      : const SizedBox.shrink()),
                             ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              char,
-                              style: AppTextStyle.title.copyWith(
-                                fontSize: 22.sp,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.ink,
-                              ),
-                            ),
-                          ),
-                        );
-                      }),
-                    );
-                  },
+                          );
+                        }),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
@@ -151,7 +171,7 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
             ],
           ),
           12.verticalSpace,
-          AuthSubmitButton(label: 'Verify', onPressed: verifyCode),
+          AppButton(label: 'Verify', onPressed: verifyCode),
           const Spacer(),
           AuthFooterLink(
             prompt: 'Wrong email?',
@@ -163,3 +183,46 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
     );
   }
 }
+
+class _BlinkingCursor extends StatefulWidget {
+  const _BlinkingCursor();
+
+  @override
+  State<_BlinkingCursor> createState() => _BlinkingCursorState();
+}
+
+class _BlinkingCursorState extends State<_BlinkingCursor>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _controller,
+      child: Container(
+        width: 2.w,
+        height: 24.h,
+        decoration: BoxDecoration(
+          color: AppColors.accent,
+          borderRadius: BorderRadius.circular(1.r),
+        ),
+      ),
+    );
+  }
+}
+
