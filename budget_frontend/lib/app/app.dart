@@ -5,20 +5,24 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:budget_frontend/app/app_routes.dart';
 import 'package:budget_frontend/core/theme/app_theme.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
-import 'package:budget_frontend/features/auth/services/mock_auth_service.dart';
+import 'package:budget_frontend/core/network/api_client.dart';
+import 'package:budget_frontend/features/auth/services/api_auth_service.dart';
 import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
+import 'package:budget_frontend/features/setup/services/profile_service.dart';
 
 class BudgetApp extends StatelessWidget {
-  const BudgetApp({super.key});
+  const BudgetApp({super.key, required this.apiClient});
+
+  final ApiClient apiClient;
 
   @override
   Widget build(BuildContext context) => MultiBlocProvider(
         providers: [
           BlocProvider<AuthBloc>(
-            create: (context) => AuthBloc(authService: MockAuthService()),
+            create: (context) => AuthBloc(authService: ApiAuthService(apiClient)),
           ),
           BlocProvider<SetupBloc>(
-            create: (context) => SetupBloc(),
+            create: (context) => SetupBloc(profileService: ProfileService(apiClient)),
           ),
         ],
         child: ScreenUtilInit(
@@ -28,7 +32,7 @@ class BudgetApp extends StatelessWidget {
             title: 'Budget',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light,
-            initialRoute: AppRoutes.login,
+            initialRoute: AppRoutes.splash,
             routes: AppRoutes.routes,
           ),
         ),

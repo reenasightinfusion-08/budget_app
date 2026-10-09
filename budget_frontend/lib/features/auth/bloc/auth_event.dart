@@ -1,8 +1,14 @@
 import 'package:flutter/foundation.dart';
 
+import 'package:budget_frontend/features/auth/models/user_model.dart';
+
 @immutable
 sealed class AuthEvent {
   const AuthEvent();
+}
+
+final class AuthStarted extends AuthEvent {
+  const AuthStarted();
 }
 
 final class AuthLoginRequested extends AuthEvent {
@@ -17,6 +23,16 @@ final class AuthSignupRequested extends AuthEvent {
 
   final String email;
   final String password;
+}
+
+final class AuthVerifyEmailRequested extends AuthEvent {
+  const AuthVerifyEmailRequested({required this.code});
+
+  final String code;
+}
+
+final class AuthResendVerifyCodeRequested extends AuthEvent {
+  const AuthResendVerifyCodeRequested();
 }
 
 final class AuthGoogleSignInRequested extends AuthEvent {
@@ -38,6 +54,12 @@ final class AuthResetPasswordRequested extends AuthEvent {
 
   final String code;
   final String newPassword;
+}
+
+final class AuthUserUpdated extends AuthEvent {
+  const AuthUserUpdated(this.user);
+
+  final UserModel user;
 }
 
 final class AuthLogoutRequested extends AuthEvent {

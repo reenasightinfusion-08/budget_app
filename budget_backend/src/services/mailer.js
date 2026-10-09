@@ -19,21 +19,34 @@ const transport = hasSmtp
     )
   : null;
 
+// Recipients should see "Budgie", never the raw Gmail address, whatever SMTP_FROM holds.
 const resolveFrom = () => {
-  const from = (process.env.SMTP_FROM || '').trim();
-  return from.includes('@') ? from : `"${APP_NAME}" <${smtpUser}>`;
+  const configured = (process.env.SMTP_FROM || '').trim();
+  const address = (configured.match(/<([^>]+)>/) || [])[1] || (configured.includes('@') ? configured : smtpUser);
+  return { name: APP_NAME, address };
 };
 
-const buildHtml = (subject, actionText, code) => `
-  <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; border: 1px solid #e0e0e0; border-radius: 12px; background-color: #ffffff;">
-    <h2 style="color: #1a1a1a; margin-top: 0;">${subject}</h2>
-    <p style="color: #555555; font-size: 16px;">Use this code to ${actionText}:</p>
-    <div style="text-align: center; margin: 30px 0;">
-      <span style="display: inline-block; font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #2b5ea7; background: #e8f0fb; padding: 12px 24px; border-radius: 8px;">${code}</span>
+const BRAND = '#2C5FA0';
+const INK = '#101A2B';
+const MUTED = '#5B6778';
+
+const buildHtml = (heading, intro, code) => `
+<div style="background:#EDF1F6;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
+  <div style="max-width:480px;margin:0 auto;">
+    <div style="text-align:center;padding-bottom:16px;">
+      <span style="display:inline-block;background:${BRAND};color:#ffffff;font-size:20px;font-weight:bold;letter-spacing:1px;padding:10px 22px;border-radius:999px;">${APP_NAME}</span>
     </div>
-    <p style="color: #777777; font-size: 14px; margin-bottom: 4px;">This code expires in 15 minutes.</p>
-    <p style="color: #999999; font-size: 12px; margin-top: 20px; border-top: 1px solid #eeeeee; padding-top: 12px;">If you did not request this code, you can safely ignore this email.</p>
-  </div>`;
+    <div style="background:#ffffff;border-radius:16px;padding:32px 28px;text-align:center;">
+      <h2 style="margin:0 0 12px;font-size:22px;color:${INK};">${heading}</h2>
+      <p style="margin:0 0 24px;font-size:15px;line-height:22px;color:${MUTED};">${intro}</p>
+      <div style="display:inline-block;background:#EBF0F6;border-radius:12px;padding:14px 26px;font-size:34px;font-weight:bold;letter-spacing:8px;color:${BRAND};">${code}</div>
+      <p style="margin:24px 0 0;font-size:13px;color:${MUTED};">This code expires in 15 minutes.</p>
+    </div>
+    <p style="margin:16px 8px 0;text-align:center;font-size:12px;line-height:18px;color:#97A2B2;">
+      Didn’t request this? You can safely ignore this email.<br>© ${APP_NAME}
+    </p>
+  </div>
+</div>`;
 
 /**
  * Emails a 6-digit code. Returns true only when an email was really sent;
@@ -46,8 +59,11 @@ async function sendCode(email, code, purpose) {
   }
 
   const isVerify = purpose === 'verify';
-  const subject = isVerify ? `Verify your ${APP_NAME} account` : `Reset your ${APP_NAME} password`;
-  const actionText = isVerify ? 'verify your email address' : 'reset your password';
+  const subject = isVerify ? `Verify your email — ${APP_NAME}` : `Reset your password — ${APP_NAME}`;
+  const heading = isVerify ? 'Verify your email' : 'Reset your password';
+  const intro = isVerify
+    ? 'Enter this code in the app to confirm your email and finish setting up your Budgie account.'
+    : 'Enter this code in the app to choose a new password for your Budgie account.';
 
   try {
     const info = await transport.sendMail({
@@ -55,7 +71,7 @@ async function sendCode(email, code, purpose) {
       to: email,
       subject,
       text: `Your code is ${code}. It expires in 15 minutes.`,
-      html: buildHtml(subject, actionText, code),
+      html: buildHtml(heading, intro, code),
     });
     console.log(`[mailer] Sent ${purpose} email to ${email}: ${info.messageId}`);
     return true;

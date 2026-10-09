@@ -12,9 +12,8 @@ import 'package:budget_frontend/core/widgets/app_link_button.dart';
 import 'package:budget_frontend/core/widgets/common_container.dart';
 import 'package:budget_frontend/core/widgets/sheet_scaffold.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
+import 'package:budget_frontend/features/auth/widgets/auth_demo_code_banner.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_footer_link.dart';
-
-import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
   const VerifyEmailScreen({super.key});
@@ -45,25 +44,30 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
     setState(() {
       errorMessage = null;
     });
-    final isComplete = context.read<SetupBloc>().state.isComplete;
-    final nextRoute = isComplete ? AppRoutes.home : AppRoutes.setup;
-    Navigator.of(context).pushNamedAndRemoveUntil(nextRoute, (route) => false);
+    context.read<AuthBloc>().add(AuthVerifyEmailRequested(code: otpController.text));
   }
 
-  void resendCode(String userEmail) {
-    if (userEmail.isNotEmpty && userEmail != 'your email') {
-      context.read<AuthBloc>().add(AuthForgotPasswordRequested(email: userEmail));
-    }
+  void resendCode() {
     setState(() {
       errorMessage = null;
     });
+    otpController.clear();
+    context.read<AuthBloc>().add(const AuthResendVerifyCodeRequested());
   }
 
   @override
   Widget build(BuildContext context) {
-    final userEmail = (ModalRoute.of(context)?.settings.arguments as String?) ?? 'your email';
+    final userEmail = context.select((AuthBloc bloc) => bloc.state.pendingEmail);
 
-    return SheetScaffold(
+    return BlocListener<AuthBloc, AuthState>(
+      listenWhen: (previous, current) => previous.status != current.status,
+      listener: (context, state) {
+        if (state.status == AuthStatus.authenticated && ModalRoute.of(context)?.isCurrent == true) {
+          Navigator.of(context)
+              .pushNamedAndRemoveUntil(AppRoutes.afterAuth(state.user), (route) => false);
+        }
+      },
+      child: SheetScaffold(
       title: 'Verify your email',
       subtitle: 'We sent a 6-digit code to $userEmail',
       onBack: () => Navigator.of(context).pop(),
@@ -84,6 +88,7 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
               ),
             ),
           ),
+          const AuthDemoCodeBanner(),
           Stack(
             children: [
               // Single hidden TextField capturing typing, pasting, and focus
@@ -161,12 +166,15 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
               Expanded(
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minHeight: 18.h),
-                  child: Text(errorMessage ?? '', style: AppTextStyle.error),
+                  child: BlocBuilder<AuthBloc, AuthState>(
+                    builder: (context, state) =>
+                        Text(errorMessage ?? state.errorMessage ?? '', style: AppTextStyle.error),
+                  ),
                 ),
               ),
               AppLinkButton(
                 label: 'Resend code',
-                onPressed: () => resendCode(userEmail),
+                onPressed: resendCode,
               ),
             ],
           ),
@@ -179,6 +187,7 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
             onPressed: () => Navigator.of(context).pop(),
           ),
         ],
+      ),
       ),
     );
   }

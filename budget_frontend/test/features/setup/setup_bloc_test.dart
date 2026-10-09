@@ -1,12 +1,34 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:budget_frontend/core/network/api_client.dart';
+import 'package:budget_frontend/features/auth/models/user_model.dart';
 import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
+import 'package:budget_frontend/features/setup/services/profile_service.dart';
+
+class FakeProfileService extends ProfileService {
+  FakeProfileService() : super(ApiClient());
+
+  int? savedPaise;
+
+  @override
+  Future<UserModel> saveSetup({required String name, required int monthlyBudgetPaise}) async {
+    savedPaise = monthlyBudgetPaise;
+    return UserModel(
+      email: 'a@b.com',
+      name: name,
+      monthlyBudget: monthlyBudgetPaise,
+      onboardingComplete: true,
+    );
+  }
+}
 
 void main() {
   late SetupBloc setupBloc;
+  late FakeProfileService profileService;
 
   setUp(() {
-    setupBloc = SetupBloc();
+    profileService = FakeProfileService();
+    setupBloc = SetupBloc(profileService: profileService);
   });
 
   tearDown(() {
@@ -43,11 +65,13 @@ void main() {
         predicate<SetupState>((state) =>
             state.isComplete &&
             state.profile?.name == 'Alex' &&
-            state.profile?.monthlyBudget == 15000),
+            state.profile?.monthlyBudget == 15000 &&
+            state.savedUser?.onboardingComplete == true),
       ),
     );
 
     setupBloc.add(const SetupCompletedSubmitted(name: 'Alex'));
     await expectation;
+    expect(profileService.savedPaise, 1500000);
   });
 }

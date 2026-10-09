@@ -49,7 +49,7 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Widget build(BuildContext context) => BlocListener<AuthBloc, AuthState>(
         listenWhen: (previous, current) => previous.status != current.status,
         listener: (context, state) {
-          if (state.status == AuthStatus.passwordResetSent) {
+          if (state.status == AuthStatus.passwordResetSent && ModalRoute.of(context)?.isCurrent == true) {
             Navigator.of(context).pushNamed(AppRoutes.resetPassword);
           }
         },

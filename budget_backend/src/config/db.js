@@ -28,7 +28,8 @@ module.exports = async () => {
 
   try {
     await cachedConnection;
-    console.log('MongoDB connected');
+    const { host, name } = mongoose.connection;
+    console.log(`MongoDB connected: ${host}/${name}`);
     return mongoose.connection;
   } catch (err) {
     cachedConnection = null;

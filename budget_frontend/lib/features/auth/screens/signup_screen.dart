@@ -14,8 +14,6 @@ import 'package:budget_frontend/features/auth/widgets/auth_google_error_text.dar
 import 'package:budget_frontend/features/auth/widgets/auth_or_divider.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_submit_button.dart';
 
-import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
-
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
@@ -49,15 +47,10 @@ class SignupScreenState extends State<SignupScreen> {
 
   void submit() {
     if (!formKey.currentState!.validate()) return;
-    final email = emailController.text.trim();
     context.read<AuthBloc>().add(AuthSignupRequested(
-          email: email,
+          email: emailController.text.trim(),
           password: passwordController.text,
         ));
-    Navigator.of(context).pushNamed(
-      AppRoutes.verifyEmail,
-      arguments: email,
-    );
   }
 
   void googleSignIn() {
@@ -68,10 +61,12 @@ class SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) => BlocListener<AuthBloc, AuthState>(
         listenWhen: (previous, current) => previous.status != current.status,
         listener: (context, state) {
-          if (state.status == AuthStatus.authenticated && ModalRoute.of(context)?.isCurrent == true) {
-            final isComplete = context.read<SetupBloc>().state.isComplete;
-            final nextRoute = isComplete ? AppRoutes.home : AppRoutes.setup;
-            Navigator.of(context).pushNamedAndRemoveUntil(nextRoute, (route) => false);
+          if (ModalRoute.of(context)?.isCurrent != true) return;
+          if (state.status == AuthStatus.authenticated) {
+            Navigator.of(context)
+                .pushNamedAndRemoveUntil(AppRoutes.afterAuth(state.user), (route) => false);
+          } else if (state.status == AuthStatus.verificationPending) {
+            Navigator.of(context).pushNamed(AppRoutes.verifyEmail);
           }
         },
         child: SheetScaffold(
@@ -94,7 +89,7 @@ class SignupScreenState extends State<SignupScreen> {
                 12.verticalSpace,
                 AppTextField(
                   controller: passwordController,
-                  hint: 'Password (6+ characters)',
+                  hint: 'Password (8+ characters)',
                   icon: Icons.lock_outline_rounded,
                   isPassword: true,
                   validator: AppValidators.newPassword,

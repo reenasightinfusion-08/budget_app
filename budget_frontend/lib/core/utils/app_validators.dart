@@ -5,7 +5,7 @@ import 'package:budget_frontend/core/utils/app_formatters.dart';
 class AppValidators {
   static final RegExp emailPattern = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]{2,}$');
   static final RegExp codePattern = RegExp(r'^\d{6}$');
-  static const int minPasswordLength = 6;
+  static const int minPasswordLength = 8;
 
   static String? email(String? value) =>
       emailPattern.hasMatch((value ?? '').trim()) ? null : 'Enter a valid email address.';

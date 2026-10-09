@@ -86,7 +86,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 12.verticalSpace,
                 AppTextField(
                   controller: passwordController,
-                  hint: 'New password (6+ characters)',
+                  hint: 'New password (8+ characters)',
                   icon: Icons.lock_outline_rounded,
                   isPassword: true,
                   validator: AppValidators.newPassword,

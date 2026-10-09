@@ -12,7 +12,8 @@ class CssAngleGradientTransform extends GradientTransform {
   @override
   Matrix4 transform(Rect bounds, {TextDirection? textDirection}) {
     final radians = degrees * pi / 180;
-    final length = bounds.width * sin(radians).abs() + bounds.height * cos(radians).abs();
+    final length =
+        bounds.width * sin(radians).abs() + bounds.height * cos(radians).abs();
     final center = bounds.center;
     return Matrix4.translationValues(center.dx, center.dy, 0)
         .multiplied(Matrix4.rotationZ(radians - pi / 2))
