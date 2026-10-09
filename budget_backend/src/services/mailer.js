@@ -27,26 +27,65 @@ const resolveFrom = () => {
 };
 
 const BRAND = '#2C5FA0';
+const BRAND_DARK = '#12305A';
 const INK = '#101A2B';
 const MUTED = '#5B6778';
+const FONT = "-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+
+const digitCells = (code) =>
+  String(code)
+    .split('')
+    .map(
+      (digit) => `<td style="padding:0 4px;">
+        <div style="width:44px;height:56px;line-height:56px;text-align:center;font-size:28px;font-weight:700;color:${BRAND_DARK};background:#EEF3FA;border:1px solid #D5E1F2;border-radius:10px;font-family:${FONT};">${digit}</div>
+      </td>`,
+    )
+    .join('');
 
 const buildHtml = (heading, intro, code) => `
-<div style="background:#EDF1F6;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;">
-  <div style="max-width:480px;margin:0 auto;">
-    <div style="text-align:center;padding-bottom:16px;">
-      <span style="display:inline-block;background:${BRAND};color:#ffffff;font-size:20px;font-weight:bold;letter-spacing:1px;padding:10px 22px;border-radius:999px;">${APP_NAME}</span>
-    </div>
-    <div style="background:#ffffff;border-radius:16px;padding:32px 28px;text-align:center;">
-      <h2 style="margin:0 0 12px;font-size:22px;color:${INK};">${heading}</h2>
-      <p style="margin:0 0 24px;font-size:15px;line-height:22px;color:${MUTED};">${intro}</p>
-      <div style="display:inline-block;background:#EBF0F6;border-radius:12px;padding:14px 26px;font-size:34px;font-weight:bold;letter-spacing:8px;color:${BRAND};">${code}</div>
-      <p style="margin:24px 0 0;font-size:13px;color:${MUTED};">This code expires in 15 minutes.</p>
-    </div>
-    <p style="margin:16px 8px 0;text-align:center;font-size:12px;line-height:18px;color:#97A2B2;">
-      Didn’t request this? You can safely ignore this email.<br>© ${APP_NAME}
-    </p>
-  </div>
-</div>`;
+<!doctype html>
+<html>
+<body style="margin:0;padding:0;background:#EDF1F6;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#EDF1F6;padding:32px 12px;font-family:${FONT};">
+    <tr><td align="center">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:500px;background:#ffffff;border-radius:20px;overflow:hidden;">
+        <tr>
+          <td align="center" style="background:${BRAND};padding:32px 24px 28px;">
+            <div style="display:inline-block;width:56px;height:56px;line-height:56px;border-radius:16px;background:rgba(255,255,255,0.18);font-size:30px;text-align:center;">&#128038;</div>
+            <div style="margin-top:12px;font-size:26px;font-weight:700;letter-spacing:0.5px;color:#ffffff;">${APP_NAME}</div>
+            <div style="margin-top:4px;font-size:13px;color:#C9DBF3;">Your money, made simple</div>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:36px 28px 8px;">
+            <h1 style="margin:0 0 12px;font-size:24px;line-height:30px;color:${INK};font-weight:700;">${heading}</h1>
+            <p style="margin:0;font-size:15px;line-height:23px;color:${MUTED};">${intro}</p>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:28px 12px 8px;">
+            <table role="presentation" cellpadding="0" cellspacing="0"><tr>${digitCells(code)}</tr></table>
+          </td>
+        </tr>
+        <tr>
+          <td align="center" style="padding:20px 28px 32px;">
+            <span style="display:inline-block;padding:6px 14px;border-radius:999px;background:#FDF1DA;color:#8A5A00;font-size:13px;font-weight:600;">Expires in 15 minutes</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0 28px 28px;">
+            <div style="border-top:1px solid #E3E9F0;padding-top:20px;font-size:13px;line-height:20px;color:${MUTED};text-align:center;">
+              Never share this code with anyone. ${APP_NAME} will never ask you for it.<br>
+              Didn&rsquo;t request this? You can safely ignore this email.
+            </div>
+          </td>
+        </tr>
+      </table>
+      <div style="padding:18px 8px 0;font-size:12px;color:#97A2B2;text-align:center;">&copy; ${APP_NAME}</div>
+    </td></tr>
+  </table>
+</body>
+</html>`;
 
 /**
  * Emails a 6-digit code. Returns true only when an email was really sent;
