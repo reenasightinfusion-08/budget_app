@@ -165,6 +165,9 @@ exports.google = asyncHandler(async (req, res) => {
     throw httpError(409, 'This email is linked to a different Google account');
   }
   const isNew = !user;
+  if (isNew && req.body.mode === 'login') {
+    throw httpError(404, 'No account found for this Google email. Please sign up first.');
+  }
   if (!user) user = new User({ email });
 
   user.googleId = sub;

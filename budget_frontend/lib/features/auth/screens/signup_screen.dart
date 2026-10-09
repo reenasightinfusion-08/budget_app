@@ -54,7 +54,7 @@ class SignupScreenState extends State<SignupScreen> {
   }
 
   void googleSignIn() {
-    context.read<AuthBloc>().add(const AuthGoogleSignInRequested());
+    context.read<AuthBloc>().add(const AuthGoogleSignInRequested(isSignup: true));
   }
 
   @override

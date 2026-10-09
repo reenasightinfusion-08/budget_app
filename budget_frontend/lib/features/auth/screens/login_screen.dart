@@ -54,7 +54,7 @@ class LoginScreenState extends State<LoginScreen> {
   }
 
   void googleSignIn() {
-    context.read<AuthBloc>().add(const AuthGoogleSignInRequested());
+    context.read<AuthBloc>().add(const AuthGoogleSignInRequested(isSignup: false));
   }
 
   @override

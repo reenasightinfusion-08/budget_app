@@ -36,7 +36,9 @@ final class AuthResendVerifyCodeRequested extends AuthEvent {
 }
 
 final class AuthGoogleSignInRequested extends AuthEvent {
-  const AuthGoogleSignInRequested();
+  const AuthGoogleSignInRequested({required this.isSignup});
+
+  final bool isSignup;
 }
 
 final class AuthForgotPasswordRequested extends AuthEvent {

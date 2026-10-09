@@ -15,7 +15,8 @@ abstract class AuthService {
 
   Future<String?> resendVerificationCode(String email);
 
-  Future<UserModel> googleSignIn();
+  /// [isSignup] false means log in only: fails when no account exists for the Google email.
+  Future<UserModel> googleSignIn({required bool isSignup});
 
   Future<String?> requestPasswordReset(String email);
 

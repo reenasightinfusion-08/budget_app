@@ -123,7 +123,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> onGoogleSignInRequested(AuthGoogleSignInRequested event, Emitter<AuthState> emit) =>
       run(emit, () async {
-        emit(authenticated(await authService.googleSignIn()));
+        emit(authenticated(await authService.googleSignIn(isSignup: event.isSignup)));
       }, isGoogle: true);
 
   Future<void> onForgotPasswordRequested(

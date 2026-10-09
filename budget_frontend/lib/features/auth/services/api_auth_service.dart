@@ -49,9 +49,12 @@ class ApiAuthService implements AuthService {
   }
 
   @override
-  Future<UserModel> googleSignIn() async {
+  Future<UserModel> googleSignIn({required bool isSignup}) async {
     final idToken = await googleAuth.fetchIdToken();
-    return startSession(await client.post('/auth/google', {'idToken': idToken}));
+    return startSession(await client.post('/auth/google', {
+      'idToken': idToken,
+      'mode': isSignup ? 'signup' : 'login',
+    }));
   }
 
   @override
