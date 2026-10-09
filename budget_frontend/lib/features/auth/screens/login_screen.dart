@@ -65,7 +65,7 @@ class LoginScreenState extends State<LoginScreen> {
     return BlocListener<AuthBloc, AuthState>(
       listenWhen: (previous, current) => previous.status != current.status,
       listener: (context, state) {
-        if (state.status == AuthStatus.authenticated) {
+        if (state.status == AuthStatus.authenticated && ModalRoute.of(context)?.isCurrent == true) {
           final isComplete = context.read<SetupBloc>().state.isComplete;
           final nextRoute = isComplete ? AppRoutes.home : AppRoutes.setup;
           Navigator.of(context).pushNamedAndRemoveUntil(nextRoute, (route) => false);

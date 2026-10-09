@@ -14,6 +14,8 @@ import 'package:budget_frontend/features/auth/widgets/auth_google_error_text.dar
 import 'package:budget_frontend/features/auth/widgets/auth_or_divider.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_submit_button.dart';
 
+import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
+
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
@@ -47,10 +49,15 @@ class SignupScreenState extends State<SignupScreen> {
 
   void submit() {
     if (!formKey.currentState!.validate()) return;
+    final email = emailController.text.trim();
     context.read<AuthBloc>().add(AuthSignupRequested(
-          email: emailController.text.trim(),
+          email: email,
           password: passwordController.text,
         ));
+    Navigator.of(context).pushNamed(
+      AppRoutes.verifyEmail,
+      arguments: email,
+    );
   }
 
   void googleSignIn() {
@@ -61,8 +68,10 @@ class SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) => BlocListener<AuthBloc, AuthState>(
         listenWhen: (previous, current) => previous.status != current.status,
         listener: (context, state) {
-          if (state.status == AuthStatus.authenticated) {
-            Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.setup, (route) => false);
+          if (state.status == AuthStatus.authenticated && ModalRoute.of(context)?.isCurrent == true) {
+            final isComplete = context.read<SetupBloc>().state.isComplete;
+            final nextRoute = isComplete ? AppRoutes.home : AppRoutes.setup;
+            Navigator.of(context).pushNamedAndRemoveUntil(nextRoute, (route) => false);
           }
         },
         child: SheetScaffold(
@@ -126,4 +135,63 @@ class SignupScreenState extends State<SignupScreen> {
           ),
         ),
       );
+        title: 'Create your account',
+        subtitle: 'Set up your login to get started.',
+        child: Form(
+          key: formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AppTextField(
+                controller: emailController,
+                hint: 'Email address',
+                icon: Icons.mail_outline_rounded,
+                validator: AppValidators.email,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.email],
+              ),
+              12.verticalSpace,
+              AppTextField(
+                controller: passwordController,
+                hint: 'Password (6+ characters)',
+                icon: Icons.lock_outline_rounded,
+                isPassword: true,
+                validator: AppValidators.newPassword,
+                textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.newPassword],
+              ),
+              12.verticalSpace,
+              AppTextField(
+                controller: confirmController,
+                hint: 'Confirm password',
+                icon: Icons.lock_outline_rounded,
+                isPassword: true,
+                validator: AppValidators.confirmPassword(passwordController),
+                textInputAction: TextInputAction.done,
+                autofillHints: const [AutofillHints.newPassword],
+                onFieldSubmitted: (_) => submit(),
+              ),
+              12.verticalSpace,
+              const AuthErrorText(),
+              12.verticalSpace,
+              AuthSubmitButton(label: 'Create account', onPressed: submit),
+              16.verticalSpace,
+              const AuthOrDivider(),
+              16.verticalSpace,
+              AuthGoogleButton(
+                label: 'Sign up with Google',
+                onPressed: googleSignIn,
+              ),
+              const Spacer(),
+              AuthFooterLink(
+                prompt: 'Already have an account?',
+                actionLabel: 'Log in',
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
 }
