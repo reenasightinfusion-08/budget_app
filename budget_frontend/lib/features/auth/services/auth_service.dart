@@ -5,6 +5,8 @@ abstract class AuthService {
 
   Future<UserModel> signup({required String email, required String password});
 
+  Future<UserModel> googleSignIn();
+
   /// Starts a password reset for [email].
   ///
   /// Returns the code only when the service runs in demo mode and cannot send

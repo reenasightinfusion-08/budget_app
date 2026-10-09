@@ -15,7 +15,10 @@ class GlassBackButton extends StatelessWidget {
         shape: CircleBorder(side: BorderSide(color: AppColors.glassBorder, width: 1.w)),
         child: InkWell(
           customBorder: const CircleBorder(),
-          onTap: onPressed,
+          onTap: () {
+            FocusManager.instance.primaryFocus?.unfocus();
+            onPressed();
+          },
           child: SizedBox.square(
             dimension: 44.r,
             child: Icon(Icons.chevron_left_rounded, size: 26.r, color: AppColors.onAccent),

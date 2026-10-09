@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:budget_frontend/app/app_controllers.dart';
 import 'package:budget_frontend/app/app_routes.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
@@ -10,6 +9,7 @@ import 'package:budget_frontend/core/utils/app_validators.dart';
 import 'package:budget_frontend/core/widgets/app_button.dart';
 import 'package:budget_frontend/core/widgets/app_text_field.dart';
 import 'package:budget_frontend/core/widgets/sheet_scaffold.dart';
+import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
 import 'package:budget_frontend/features/setup/widgets/setup_budget_card.dart';
 import 'package:budget_frontend/features/setup/widgets/setup_quick_amounts.dart';
 
@@ -32,17 +32,19 @@ class SetupScreenState extends State<SetupScreen> {
     super.dispose();
   }
 
-  void onBudgetChanged(String text) =>
-      setupController.setBudget(AppFormatters.parseDigits(text));
+  void onBudgetChanged(String text) {
+    final amount = AppFormatters.parseDigits(text);
+    context.read<SetupBloc>().add(SetupBudgetAmountChanged(amount));
+  }
 
   void selectAmount(int amount) {
     budgetController.text = AppFormatters.groupDigits(amount);
-    setupController.setBudget(amount);
+    context.read<SetupBloc>().add(SetupBudgetAmountChanged(amount));
   }
 
   void submit() {
     if (!formKey.currentState!.validate()) return;
-    setupController.completeSetup(name: nameController.text.trim());
+    context.read<SetupBloc>().add(SetupCompletedSubmitted(name: nameController.text.trim()));
     Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
   }
 

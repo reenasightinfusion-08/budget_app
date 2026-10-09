@@ -23,29 +23,36 @@ class SheetScaffold extends StatelessWidget {
   final VoidCallback? onBack;
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        backgroundColor: AppColors.accent,
-        body: Stack(
-          children: [
-            const Positioned.fill(child: SheetBackground()),
-            SafeArea(
-              bottom: false,
-              child: CustomScrollView(
-                slivers: [
-                  SliverFillRemaining(
-                    hasScrollBody: false,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        SheetHeader(title: title, subtitle: subtitle, onBack: onBack),
-                        Expanded(child: SheetSurface(child: child)),
-                      ],
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        behavior: HitTestBehavior.translucent,
+        child: Scaffold(
+          backgroundColor: AppColors.accent,
+          body: Stack(
+            children: [
+              const Positioned.fill(child: SheetBackground()),
+              SafeArea(
+                bottom: false,
+                child: CustomScrollView(
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  slivers: [
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: IntrinsicHeight( 
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            SheetHeader(title: title, subtitle: subtitle, onBack: onBack),
+                            Expanded(child: SheetSurface(child: child)),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
 }

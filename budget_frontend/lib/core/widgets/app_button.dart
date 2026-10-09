@@ -34,7 +34,12 @@ class AppButton extends StatelessWidget {
             borderRadius: AppBorderRadius.lg,
           ),
           child: InkWell(
-            onTap: canTap ? onPressed : null,
+            onTap: canTap
+                ? () {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    onPressed?.call();
+                  }
+                : null,
             borderRadius: AppBorderRadius.lg,
             child: Container(
               height: 62.h,

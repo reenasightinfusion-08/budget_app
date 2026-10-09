@@ -29,7 +29,10 @@ class SetupQuickAmountChip extends StatelessWidget {
             border: isSelected ? null : Border.all(color: AppColors.line, width: 1.5.w),
           ),
           child: InkWell(
-            onTap: onPressed,
+            onTap: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+              onPressed();
+            },
             borderRadius: AppBorderRadius.pill,
             child: SizedBox(
               height: 42.h,

@@ -40,6 +40,12 @@ class MockAuthService implements AuthService {
   }
 
   @override
+  Future<UserModel> googleSignIn() async {
+    await simulateLatency();
+    return UserModel(email: 'google.user@example.com');
+  }
+
+  @override
   Future<String?> requestPasswordReset(String email) async {
     await simulateLatency();
     final key = normalize(email);

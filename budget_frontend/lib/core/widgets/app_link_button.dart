@@ -12,7 +12,10 @@ class AppLinkButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => InkWell(
-        onTap: onPressed,
+        onTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+          onPressed();
+        },
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 14.h, horizontal: 2.w),
           child: Text(label, style: AppTextStyle.link),
