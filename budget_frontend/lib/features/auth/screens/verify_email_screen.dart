@@ -97,6 +97,7 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 child: TextField(
                   controller: otpController,
                   focusNode: focusNode,
+                  autofocus: true,
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.done,
                   autofillHints: const [AutofillHints.oneTimeCode],

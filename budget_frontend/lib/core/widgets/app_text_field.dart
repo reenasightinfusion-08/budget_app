@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 
 class AppTextField extends StatefulWidget {
@@ -81,7 +82,7 @@ class AppTextFieldState extends State<AppTextField> {
                 tooltip: isObscured ? 'Show password' : 'Hide password',
                 color: AppColors.muted,
                 icon: Icon(
-                  isObscured ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                  isObscured ? AppIcons.visibility : AppIcons.visibilityOff,
                   size: 20.r,
                 ),
               )

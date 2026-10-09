@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 
 class AuthGoogleButton extends StatelessWidget {
@@ -42,7 +43,7 @@ class AuthGoogleButton extends StatelessWidget {
                     width: 22.r,
                     height: 22.r,
                     errorBuilder: (context, error, stackTrace) => Icon(
-                      Icons.g_mobiledata_rounded,
+                      AppIcons.google,
                       size: 28.r,
                       color: AppColors.ink,
                     ),

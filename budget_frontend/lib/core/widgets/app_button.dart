@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_gradients.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/widgets/app_loader.dart';
 
@@ -60,7 +61,7 @@ class AppButton extends StatelessWidget {
                       children: [
                         if (isLoading) const AppLoader(size: 20, color: AppColors.onPop),
                         if (!isLoading)
-                          Icon(Icons.chevron_right_rounded, size: 26.r, color: AppColors.onPop),
+                          Icon(AppIcons.chevronRight, size: 26.r, color: AppColors.onPop),
                       ],
                     ),
                   ),

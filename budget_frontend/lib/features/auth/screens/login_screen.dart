@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/app/app_routes.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/utils/app_validators.dart';
 import 'package:budget_frontend/core/widgets/app_link_button.dart';
 import 'package:budget_frontend/core/widgets/app_text_field.dart';
@@ -87,7 +88,7 @@ class LoginScreenState extends State<LoginScreen> {
               AppTextField(
                 controller: emailController,
                 hint: 'Email address',
-                icon: Icons.mail_outline_rounded,
+                icon: AppIcons.mail,
                 validator: AppValidators.email,
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
@@ -97,7 +98,7 @@ class LoginScreenState extends State<LoginScreen> {
               AppTextField(
                 controller: passwordController,
                 hint: 'Password',
-                icon: Icons.lock_outline_rounded,
+                icon: AppIcons.lock,
                 isPassword: true,
                 validator: AppValidators.loginPassword,
                 textInputAction: TextInputAction.done,

@@ -8,6 +8,7 @@ import 'package:budget_frontend/features/auth/screens/signup_screen.dart';
 import 'package:budget_frontend/features/auth/screens/splash_screen.dart';
 import 'package:budget_frontend/features/auth/screens/verify_email_screen.dart';
 import 'package:budget_frontend/features/home/screens/home_screen.dart';
+import 'package:budget_frontend/features/profile/screens/profile_screen.dart';
 import 'package:budget_frontend/features/setup/screens/setup_screen.dart';
 
 class AppRoutes {
@@ -19,6 +20,7 @@ class AppRoutes {
   static const String verifyEmail = '/verify-email';
   static const String setup = '/setup';
   static const String home = '/home';
+  static const String profile = '/profile';
 
   static String afterAuth(UserModel? user) =>
       (user?.onboardingComplete ?? false) ? home : setup;
@@ -32,5 +34,6 @@ class AppRoutes {
     verifyEmail: (_) => const VerifyEmailScreen(),
     setup: (_) => const SetupScreen(),
     home: (_) => const HomeScreen(),
+    profile: (_) => const ProfileScreen(),
   };
 }

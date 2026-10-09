@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
 
 class GlassBackButton extends StatelessWidget {
   const GlassBackButton({super.key, required this.onPressed});
@@ -21,7 +22,7 @@ class GlassBackButton extends StatelessWidget {
           },
           child: SizedBox.square(
             dimension: 44.r,
-            child: Icon(Icons.chevron_left_rounded, size: 26.r, color: AppColors.onAccent),
+            child: Icon(AppIcons.chevronLeft, size: 26.r, color: AppColors.onAccent),
           ),
         ),
       );

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/app/app_routes.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/utils/app_validators.dart';
@@ -71,7 +72,7 @@ class SetupScreenState extends State<SetupScreen> {
               AppTextField(
                 controller: nameController,
                 hint: 'Your first name',
-                icon: Icons.person_outline_rounded,
+                icon: AppIcons.personOutline,
                 validator: AppValidators.name,
                 textInputAction: TextInputAction.next,
                 textCapitalization: TextCapitalization.words,
