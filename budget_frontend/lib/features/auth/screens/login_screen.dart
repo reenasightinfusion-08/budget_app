@@ -11,6 +11,7 @@ import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_error_text.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_footer_link.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_google_button.dart';
+import 'package:budget_frontend/features/auth/widgets/auth_google_error_text.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_notice_banner.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_or_divider.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_submit_button.dart';
@@ -120,6 +121,7 @@ class LoginScreenState extends State<LoginScreen> {
                 label: 'Log in with Google',
                 onPressed: googleSignIn,
               ),
+              const AuthGoogleErrorText(),
               const Spacer(),
               AuthFooterLink(
                 prompt: 'New here?',

@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { jwtSecret, env } = require('../config');
+const { sendCode } = require('./mailer');
 
 const CODE_TTL_MS = 15 * 60 * 1000;
 const RESEND_COOLDOWN_MS = 30 * 1000;
@@ -12,11 +13,12 @@ const signToken = (user) => jwt.sign({ id: user._id }, jwtSecret, { expiresIn: '
 const hashPassword = (password) => bcrypt.hash(password, 12);
 const checkPassword = (password, hash) => (hash ? bcrypt.compare(password, hash) : false);
 
-// No mail provider yet: outside production (or with EXPOSE_DEV_CODE=true) the code is
-// returned in the response so it can be used without an email.
-const deliverCode = (email, kind, code) => {
+// Emails the code. Only when no email could be sent (SMTP missing or failing) is the code
+// handed back for the API response, and never in production unless EXPOSE_DEV_CODE=true.
+const deliverCode = async (email, purpose, code) => {
+  const sent = await sendCode(email, code, purpose);
+  if (sent) return undefined;
   if (env === 'production' && process.env.EXPOSE_DEV_CODE !== 'true') return undefined;
-  console.log(`[${kind}] ${email} -> ${code}`);
   return code;
 };
 

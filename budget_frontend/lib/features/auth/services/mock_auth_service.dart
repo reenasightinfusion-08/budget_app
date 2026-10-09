@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:budget_frontend/features/auth/models/user_model.dart';
 import 'package:budget_frontend/features/auth/services/auth_exception.dart';
 import 'package:budget_frontend/features/auth/services/auth_service.dart';
+import 'package:budget_frontend/features/auth/services/google_auth_service.dart';
 
 /// In-memory [AuthService] that lets the auth screens work before the backend
 /// has auth endpoints. Accounts disappear when the app restarts.
@@ -10,6 +11,7 @@ class MockAuthService implements AuthService {
   final Map<String, String> passwords = {};
   final Map<String, String> resetCodes = {};
   final Random random = Random();
+  final GoogleAuthService googleAuth = GoogleAuthService();
 
   String normalize(String email) => email.trim().toLowerCase();
 
@@ -40,10 +42,7 @@ class MockAuthService implements AuthService {
   }
 
   @override
-  Future<UserModel> googleSignIn() async {
-    await simulateLatency();
-    return UserModel(email: 'google.user@example.com');
-  }
+  Future<UserModel> googleSignIn() => googleAuth.signIn();
 
   @override
   Future<String?> requestPasswordReset(String email) async {

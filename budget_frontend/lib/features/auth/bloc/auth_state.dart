@@ -11,6 +11,7 @@ class AuthState {
     this.user,
     this.isLoading = false,
     this.errorMessage,
+    this.googleErrorMessage,
     this.resetEmail = '',
     this.demoCode,
     this.successMessage,
@@ -20,6 +21,7 @@ class AuthState {
   final UserModel? user;
   final bool isLoading;
   final String? errorMessage;
+  final String? googleErrorMessage;
   final String resetEmail;
   final String? demoCode;
   final String? successMessage;
@@ -29,6 +31,7 @@ class AuthState {
     UserModel? user,
     bool? isLoading,
     String? errorMessage,
+    String? googleErrorMessage,
     bool clearError = false,
     String? resetEmail,
     String? demoCode,
@@ -41,6 +44,7 @@ class AuthState {
       user: user ?? this.user,
       isLoading: isLoading ?? this.isLoading,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      googleErrorMessage: clearError ? null : (googleErrorMessage ?? this.googleErrorMessage),
       resetEmail: resetEmail ?? this.resetEmail,
       demoCode: clearDemoCode ? null : (demoCode ?? this.demoCode),
       successMessage: clearSuccessMessage ? null : (successMessage ?? this.successMessage),

@@ -37,6 +37,8 @@ dependencies:
   flutter_screenutil: ^5.9.3
   google_fonts: ^6.3.0
   flutter_bloc: ^9.1.1
+  google_sign_in: ^7.0.0
+  http: ^1.2.0
 
 dev_dependencies:
   flutter_test:

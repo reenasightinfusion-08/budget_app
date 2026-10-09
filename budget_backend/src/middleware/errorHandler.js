@@ -17,5 +17,5 @@ module.exports = (err, req, res, next) => {
   }
 
   if (status === 500) console.error(err);
-  res.status(status).json({ success: false, message });
+  res.status(status).json({ success: false, message, data: null });
 };

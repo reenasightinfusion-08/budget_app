@@ -10,6 +10,7 @@ import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_error_text.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_footer_link.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_google_button.dart';
+import 'package:budget_frontend/features/auth/widgets/auth_google_error_text.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_or_divider.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_submit_button.dart';
 
@@ -113,6 +114,7 @@ class SignupScreenState extends State<SignupScreen> {
                   label: 'Sign up with Google',
                   onPressed: googleSignIn,
                 ),
+                const AuthGoogleErrorText(),
                 const Spacer(),
                 AuthFooterLink(
                   prompt: 'Already have an account?',

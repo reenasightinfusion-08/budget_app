@@ -94,14 +94,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } on AuthException catch (e) {
       emit(state.copyWith(
         status: AuthStatus.unauthenticated,
-        errorMessage: e.message,
+        googleErrorMessage: e.message,
         isLoading: false,
       ));
     } catch (e, stack) {
       debugPrint('AuthBloc googleSignIn error: $e\n$stack');
       emit(state.copyWith(
         status: AuthStatus.unauthenticated,
-        errorMessage: 'Something went wrong. Please try again.',
+        googleErrorMessage: 'Something went wrong. Please try again.',
         isLoading: false,
       ));
     }
@@ -190,7 +190,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthErrorCleared event,
     Emitter<AuthState> emit,
   ) {
-    if (state.errorMessage == null) return;
+    if (state.errorMessage == null && state.googleErrorMessage == null) return;
     emit(state.copyWith(clearError: true));
   }
 }

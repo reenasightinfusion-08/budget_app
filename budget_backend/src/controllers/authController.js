@@ -1,3 +1,4 @@
+const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const asyncHandler = require('../utils/asyncHandler');
 const httpError = require('../utils/httpError');
@@ -6,6 +7,12 @@ const {
   newCode, signToken, hashPassword, checkPassword, deliverCode,
 } = require('../services/codes');
 const { publicUser } = require('./userController');
+
+const googleClient = new OAuth2Client();
+// Comma-separated OAuth client IDs the app's ID tokens may be issued for (the Web client ID first).
+const googleAudiences = () =>
+  String(process.env.GOOGLE_CLIENT_IDS || process.env.GOOGLE_CLIENT_ID || '')
+    .split(',').map((id) => id.trim()).filter(Boolean);
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -31,7 +38,7 @@ const issueVerifyCode = async (user) => {
   user.lastCodeSentAt = new Date();
   user.codeAttempts = 0;
   await user.save();
-  return deliverCode(user.email, 'verify', code);
+  return await deliverCode(user.email, 'verify', code);
 };
 
 // Compares a submitted code; counts wrong tries and kills the code at MAX_ATTEMPTS.
@@ -105,7 +112,7 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     user.lastCodeSentAt = new Date();
     user.codeAttempts = 0;
     await user.save();
-    devCode = deliverCode(email, 'reset', code);
+    devCode = await deliverCode(email, 'reset', code);
   }
   res.json({ success: true, message: 'If the email is registered, a reset code was sent', data: { devCode } });
 });
@@ -140,4 +147,37 @@ exports.changePassword = asyncHandler(async (req, res) => {
   user.passwordHash = await hashPassword(newPassword);
   await user.save();
   res.json({ success: true, message: 'Password changed', data: null });
+});
+
+exports.google = asyncHandler(async (req, res) => {
+  const idToken = String(req.body.idToken || '');
+  if (!idToken) throw httpError(400, 'Google ID token is required');
+  if (!googleAudiences().length) throw httpError(500, 'Google login is not configured');
+
+  const ticket = await googleClient
+    .verifyIdToken({ idToken, audience: googleAudiences() })
+    .catch(() => { throw httpError(401, 'Google sign-in failed. Please try again.'); });
+  const { sub, email, name, picture, email_verified: emailVerified } = ticket.getPayload();
+  if (!email || !emailVerified) throw httpError(401, 'Google email is not verified');
+
+  let user = await User.findOne({ $or: [{ googleId: sub }, { email: email.toLowerCase() }] });
+  if (user && user.googleId && user.googleId !== sub) {
+    throw httpError(409, 'This email is linked to a different Google account');
+  }
+  const isNew = !user;
+  if (!user) user = new User({ email });
+
+  user.googleId = sub;
+  user.isVerified = true;
+  user.verifyCode = null;
+  user.verifyCodeExpires = null;
+  if (!user.photoUrl && picture) user.photoUrl = picture;
+  if (!user.name && name) user.name = name.slice(0, 24);
+  await user.save();
+
+  res.status(isNew ? 201 : 200).json({
+    success: true,
+    message: isNew ? 'Account created' : 'Logged in',
+    data: { token: signToken(user), user: publicUser(user), isNewUser: isNew },
+  });
 });

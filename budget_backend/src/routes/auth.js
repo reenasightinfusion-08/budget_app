@@ -8,6 +8,7 @@ router.post('/signup', auth.signup);
 router.post('/verify-email', auth.verifyEmail);
 router.post('/resend-code', auth.resendCode);
 router.post('/login', auth.login);
+router.post('/google', auth.google);
 router.post('/forgot-password', auth.forgotPassword);
 router.post('/verify-reset-code', auth.verifyResetCode);
 router.post('/reset-password', auth.resetPassword);
