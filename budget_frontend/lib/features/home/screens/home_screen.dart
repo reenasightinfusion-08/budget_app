@@ -10,6 +10,8 @@ import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/home/screens/home_tab_screen.dart';
 import 'package:budget_frontend/features/home/widgets/floating_bottom_nav_bar.dart';
 import 'package:budget_frontend/features/home/widgets/tab_page_transition.dart';
+import 'package:budget_frontend/features/insights/screens/insights_screen.dart';
+import 'package:budget_frontend/features/wallet/screens/wallet_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -84,40 +86,38 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       },
       child: Scaffold(
-        body: TabPageTransition(
-          index: _selectedIndex,
+        body: Stack(
           children: [
-            const HomeTabScreen(),
-            _buildPlaceholderTab(
-              'Insights',
-              'Track your spending and income trends over time.',
-              AppIcons.analytics,
+            TabPageTransition(
+              index: _selectedIndex,
+              children: [
+                const HomeTabScreen(),
+                const InsightsScreen(),
+                const WalletScreen(),
+                _buildPlaceholderTab(
+                  'Savings',
+                  'Track your savings goals and piggy bank.',
+                  AppIcons.savings,
+                ),
+              ],
             ),
-            _buildPlaceholderTab(
-              'Wallet & Accounts',
-              'Manage your connected bank accounts and cards.',
-              AppIcons.wallet,
-            ),
-            _buildPlaceholderTab(
-              'Savings',
-              'Track your savings goals and piggy bank.',
-              AppIcons.savings,
+            Positioned(
+              left: 40.w,
+              right: 40.w,
+              bottom: 16.h,
+              child: SafeArea(
+                top: false,
+                child: FloatingBottomNavBar(
+                  selectedIndex: _selectedIndex,
+                  onTabSelected: (index) {
+                    setState(() {
+                      _selectedIndex = index;
+                    });
+                  },
+                ),
+              ),
             ),
           ],
-        ),
-        bottomNavigationBar: SafeArea(
-          top: false,
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(40.w, 0, 40.w, 16.h),
-            child: FloatingBottomNavBar(
-              selectedIndex: _selectedIndex,
-              onTabSelected: (index) {
-                setState(() {
-                  _selectedIndex = index;
-                });
-              },
-            ),
-          ),
         ),
       ),
     );

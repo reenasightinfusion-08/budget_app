@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import 'package:budget_frontend/core/constants/app_config.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/features/auth/models/user_model.dart';
 import 'package:budget_frontend/features/setup/models/profile_setup_model.dart';
@@ -23,6 +24,8 @@ class SetupState {
   final String? errorMessage;
 
   bool get isComplete => profile != null;
+
+  int get effectiveBudget => budgetAmount > 0 ? budgetAmount : AppConfig.defaultMonthlyBudget;
 
   String? get dailyAllowanceLabel => budgetAmount > 0
       ? '${AppFormatters.rupees((budgetAmount / daysInMonth).round())} a day'

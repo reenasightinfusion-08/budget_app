@@ -131,4 +131,24 @@ class AppTextStyle {
 
   static TextStyle get toggleSubtitle =>
       GoogleFonts.dmSans(fontSize: 12.sp, height: 1.3, color: AppColors.muted);
+
+  static TextStyle get screenTitle => GoogleFonts.outfit(
+    fontSize: 30.sp,
+    fontWeight: FontWeight.w700,
+    letterSpacing: -0.6,
+    color: AppColors.ink,
+  );
+
+  static TextStyle get cardTitle => GoogleFonts.outfit(
+    fontSize: 18.sp,
+    fontWeight: FontWeight.w600,
+    letterSpacing: -0.2,
+    color: AppColors.ink,
+  );
+
+  static TextStyle get dialogTitle => GoogleFonts.outfit(
+    fontSize: 20.sp,
+    fontWeight: FontWeight.w700,
+    color: AppColors.ink,
+  );
 }

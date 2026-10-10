@@ -6,6 +6,7 @@ import 'package:budget_frontend/app/app_routes.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/home/widgets/account_action_button.dart';
@@ -175,7 +176,7 @@ class HomeTabScreen extends StatelessWidget {
 
     return SafeArea(
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 22.w, vertical: 18.h),
+        padding: EdgeInsets.fromLTRB(22.w, 18.h, 22.w, AppLayout.navBarClearance.h),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

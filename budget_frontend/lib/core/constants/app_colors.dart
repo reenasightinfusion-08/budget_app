@@ -23,4 +23,14 @@ class AppColors {
   static const Color glassFill = Color(0x24FFFFFF);
   static const Color glassBorder = Color(0x42FFFFFF);
   static const Color sheetShadow = Color(0x66000000);
+  static const Color popSoft = Color(0xFFE3EDFB);
+  static const Color popDeep = Color(0xFF4375B5);
+  static const Color catFood = Color(0xFFE8913A);
+  static const Color catBills = Color(0xFF5B6CE0);
+  static const Color catTravel = Color(0xFF2C9CB8);
+  static const Color catShopping = Color(0xFFD9645A);
+  static const Color catHome = Color(0xFF8E63D2);
+  static const Color catHealth = Color(0xFF2E9A6E);
+  static const Color catFun = Color(0xFFD2599B);
+  static const Color catOther = Color(0xFF868C96);
 }

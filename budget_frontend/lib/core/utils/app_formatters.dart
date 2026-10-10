@@ -11,5 +11,20 @@ class AppFormatters {
 
   static String rupees(int value) => '₹${groupDigits(value)}';
 
+  static String compactRupees(num value) {
+    if (value < 1000) return '₹${value.round()}';
+    final inThousands = value / 1000;
+    return '₹${inThousands.toStringAsFixed(inThousands % 1 == 0 ? 0 : 1)}k';
+  }
+
+  static const List<String> monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
+  ];
+
+  static String monthName(int month) => monthNames[month - 1];
+
+  static String monthShort(int month) => monthName(month).substring(0, 3);
+
   static int parseDigits(String text) => int.tryParse(text.replaceAll(RegExp(r'\D'), '')) ?? 0;
 }

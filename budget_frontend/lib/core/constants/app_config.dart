@@ -1,6 +1,9 @@
 class AppConfig {
   const AppConfig._();
 
+  /// Budget assumed until the user sets one; also the baseline the sample data is scaled from.
+  static const int defaultMonthlyBudget = 30000;
+
   static const String apiBaseUrl = 'https://budgetbackend-mu.vercel.app/api';
 
   /// Web OAuth client ID. Must be one of the IDs in the backend's GOOGLE_CLIENT_IDS.
