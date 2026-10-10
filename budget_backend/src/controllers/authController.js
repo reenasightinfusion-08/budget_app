@@ -54,6 +54,9 @@ const checkCode = async (user, field, expiresField, submitted) => {
   }
 };
 
+// `data` is null once a real email goes out; only the dev fallback (no SMTP, not production) returns the code.
+const codeData = (devCode) => (devCode ? { devCode } : null);
+
 exports.signup = asyncHandler(async (req, res) => {
   const email = readEmail(req.body);
   const password = readPassword(req.body.password);
@@ -65,7 +68,7 @@ exports.signup = asyncHandler(async (req, res) => {
 
   user.passwordHash = await hashPassword(password);
   const devCode = await issueVerifyCode(user);
-  res.status(201).json({ success: true, message: 'Verification code sent', data: { email, devCode } });
+  res.status(201).json({ success: true, message: 'Verification code sent', data: codeData(devCode) });
 });
 
 exports.verifyEmail = asyncHandler(async (req, res) => {
@@ -88,7 +91,7 @@ exports.resendCode = asyncHandler(async (req, res) => {
   if (cooldownLeft(user) > 0) throw httpError(429, 'Wait 30 seconds before requesting another code');
 
   const devCode = await issueVerifyCode(user);
-  res.json({ success: true, message: 'Verification code sent', data: { devCode } });
+  res.json({ success: true, message: 'Verification code sent', data: codeData(devCode) });
 });
 
 exports.login = asyncHandler(async (req, res) => {
@@ -114,7 +117,7 @@ exports.forgotPassword = asyncHandler(async (req, res) => {
     await user.save();
     devCode = await deliverCode(email, 'reset', code);
   }
-  res.json({ success: true, message: 'If the email is registered, a reset code was sent', data: { devCode } });
+  res.json({ success: true, message: 'If the email is registered, a reset code was sent', data: codeData(devCode) });
 });
 
 exports.verifyResetCode = asyncHandler(async (req, res) => {

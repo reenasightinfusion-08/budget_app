@@ -47,12 +47,8 @@ const auth = [{ bearerAuth: [] }];
 const serverErr = err('Unhandled server error', 'Internal server error');
 const unauthorized = err('Missing, invalid or expired token', 'Not authorized');
 
-const devCodeProp = {
-  type: 'string',
-  description:
-    'Only present when the server could not send a real email (SMTP not configured) and is not in production. Never returned once email sending works.',
-  example: '482913',
-};
+const devNote =
+  ' `data` is always `null`. The one exception is local development without SMTP configured, where it is `{ devCode }` so you can still test.';
 
 const sessionData = {
   type: 'object',
@@ -83,6 +79,7 @@ module.exports = {
     version: '1.0.0',
     description:
       'Every response uses the envelope `{ success, message, data }`. Errors return `success: false` and `data: null`.\n\n' +
+      '**`data` is `null` for anything that only acts** (send a code, reset or change a password, delete the account). It only carries a value when the caller needs one back: the session token and user from login, verify-email and Google, the user from `/users/me`, and lists.\n\n' +
       '**Money** is whole paise (₹250.50 = `25050`). **Days** are `"YYYY-MM-DD"` strings.\n\n' +
       '**Auth:** log in (or verify your email) to get a token, click **Authorize** and paste it. Endpoints with a lock icon need it.\n\n' +
       '**Codes:** 6 digits, valid 15 minutes, 5 wrong tries, 30 seconds between requests for a new one.',
@@ -91,7 +88,7 @@ module.exports = {
     { url: 'https://budgetbackend-mu.vercel.app', description: 'Production' },
     { url: 'http://localhost:3000', description: 'Local' },
   ],
-  tags: [{ name: 'Health' }, { name: 'Auth' }, { name: 'Users' }, { name: 'Categories' }],
+  tags: [{ name: 'Health' }, { name: 'Auth' }, { name: 'Users' }, { name: 'Categories' }, { name: 'Transactions' }],
   components: {
     securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } },
     schemas: {
@@ -112,6 +109,30 @@ module.exports = {
           icon: { type: 'string', description: 'Icon key the app maps to an icon.', example: 'food' },
           color: { type: 'string', example: '#E8913A' },
           sortOrder: { type: 'integer', example: 1 },
+        },
+      },
+      Transaction: {
+        type: 'object',
+        properties: {
+          _id: { type: 'string', example: '6abde240bc24b8213063b0e3' },
+          type: { type: 'string', enum: ['income', 'expense'], example: 'expense' },
+          amount: { type: 'integer', minimum: 1, description: 'Paise, always positive. `type` gives the direction.', example: 180000 },
+          category: { type: 'string', description: 'A category `key` of the same type.', example: 'food' },
+          note: { type: 'string', maxLength: 40, example: 'DMart Ready' },
+          date: { type: 'string', description: 'The user\'s own calendar day.', example: '2026-10-03' },
+          source: { type: 'string', enum: ['manual', 'text', 'voice', 'receipt', 'statement'], example: 'manual' },
+          createdAt: { type: 'string', format: 'date-time' },
+        },
+      },
+      TransactionInput: {
+        type: 'object',
+        required: ['type', 'amount', 'category', 'date'],
+        properties: {
+          type: { type: 'string', enum: ['income', 'expense'], example: 'expense' },
+          amount: { type: 'integer', minimum: 1, description: 'Whole paise (₹250.50 = 25050).', example: 180000 },
+          category: { type: 'string', description: 'An active category key of the same type. See `GET /api/categories`.', example: 'food' },
+          note: { type: 'string', maxLength: 40, example: 'DMart Ready' },
+          date: { type: 'string', description: 'YYYY-MM-DD. Cannot be after the user\'s today.', example: '2026-10-03' },
         },
       },
       User: {
@@ -148,10 +169,7 @@ module.exports = {
         tags: ['Health'],
         summary: 'Server health check',
         responses: {
-          200: {
-            description: 'Server is up',
-            content: { 'application/json': { example: { status: 'ok' } } },
-          },
+          200: okResponse('Server is up', nullData, 'Server is running'),
         },
       },
     },
@@ -161,7 +179,7 @@ module.exports = {
         tags: ['Auth'],
         summary: 'Create an account and email a verification code',
         description:
-          'Creates an unverified user (or restarts an unverified one) and emails a 6-digit code. The user cannot log in until `/auth/verify-email` succeeds.',
+          'Creates an unverified user (or restarts an unverified one) and emails a 6-digit code. The user cannot log in until `/auth/verify-email` succeeds.' + devNote,
         requestBody: jsonBody(
           {
             type: 'object',
@@ -171,11 +189,7 @@ module.exports = {
           { email: 'user@example.com', password: 'secret123' },
         ),
         responses: {
-          201: okResponse(
-            'Code sent',
-            { type: 'object', properties: { email: emailProp, devCode: devCodeProp } },
-            'Verification code sent',
-          ),
+          201: okResponse('Code sent', nullData, 'Verification code sent'),
           400: err('Invalid email or password shorter than 8 characters', 'Password must be at least 8 characters'),
           409: err('A verified account already uses this email', 'Email already registered'),
           429: err('Asked for a new code less than 30 seconds ago', 'Wait 30 seconds before requesting another code'),
@@ -207,12 +221,13 @@ module.exports = {
       post: {
         tags: ['Auth'],
         summary: 'Send a new verification code',
+        description: 'Sends a fresh code. 30 seconds must pass since the last one.' + devNote,
         requestBody: jsonBody(
           { type: 'object', required: ['email'], properties: { email: emailProp } },
           { email: 'user@example.com' },
         ),
         responses: {
-          200: okResponse('Code sent', { type: 'object', properties: { devCode: devCodeProp } }, 'Verification code sent'),
+          200: okResponse('Code sent', nullData, 'Verification code sent'),
           404: err('No pending verification for this email', 'No pending verification for this email'),
           429: err('Asked less than 30 seconds ago', 'Wait 30 seconds before requesting another code'),
           500: serverErr,
@@ -285,17 +300,13 @@ module.exports = {
       post: {
         tags: ['Auth'],
         summary: 'Email a password reset code',
-        description: 'Always answers the same way, so it never reveals whether an email is registered.',
+        description: 'Always answers the same way, so it never reveals whether an email is registered.' + devNote,
         requestBody: jsonBody(
           { type: 'object', required: ['email'], properties: { email: emailProp } },
           { email: 'user@example.com' },
         ),
         responses: {
-          200: okResponse(
-            'Request accepted',
-            { type: 'object', properties: { devCode: devCodeProp } },
-            'If the email is registered, a reset code was sent',
-          ),
+          200: okResponse('Request accepted', nullData, 'If the email is registered, a reset code was sent'),
           400: err('Invalid email', 'Valid email is required'),
           500: serverErr,
         },
@@ -407,7 +418,7 @@ module.exports = {
       delete: {
         tags: ['Users'],
         summary: 'Delete the account',
-        description: 'Permanently deletes the user. Their transactions, goals and imports are removed too once those exist.',
+        description: 'Permanently deletes the user together with their transactions and Smart add runs (goals too, once those exist).',
         security: auth,
         responses: {
           200: okResponse('Account deleted', nullData, 'Account deleted'),
@@ -431,6 +442,199 @@ module.exports = {
             'OK',
           ),
           401: unauthorized,
+          500: serverErr,
+        },
+      },
+    },
+
+    '/api/transactions/summary': {
+      get: {
+        tags: ['Transactions'],
+        summary: 'Everything Home, Insights and Budget need for one month',
+        description:
+          'The server returns raw totals and the app works out the rest (available to spend, per-day safe spend, pace, mood) using `monthlyBudget` and `categoryLimits` from `/users/me`. Nothing here is stored; it is computed from the transactions on every call. The app sends its own local month and today so the server never guesses the time zone.',
+        security: auth,
+        parameters: [
+          { name: 'month', in: 'query', required: true, schema: { type: 'string', example: '2026-10' }, description: 'YYYY-MM' },
+          { name: 'today', in: 'query', required: true, schema: { type: 'string', example: '2026-10-07' }, description: 'The user\'s local day, YYYY-MM-DD' },
+        ],
+        responses: {
+          200: okResponse(
+            'Month summary',
+            {
+              type: 'object',
+              properties: {
+                month: { type: 'string', example: '2026-10' },
+                today: { type: 'string', example: '2026-10-07' },
+                income: { type: 'integer', description: 'Paise earned this month.', example: 5200000 },
+                expense: { type: 'integer', description: 'Paise spent this month.', example: 904000 },
+                byCategory: {
+                  type: 'array',
+                  description: 'This month\'s totals per type and category. Feeds Top spend, Your plan and Where it went.',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      type: { type: 'string', enum: ['income', 'expense'] },
+                      category: { type: 'string', example: 'bills' },
+                      total: { type: 'integer', example: 320000 },
+                    },
+                  },
+                },
+                weekStart: { type: 'string', description: 'Monday of the week that holds `today`.', example: '2026-10-05' },
+                daily: {
+                  type: 'array',
+                  description: 'Spend per day (days with no spend are left out). Covers the month and the current week, so it feeds both the week bars and the pace chart.',
+                  items: {
+                    type: 'object',
+                    properties: { date: { type: 'string', example: '2026-10-05' }, spent: { type: 'integer', example: 120000 } },
+                  },
+                },
+                previousMonthSoFar: {
+                  type: 'integer',
+                  description: 'Spend last month over the same days that have passed this month, for "7% less than Sep".',
+                  example: 977000,
+                },
+                months: {
+                  type: 'array',
+                  description: 'The last 6 months ending at `month`, oldest first, zeros filled in. Feeds Insights.',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      month: { type: 'string', example: '2026-09' },
+                      income: { type: 'integer', example: 5200000 },
+                      expense: { type: 'integer', example: 2614000 },
+                    },
+                  },
+                },
+                recent: { type: 'array', description: 'The 4 newest entries.', items: { $ref: '#/components/schemas/Transaction' } },
+                counts: {
+                  type: 'object',
+                  description: 'For the Profile screen.',
+                  properties: { entries: { type: 'integer', example: 93 }, months: { type: 'integer', example: 6 } },
+                },
+              },
+            },
+            'OK',
+          ),
+          400: err('Missing or invalid month or today', 'month must be YYYY-MM'),
+          401: unauthorized,
+          500: serverErr,
+        },
+      },
+    },
+
+    '/api/transactions': {
+      get: {
+        tags: ['Transactions'],
+        summary: 'List transactions, newest first (History)',
+        description:
+          'Newest day first, and within a day newest entry first. `q` searches notes and category labels, so "side" finds entries in the Side work category. Paging is by day: pass the returned `nextBefore` as `before` to get older days. A day is never split across pages, so a page can hold a few more than `limit`. `nextBefore` is `null` when there is nothing older.',
+        security: auth,
+        parameters: [
+          { name: 'type', in: 'query', schema: { type: 'string', enum: ['income', 'expense'] }, description: 'Only money in or only money out.' },
+          { name: 'q', in: 'query', schema: { type: 'string', example: 'fuel' }, description: 'Search notes and category labels.' },
+          { name: 'before', in: 'query', schema: { type: 'string', example: '2026-10-05' }, description: 'Only days earlier than this one (YYYY-MM-DD).' },
+          { name: 'limit', in: 'query', schema: { type: 'integer', default: 50, minimum: 1, maximum: 100 }, description: 'Approximate page size.' },
+        ],
+        responses: {
+          200: okResponse(
+            'Transactions',
+            {
+              type: 'object',
+              properties: {
+                transactions: { type: 'array', items: { $ref: '#/components/schemas/Transaction' } },
+                nextBefore: { type: 'string', nullable: true, example: '2026-10-05' },
+              },
+            },
+            'OK',
+          ),
+          400: err('Invalid type or before', 'type must be income or expense'),
+          401: unauthorized,
+          500: serverErr,
+        },
+      },
+      post: {
+        tags: ['Transactions'],
+        summary: 'Add one spend or income (Add sheet)',
+        description:
+          'Saves one entry as `source: manual`. The category must be active and of the same type (an income cannot use `food`). `date` cannot be after the user\'s today: send `today` so the server knows it, otherwise it only blocks days that are in the future everywhere on Earth. Refetch the summary afterwards.',
+        security: auth,
+        requestBody: jsonBody(
+          {
+            type: 'object',
+            required: ['type', 'amount', 'category', 'date'],
+            properties: {
+              type: { type: 'string', enum: ['income', 'expense'] },
+              amount: { type: 'integer', minimum: 1, description: 'Whole paise.' },
+              category: { type: 'string' },
+              note: { type: 'string', maxLength: 40 },
+              date: { type: 'string', description: 'YYYY-MM-DD' },
+              today: { type: 'string', description: 'The user\'s local day, YYYY-MM-DD. Used to refuse future dates.' },
+            },
+          },
+          { type: 'expense', amount: 180000, category: 'food', note: 'DMart Ready', date: '2026-10-03', today: '2026-10-07' },
+        ),
+        responses: {
+          201: okResponse('Transaction added', nullData, 'Transaction added'),
+          400: err(
+            'Amount not a whole number above 0, unknown category for the type, date in the future or not YYYY-MM-DD, or note over 40 characters',
+            'Unknown category for this type',
+          ),
+          401: unauthorized,
+          500: serverErr,
+        },
+      },
+    },
+
+    '/api/transactions/bulk': {
+      post: {
+        tags: ['Transactions'],
+        summary: 'Save the entries ticked on the Smart add review screen',
+        description:
+          'Adds up to 80 entries at once. If any entry is invalid, none are saved. With `importId`, the entries are saved with the right `source` (`receipt`, `statement`, `voice` or `text`) and that Smart add run is marked `saved` with its `savedCount`. Sending the same `importId` again returns 409, which also stops a double tap from adding everything twice. Without `importId` the entries are saved as `manual`.',
+        security: auth,
+        requestBody: jsonBody(
+          {
+            type: 'object',
+            required: ['entries'],
+            properties: {
+              importId: { type: 'string', description: 'The `importId` returned by Smart add.' },
+              today: { type: 'string', description: 'The user\'s local day, YYYY-MM-DD.' },
+              entries: { type: 'array', minItems: 1, maxItems: 80, items: { $ref: '#/components/schemas/TransactionInput' } },
+            },
+          },
+          {
+            importId: '6abbdc841ea5e7ce727ac7',
+            today: '2026-09-29',
+            entries: [
+              { type: 'expense', amount: 205000, category: 'shopping', note: 'Myntra', date: '2026-09-20' },
+              { type: 'expense', amount: 184000, category: 'food', note: 'BigBasket', date: '2026-09-24' },
+            ],
+          },
+        ),
+        responses: {
+          201: okResponse('Transactions added', nullData, '2 transactions added'),
+          400: err('Empty or too long list, or any invalid entry (nothing is saved)', 'Unknown category for this type'),
+          401: unauthorized,
+          404: err('No Smart add run with this id for this user', 'Smart add run not found'),
+          409: err('This run was already saved', 'This Smart add run was already saved'),
+          500: serverErr,
+        },
+      },
+    },
+
+    '/api/transactions/{id}': {
+      delete: {
+        tags: ['Transactions'],
+        summary: 'Delete one transaction (History)',
+        description: 'Only deletes an entry that belongs to the logged-in user. There is no edit: delete it and add it again.',
+        security: auth,
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', example: '6abde240bc24b8213063b0e3' } }],
+        responses: {
+          200: okResponse('Transaction deleted', nullData, 'Transaction deleted'),
+          400: err('The id is not a valid id', 'Invalid _id'),
+          401: unauthorized,
+          404: err('No such transaction for this user', 'Transaction not found'),
           500: serverErr,
         },
       },

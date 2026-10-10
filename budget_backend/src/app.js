@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
-  res.json({ status: 'ok', message: 'Budget API is running' });
+  res.json({ success: true, message: 'Budget API is running', data: null });
 });
 
 // API docs: UI loaded from a CDN because swagger-ui's bundled assets 404 on Vercel serverless.
@@ -26,6 +26,9 @@ app.get('/api/docs', (req, res) => {
 });
 
 app.use('/api', routes);
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: `Route not found: ${req.method} ${req.originalUrl}`, data: null });
+});
 app.use(errorHandler);
 
 module.exports = app;

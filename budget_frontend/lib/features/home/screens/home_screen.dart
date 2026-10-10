@@ -6,6 +6,7 @@ import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/features/home/screens/home_tab_screen.dart';
 import 'package:budget_frontend/features/home/widgets/floating_bottom_nav_bar.dart';
+import 'package:budget_frontend/features/home/widgets/tab_page_transition.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -60,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
+      body: TabPageTransition(
         index: _selectedIndex,
         children: [
           const HomeTabScreen(),
@@ -84,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: SafeArea(
         top: false,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(40.w, 0, 40.w, 16.h),
+          padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 16.h),
           child: FloatingBottomNavBar(
             selectedIndex: _selectedIndex,
             onTabSelected: (index) {
