@@ -30,7 +30,6 @@ class BudgetApp extends StatelessWidget {
           designSize: const Size(390, 844),
           minTextAdapt: true,
           builder: (context, child) => MaterialApp(
-            color: AppColors.fill,
             title: 'Budget',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light,

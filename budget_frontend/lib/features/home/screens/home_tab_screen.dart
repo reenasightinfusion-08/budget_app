@@ -9,7 +9,6 @@ import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
-import 'package:budget_frontend/features/home/widgets/account_action_button.dart';
 import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
 
 class HomeTabScreen extends StatelessWidget {
@@ -48,120 +47,7 @@ class HomeTabScreen extends StatelessWidget {
     return '$monthName ${now.year}';
   }
 
-  void _performLogout(BuildContext context) {
-    context.read<SetupBloc>().add(const SetupReset());
-    context.read<AuthBloc>().add(const AuthLogoutRequested());
-  }
 
-  void _performDeleteAccount(BuildContext context) {
-    context.read<SetupBloc>().add(const SetupReset());
-    context.read<AuthBloc>().add(const AuthDeleteAccountRequested());
-  }
-
-  void _showConfirmationDialog({
-    required BuildContext context,
-    required String title,
-    required String message,
-    required IconData icon,
-    required String confirmLabel,
-    required VoidCallback onConfirm,
-  }) {
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColors.surface,
-        surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: AppBorderRadius.lg,
-        ),
-        title: Row(
-          children: [
-            Container(
-              padding: EdgeInsets.all(8.r),
-              decoration: const BoxDecoration(
-                color: Color(0xFFFDE8E8),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                color: AppColors.error,
-                size: 20.sp,
-              ),
-            ),
-            12.horizontalSpace,
-            Text(
-              title,
-              style: AppTextStyle.title.copyWith(fontSize: 18.sp),
-            ),
-          ],
-        ),
-        content: Text(
-          message,
-          style: AppTextStyle.body.copyWith(
-            color: AppColors.muted,
-            fontSize: 14.sp,
-          ),
-        ),
-        actionsPadding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(
-              'Cancel',
-              style: AppTextStyle.fieldLabel.copyWith(
-                color: AppColors.muted,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.error,
-              foregroundColor: Colors.white,
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: AppBorderRadius.md,
-              ),
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-            ),
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              onConfirm();
-            },
-            child: Text(
-              confirmLabel,
-              style: AppTextStyle.fieldLabel.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _confirmLogout(BuildContext context) {
-    _showConfirmationDialog(
-      context: context,
-      title: 'Log out',
-      message: 'Are you sure you want to log out of your account?',
-      icon: AppIcons.logout,
-      confirmLabel: 'Log out',
-      onConfirm: () => _performLogout(context),
-    );
-  }
-
-  void _confirmDeleteAccount(BuildContext context) {
-    _showConfirmationDialog(
-      context: context,
-      title: 'Delete account',
-      message: 'Are you sure you want to delete your account? This action cannot be undone.',
-      icon: AppIcons.delete,
-      confirmLabel: 'Delete',
-      onConfirm: () => _performDeleteAccount(context),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -187,16 +73,22 @@ class HomeTabScreen extends StatelessWidget {
                     onTap: () =>
                         Navigator.of(context).pushNamed(AppRoutes.profile),
                     child: CircleAvatar(
-                      radius: 22.r,
-                      backgroundColor: AppColors.surface,
-                      foregroundColor: AppColors.accent,
+                      radius: 23.r,
+                      backgroundColor: AppColors.pop,
+                      foregroundColor: AppColors.ink
+                      ,
                       child: Text(
                         firstLetter,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20.sp,
-                          color: AppColors.accent,
+                        style: AppTextStyle.profileTitle.copyWith(
+                            color: AppColors.onPop,
+                            fontSize: 25,
+                            fontWeight: FontWeight.w500
                         ),
+                        // style: TextStyle(
+                        //   fontWeight: FontWeight.bold,
+                        //   fontSize: 20.sp,
+                        //   color: AppColors.accent,
+                        // ),
                       ),
                     ),
                   ),
@@ -255,56 +147,7 @@ class HomeTabScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              24.verticalSpace,
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.all(20.r),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: AppBorderRadius.lg,
-                  border: Border.all(color: AppColors.line),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(AppIcons.shield, color: AppColors.accent, size: 20.sp),
-                        8.horizontalSpace,
-                        Text(
-                          'Account & Security',
-                          style: AppTextStyle.title.copyWith(fontSize: 16.sp),
-                        ),
-                      ],
-                    ),
-                    8.verticalSpace,
-                    Text(
-                      'Signed in as ${authState.user?.email ?? userName}',
-                      style: AppTextStyle.body.copyWith(
-                        color: AppColors.muted,
-                        fontSize: 13.sp,
-                      ),
-                    ),
-                    16.verticalSpace,
-                    Wrap(
-                      spacing: 12.w,
-                      runSpacing: 10.h,
-                      children: [
-                        AccountActionButton(
-                          icon: AppIcons.logout,
-                          label: 'Log out',
-                          onPressed: () => _confirmLogout(context),
-                        ),
-                        AccountActionButton(
-                          icon: AppIcons.delete,
-                          label: 'Delete account',
-                          onPressed: () => _confirmDeleteAccount(context),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+
             ],
           ),
         ),

@@ -20,4 +20,8 @@ class AppIcons {
   static const IconData logout = Icons.logout_rounded;
   static const IconData delete = Icons.delete_outline_rounded;
   static const IconData filter = Icons.tune_rounded;
+  static const IconData history = Icons.access_time_rounded;
+  static const IconData language = Icons.language_rounded;
+  static const IconData database = Icons.storage_rounded;
+  static const IconData add = Icons.add_rounded;
 }

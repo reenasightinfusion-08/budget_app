@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/app/app_routes.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_gradients.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
@@ -43,19 +44,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Icon(icon, color: AppColors.accent, size: 24.sp),
                   ),
                   12.horizontalSpace,
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: AppTextStyle.title,
-                    ),
-                  ),
+                  Expanded(child: Text(title, style: AppTextStyle.title)),
                 ],
               ),
               8.verticalSpace,
-              Text(
-                subtitle,
-                style: AppTextStyle.body,
-              ),
+              Text(subtitle, style: AppTextStyle.body),
             ],
           ),
         ),
@@ -68,13 +61,13 @@ class _HomeScreenState extends State<HomeScreen> {
     return BlocListener<AuthBloc, AuthState>(
       listenWhen: (previous, current) =>
           current.status == AuthStatus.unauthenticated ||
-          (current.errorMessage != null && previous.errorMessage != current.errorMessage),
+          (current.errorMessage != null &&
+              previous.errorMessage != current.errorMessage),
       listener: (context, state) {
         if (state.status == AuthStatus.unauthenticated) {
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            AppRoutes.signup,
-            (route) => false,
-          );
+          Navigator.of(
+            context,
+          ).pushNamedAndRemoveUntil(AppRoutes.signup, (route) => false);
         } else if (state.errorMessage != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -118,6 +111,25 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
+        ),
+        floatingActionButton: Container(
+          width: 56.r,
+          height: 56.r,
+          decoration: BoxDecoration(
+            borderRadius: AppBorderRadius.tile,
+            gradient: AppGradients.card,
+            boxShadow: [BoxShadow(color: AppColors.fill, spreadRadius: 3)],
+          ),
+          child: FloatingActionButton(
+            elevation: 0,
+            highlightElevation: 0,
+            focusElevation: 0,
+            hoverElevation: 0,
+            backgroundColor: Colors.transparent,
+            shape: const CircleBorder(),
+            onPressed: () {},
+            child: Icon(AppIcons.add, color: AppColors.fill, size: 30.sp),
+          ),
         ),
       ),
     );

@@ -1,4 +1,3 @@
-import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_gradients.dart';
 import 'package:flutter/material.dart';
@@ -9,11 +8,13 @@ class AppCard extends StatelessWidget {
     this.padding,
     required this.child,
     required this.isGradient,
+    required this.radius,
   });
 
   final EdgeInsets? padding;
   final Widget child;
   final bool isGradient;
+  final BorderRadius radius;
 
   @override
   Widget build(BuildContext context) {
@@ -22,11 +23,11 @@ class AppCard extends StatelessWidget {
       decoration:
       isGradient ?
       BoxDecoration(
-        borderRadius: AppBorderRadius.card,
+        borderRadius: radius,
         gradient: AppGradients.card,
       ) : BoxDecoration(
-        borderRadius: AppBorderRadius.card,
-        color: AppColors.surface
+        borderRadius: radius,
+        color: AppColors.surface,
       ),
       child: child,
     );

@@ -163,6 +163,7 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
                               backgroundColor: isCurrentBoxFocused
                                   ? AppColors.surface
                                   : AppColors.fill,
+
                               borderRadius: AppBorderRadius.md,
                               borderColor: isCurrentBoxFocused
                                   ? AppColors.accent
