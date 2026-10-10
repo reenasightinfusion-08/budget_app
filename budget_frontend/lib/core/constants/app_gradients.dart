@@ -37,6 +37,13 @@ class AppGradients {
     stops: [0, 0.46, 1],
     transform: CssAngleGradientTransform(165),
   );
+  static const LinearGradient card = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [Color(0xFF668BBA), Color(0xFF4673AB), Color(0xFF26528A)],
+    stops: [0, 0.46, 1],
+    transform: CssAngleGradientTransform(165),
+  );
 
   static const LinearGradient moneyCard = LinearGradient(
     begin: Alignment.centerLeft,

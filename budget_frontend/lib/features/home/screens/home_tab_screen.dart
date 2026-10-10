@@ -52,6 +52,11 @@ class HomeTabScreen extends StatelessWidget {
     context.read<AuthBloc>().add(const AuthLogoutRequested());
   }
 
+  void _performDeleteAccount(BuildContext context) {
+    context.read<SetupBloc>().add(const SetupReset());
+    context.read<AuthBloc>().add(const AuthDeleteAccountRequested());
+  }
+
   void _showConfirmationDialog({
     required BuildContext context,
     required String title,
@@ -153,12 +158,7 @@ class HomeTabScreen extends StatelessWidget {
       message: 'Are you sure you want to delete your account? This action cannot be undone.',
       icon: AppIcons.delete,
       confirmLabel: 'Delete',
-      onConfirm: () {
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          AppRoutes.signup,
-          (route) => false,
-        );
-      },
+      onConfirm: () => _performDeleteAccount(context),
     );
   }
 

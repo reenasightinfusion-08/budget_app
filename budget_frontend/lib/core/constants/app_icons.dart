@@ -19,4 +19,5 @@ class AppIcons {
   static const IconData savings = Icons.savings_outlined;
   static const IconData logout = Icons.logout_rounded;
   static const IconData delete = Icons.delete_outline_rounded;
+  static const IconData filter = Icons.tune_rounded;
 }

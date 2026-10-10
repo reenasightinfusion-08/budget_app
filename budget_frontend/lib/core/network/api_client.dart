@@ -66,9 +66,14 @@ class ApiClient {
   }
 
   Map<String, dynamic> parse(http.Response response, String label) {
+    if (response.statusCode >= 200 && response.statusCode < 300 && response.body.trim().isEmpty) {
+      return <String, dynamic>{};
+    }
+
     Map<String, dynamic> body;
     try {
-      body = jsonDecode(response.body) as Map<String, dynamic>;
+      final decoded = jsonDecode(response.body);
+      body = decoded is Map<String, dynamic> ? decoded : <String, dynamic>{};
     } on FormatException {
       debugPrint('API $label: unexpected body ${response.statusCode}: ${response.body}');
       throw ApiException('Unexpected response from the server.', statusCode: response.statusCode);

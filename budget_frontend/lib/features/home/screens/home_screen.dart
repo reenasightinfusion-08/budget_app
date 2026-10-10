@@ -64,15 +64,27 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
-      listenWhen: (previous, current) => current.status == AuthStatus.unauthenticated,
+      listenWhen: (previous, current) =>
+          current.status == AuthStatus.unauthenticated ||
+          (current.errorMessage != null && previous.errorMessage != current.errorMessage),
       listener: (context, state) {
-        Navigator.of(context).pushNamedAndRemoveUntil(
-          AppRoutes.login,
-          (route) => false,
-        );
+        if (state.status == AuthStatus.unauthenticated) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRoutes.signup,
+            (route) => false,
+          );
+        } else if (state.errorMessage != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.errorMessage!),
+              backgroundColor: AppColors.error,
+            ),
+          );
+          context.read<AuthBloc>().add(const AuthErrorCleared());
+        }
       },
       child: Scaffold(
-        body: IndexedStack(
+        body: TabPageTransition(
           index: _selectedIndex,
           children: [
             const HomeTabScreen(),
