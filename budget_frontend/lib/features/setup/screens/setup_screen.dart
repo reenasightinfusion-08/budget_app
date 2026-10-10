@@ -8,7 +8,6 @@ import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/utils/app_validators.dart';
 import 'package:budget_frontend/core/widgets/app_button.dart';
-import 'package:budget_frontend/core/widgets/app_loading_overlay.dart';
 import 'package:budget_frontend/core/widgets/app_text_field.dart';
 import 'package:budget_frontend/core/widgets/sheet_scaffold.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
@@ -59,10 +58,6 @@ class SetupScreenState extends State<SetupScreen> {
           Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
         },
         child: SheetScaffold(
-        overlay: BlocBuilder<SetupBloc, SetupState>(
-          buildWhen: (previous, current) => previous.isSaving != current.isSaving,
-          builder: (context, state) => AppLoadingOverlay(isLoading: state.isSaving),
-        ),
         title: 'Hi, I’m Budgie',
         subtitle: 'Two quick answers and I’ll start counting for you.',
         child: Form(
@@ -97,7 +92,14 @@ class SetupScreenState extends State<SetupScreen> {
                   ),
                 ),
               ),
-              AppButton(label: 'Start budgeting', onPressed: submit),
+              BlocBuilder<SetupBloc, SetupState>(
+                buildWhen: (previous, current) => previous.isSaving != current.isSaving,
+                builder: (context, state) => AppButton(
+                  label: 'Start budgeting',
+                  onPressed: submit,
+                  isLoading: state.isSaving,
+                ),
+              ),
             ],
           ),
         ),

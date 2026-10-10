@@ -13,7 +13,6 @@ import 'package:budget_frontend/core/widgets/sheet_scaffold.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_demo_code_banner.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_footer_link.dart';
-import 'package:budget_frontend/features/auth/widgets/auth_loading_overlay.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_submit_button.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
@@ -29,7 +28,25 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
   String? errorMessage;
 
   @override
+  void initState() {
+    super.initState();
+    otpController.addListener(_onOtpChanged);
+  }
+
+  void _onOtpChanged() {
+    if (errorMessage != null || context.read<AuthBloc>().state.errorMessage != null) {
+      if (mounted) {
+        setState(() {
+          errorMessage = null;
+        });
+        context.read<AuthBloc>().add(const AuthErrorCleared());
+      }
+    }
+  }
+
+  @override
   void dispose() {
+    otpController.removeListener(_onOtpChanged);
     otpController.dispose();
     focusNode.dispose();
     super.dispose();
@@ -69,10 +86,12 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
         }
       },
       child: SheetScaffold(
-        overlay: const AuthLoadingOverlay(),
-      title: 'Verify your email',
+        title: 'Verify your email',
       subtitle: 'We sent a 6-digit code to $userEmail',
-      onBack: () => Navigator.of(context).pop(),
+      onBack: () {
+        context.read<AuthBloc>().add(const AuthErrorCleared());
+        Navigator.of(context).pop();
+      },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -114,7 +133,15 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
               MouseRegion(
                 cursor: SystemMouseCursors.text,
                 child: GestureDetector(
-                  onTap: () => focusNode.requestFocus(),
+                  onTap: () {
+                    if (errorMessage != null || context.read<AuthBloc>().state.errorMessage != null) {
+                      setState(() {
+                        errorMessage = null;
+                      });
+                      context.read<AuthBloc>().add(const AuthErrorCleared());
+                    }
+                    focusNode.requestFocus();
+                  },
                   behavior: HitTestBehavior.opaque,
                   child: ListenableBuilder(
                     listenable: Listenable.merge([otpController, focusNode]),
@@ -170,8 +197,11 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
                 child: ConstrainedBox(
                   constraints: BoxConstraints(minHeight: 18.h),
                   child: BlocBuilder<AuthBloc, AuthState>(
-                    builder: (context, state) =>
-                        Text(errorMessage ?? state.errorMessage ?? '', style: AppTextStyle.error),
+                    builder: (context, state) {
+                      final isMatch = state.errorSource == AuthScreen.verifyEmail;
+                      final blocError = isMatch ? state.errorMessage : null;
+                      return Text(errorMessage ?? blocError ?? '', style: AppTextStyle.error);
+                    },
                   ),
                 ),
               ),
@@ -187,7 +217,10 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
           AuthFooterLink(
             prompt: 'Wrong email?',
             actionLabel: 'Change it',
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              context.read<AuthBloc>().add(const AuthErrorCleared());
+              Navigator.of(context).pop();
+            },
           ),
         ],
       ),

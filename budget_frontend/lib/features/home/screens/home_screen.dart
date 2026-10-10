@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:budget_frontend/app/app_routes.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/home/screens/home_tab_screen.dart';
 import 'package:budget_frontend/features/home/widgets/floating_bottom_nav_bar.dart';
 import 'package:budget_frontend/features/home/widgets/tab_page_transition.dart';
@@ -60,39 +62,48 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: TabPageTransition(
-        index: _selectedIndex,
-        children: [
-          const HomeTabScreen(),
-          _buildPlaceholderTab(
-            'Insights',
-            'Track your spending and income trends over time.',
-            AppIcons.analytics,
-          ),
-          _buildPlaceholderTab(
-            'Wallet & Accounts',
-            'Manage your connected bank accounts and cards.',
-            AppIcons.wallet,
-          ),
-          _buildPlaceholderTab(
-            'Savings',
-            'Track your savings goals and piggy bank.',
-            AppIcons.savings,
-          ),
-        ],
-      ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 16.h),
-          child: FloatingBottomNavBar(
-            selectedIndex: _selectedIndex,
-            onTabSelected: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
+    return BlocListener<AuthBloc, AuthState>(
+      listenWhen: (previous, current) => current.status == AuthStatus.unauthenticated,
+      listener: (context, state) {
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          AppRoutes.login,
+          (route) => false,
+        );
+      },
+      child: Scaffold(
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: [
+            const HomeTabScreen(),
+            _buildPlaceholderTab(
+              'Insights',
+              'Track your spending and income trends over time.',
+              AppIcons.analytics,
+            ),
+            _buildPlaceholderTab(
+              'Wallet & Accounts',
+              'Manage your connected bank accounts and cards.',
+              AppIcons.wallet,
+            ),
+            _buildPlaceholderTab(
+              'Savings',
+              'Track your savings goals and piggy bank.',
+              AppIcons.savings,
+            ),
+          ],
+        ),
+        bottomNavigationBar: SafeArea(
+          top: false,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(40.w, 0, 40.w, 16.h),
+            child: FloatingBottomNavBar(
+              selectedIndex: _selectedIndex,
+              onTabSelected: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+            ),
           ),
         ),
       ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:iconsax_flutter/iconsax_flutter.dart';
+
 /// Centralized repository of all icons used throughout the app.
 class AppIcons {
   static const IconData mail = Icons.mail_outline_rounded;
@@ -17,4 +17,6 @@ class AppIcons {
   static const IconData wallet = Icons.account_balance_wallet_rounded;
   static const IconData calendar = Icons.calendar_today_rounded;
   static const IconData savings = Icons.savings_outlined;
+  static const IconData logout = Icons.logout_rounded;
+  static const IconData delete = Icons.delete_outline_rounded;
 }

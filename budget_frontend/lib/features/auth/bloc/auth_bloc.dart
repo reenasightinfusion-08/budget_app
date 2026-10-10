@@ -33,23 +33,26 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     Emitter<AuthState> emit,
     Future<void> Function() action, {
     bool isGoogle = false,
+    AuthScreen? screen,
   }) async {
     emit(state.copyWith(status: AuthStatus.loading, isLoading: true, clearError: true));
     try {
       await action();
     } on ApiException catch (e) {
-      emit(failure(e.message, isGoogle));
+      emit(failure(e.message, isGoogle, screen: screen));
     } catch (e, stack) {
       debugPrint('AuthBloc error: $e\n$stack');
-      emit(failure('Something went wrong. Please try again.', isGoogle));
+      emit(failure('Something went wrong. Please try again.', isGoogle, screen: screen));
     }
   }
 
-  AuthState failure(String message, bool isGoogle) => state.copyWith(
+  AuthState failure(String message, bool isGoogle, {AuthScreen? screen}) => state.copyWith(
         status: AuthStatus.unauthenticated,
         isLoading: false,
         errorMessage: isGoogle ? null : message,
+        errorSource: isGoogle ? null : screen,
         googleErrorMessage: isGoogle ? message : null,
+        googleErrorSource: isGoogle ? screen : null,
       );
 
   AuthState authenticated(UserModel user) => state.copyWith(
@@ -89,7 +92,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           if (!e.needsVerification) rethrow;
           emit(verificationPending(event.email, await resendQuietly(event.email)));
         }
-      });
+      }, screen: AuthScreen.login);
 
   /// Sends a fresh code to an unverified account; the earlier code is still valid if this is rate limited.
   Future<String?> resendQuietly(String email) async {
@@ -104,13 +107,13 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       run(emit, () async {
         final code = await authService.signup(email: event.email, password: event.password);
         emit(verificationPending(event.email, code));
-      });
+      }, screen: AuthScreen.signup);
 
   Future<void> onVerifyEmailRequested(AuthVerifyEmailRequested event, Emitter<AuthState> emit) =>
       run(emit, () async {
         final user = await authService.verifyEmail(email: state.pendingEmail, code: event.code);
         emit(authenticated(user));
-      });
+      }, screen: AuthScreen.verifyEmail);
 
   Future<void> onResendVerifyCodeRequested(
     AuthResendVerifyCodeRequested event,
@@ -119,12 +122,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       run(emit, () async {
         final code = await authService.resendVerificationCode(state.pendingEmail);
         emit(verificationPending(state.pendingEmail, code));
-      });
+      }, screen: AuthScreen.verifyEmail);
 
   Future<void> onGoogleSignInRequested(AuthGoogleSignInRequested event, Emitter<AuthState> emit) =>
       run(emit, () async {
         emit(authenticated(await authService.googleSignIn(isSignup: event.isSignup)));
-      }, isGoogle: true);
+      }, isGoogle: true, screen: event.isSignup ? AuthScreen.signup : AuthScreen.login);
 
   Future<void> onForgotPasswordRequested(
     AuthForgotPasswordRequested event,
@@ -139,7 +142,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           clearDemoCode: code == null,
           isLoading: false,
         ));
-      });
+      }, screen: AuthScreen.forgotPassword);
 
   void onResendResetCodeRequested(AuthResendResetCodeRequested event, Emitter<AuthState> emit) {
     if (state.resetEmail.isEmpty) return;
@@ -163,7 +166,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           successMessage: 'Password updated. Log in with your new password.',
           isLoading: false,
         ));
-      });
+      }, screen: AuthScreen.resetPassword);
 
   void onUserUpdated(AuthUserUpdated event, Emitter<AuthState> emit) =>
       emit(state.copyWith(user: event.user));

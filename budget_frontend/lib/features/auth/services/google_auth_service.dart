@@ -33,4 +33,12 @@ class GoogleAuthService {
       throw const ApiException('Google sign-in failed. Please try again.');
     }
   }
+
+  Future<void> signOut() async {
+    try {
+      await GoogleSignIn.instance.signOut();
+    } catch (e) {
+      debugPrint('Google sign-out error: $e');
+    }
+  }
 }

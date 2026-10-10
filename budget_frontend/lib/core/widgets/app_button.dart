@@ -13,10 +13,12 @@ class AppButton extends StatelessWidget {
     super.key,
     required this.label,
     required this.onPressed,
+    this.isLoading = false,
   });
 
   final String label;
   final VoidCallback? onPressed;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +32,7 @@ class AppButton extends StatelessWidget {
             borderRadius: AppBorderRadius.lg,
           ),
           child: InkWell(
-            onTap: onPressed != null
+            onTap: (onPressed != null && !isLoading)
                 ? () {
                     FocusManager.instance.primaryFocus?.unfocus();
                     onPressed?.call();
@@ -51,7 +53,17 @@ class AppButton extends StatelessWidget {
                       color: AppColors.pop,
                       shape: BoxShape.circle,
                     ),
-                    child: Icon(AppIcons.chevronRight, size: 26.r, color: AppColors.onPop),
+                    child: isLoading
+                        ? Center(
+                            child: SizedBox.square(
+                              dimension: 22.r,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2.5.w,
+                                color: AppColors.onPop,
+                              ),
+                            ),
+                          )
+                        : Icon(AppIcons.chevronRight, size: 26.r, color: AppColors.onPop),
                   ),
                 ],
               ),

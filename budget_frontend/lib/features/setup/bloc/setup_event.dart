@@ -16,3 +16,7 @@ final class SetupCompletedSubmitted extends SetupEvent {
 
   final String name;
 }
+
+final class SetupReset extends SetupEvent {
+  const SetupReset();
+}

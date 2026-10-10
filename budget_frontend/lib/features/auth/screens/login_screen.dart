@@ -13,7 +13,6 @@ import 'package:budget_frontend/features/auth/widgets/auth_error_text.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_footer_link.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_google_button.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_google_error_text.dart';
-import 'package:budget_frontend/features/auth/widgets/auth_loading_overlay.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_notice_banner.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_or_divider.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_submit_button.dart';
@@ -75,7 +74,6 @@ class LoginScreenState extends State<LoginScreen> {
         }
       },
       child: SheetScaffold(
-        overlay: const AuthLoadingOverlay(),
         title: 'Welcome back',
         subtitle: 'Log in to pick up where your budget left off.',
         child: Form(
@@ -109,10 +107,16 @@ class LoginScreenState extends State<LoginScreen> {
               ),
               Row(
                 children: [
-                  const Expanded(child: AuthErrorText()),
+                  const Expanded(child: AuthErrorText(screen: AuthScreen.login)),
                   AppLinkButton(
                     label: 'Forgot password?',
-                    onPressed: () => Navigator.of(context).pushNamed(AppRoutes.forgotPassword),
+                    onPressed: () {
+                      final authBloc = context.read<AuthBloc>();
+                      authBloc.add(const AuthErrorCleared());
+                      Navigator.of(context).pushNamed(AppRoutes.forgotPassword).then((_) {
+                        if (mounted) authBloc.add(const AuthErrorCleared());
+                      });
+                    },
                   ),
                 ],
               ),
@@ -125,12 +129,18 @@ class LoginScreenState extends State<LoginScreen> {
                 label: 'Log in with Google',
                 onPressed: googleSignIn,
               ),
-              const AuthGoogleErrorText(),
+              const AuthGoogleErrorText(screen: AuthScreen.login),
               const Spacer(),
               AuthFooterLink(
                 prompt: 'New here?',
                 actionLabel: 'Create an account',
-                onPressed: () => Navigator.of(context).pushNamed(AppRoutes.signup),
+                onPressed: () {
+                  final authBloc = context.read<AuthBloc>();
+                  authBloc.add(const AuthErrorCleared());
+                  Navigator.of(context).pushNamed(AppRoutes.signup).then((_) {
+                    if (mounted) authBloc.add(const AuthErrorCleared());
+                  });
+                },
               ),
             ],
           ),

@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
-
+ import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 
 class AppTextField extends StatefulWidget {
   const AppTextField({
@@ -21,6 +22,8 @@ class AppTextField extends StatefulWidget {
     this.maxLength,
     this.textCapitalization = TextCapitalization.none,
     this.onFieldSubmitted,
+    this.onTap,
+    this.onChanged,
   });
 
   final TextEditingController controller;
@@ -34,15 +37,48 @@ class AppTextField extends StatefulWidget {
   final int? maxLength;
   final TextCapitalization textCapitalization;
   final ValueChanged<String>? onFieldSubmitted;
+  final VoidCallback? onTap;
+  final ValueChanged<String>? onChanged;
 
   @override
   State<AppTextField> createState() => AppTextFieldState();
 }
 
 class AppTextFieldState extends State<AppTextField> {
+  final GlobalKey<FormFieldState<String>> _fieldKey = GlobalKey<FormFieldState<String>>();
   bool isObscured = true;
+  bool _suppressValidation = false;
 
   void toggleVisibility() => setState(() => isObscured = !isObscured);
+
+  void _handleUserTap() {
+    try {
+      context.read<AuthBloc>().add(const AuthErrorCleared());
+    } catch (_) {}
+
+    if (_fieldKey.currentState?.hasError == true) {
+      _suppressValidation = true;
+      _fieldKey.currentState?.validate();
+      _suppressValidation = false;
+    }
+    widget.onTap?.call();
+  }
+
+  void _handleUserChange(String value) {
+    try {
+      final authBloc = context.read<AuthBloc>();
+      if (authBloc.state.errorMessage != null || authBloc.state.googleErrorMessage != null) {
+        authBloc.add(const AuthErrorCleared());
+      }
+    } catch (_) {}
+
+    if (_fieldKey.currentState?.hasError == true) {
+      _suppressValidation = true;
+      _fieldKey.currentState?.validate();
+      _suppressValidation = false;
+    }
+    widget.onChanged?.call(value);
+  }
 
   OutlineInputBorder outline(Color color) => OutlineInputBorder(
         borderRadius: AppBorderRadius.md,
@@ -52,8 +88,14 @@ class AppTextFieldState extends State<AppTextField> {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      key: _fieldKey,
       controller: widget.controller,
-      validator: widget.validator,
+      validator: (value) {
+        if (_suppressValidation) return null;
+        return widget.validator(value);
+      },
+      onTap: _handleUserTap,
+      onChanged: _handleUserChange,
       obscureText: widget.isPassword && isObscured,
       keyboardType: widget.keyboardType,
       textInputAction: widget.textInputAction,

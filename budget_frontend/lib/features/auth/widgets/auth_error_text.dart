@@ -6,13 +6,20 @@ import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 
 class AuthErrorText extends StatelessWidget {
-  const AuthErrorText({super.key});
+  const AuthErrorText({super.key, this.screen});
+
+  final AuthScreen? screen;
 
   @override
   Widget build(BuildContext context) => BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, state) => ConstrainedBox(
-          constraints: BoxConstraints(minHeight: 18.h),
-          child: Text(state.errorMessage ?? '', style: AppTextStyle.error),
-        ),
+        builder: (context, state) {
+          final isMatch = screen == null || state.errorSource == screen;
+          final error = isMatch ? (state.errorMessage ?? '') : '';
+
+          return ConstrainedBox(
+            constraints: BoxConstraints(minHeight: 18.h),
+            child: Text(error, style: AppTextStyle.error),
+          );
+        },
       );
 }

@@ -10,7 +10,6 @@ import 'package:budget_frontend/core/widgets/sheet_scaffold.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_error_text.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_footer_link.dart';
-import 'package:budget_frontend/features/auth/widgets/auth_loading_overlay.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_submit_button.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -56,10 +55,12 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           }
         },
         child: SheetScaffold(
-        overlay: const AuthLoadingOverlay(),
           title: 'Forgot password?',
           subtitle: 'Enter your email and we’ll send you a 6-digit code.',
-          onBack: () => Navigator.of(context).pop(),
+          onBack: () {
+            context.read<AuthBloc>().add(const AuthErrorCleared());
+            Navigator.of(context).pop();
+          },
           child: Form(
             key: formKey,
             child: Column(
@@ -76,14 +77,17 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   onFieldSubmitted: (_) => submit(),
                 ),
                 12.verticalSpace,
-                const AuthErrorText(),
+                const AuthErrorText(screen: AuthScreen.forgotPassword),
                 12.verticalSpace,
                 AuthSubmitButton(label: 'Send code', onPressed: submit),
                 const Spacer(),
                 AuthFooterLink(
                   prompt: 'Remembered it?',
                   actionLabel: 'Log in',
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () {
+                    context.read<AuthBloc>().add(const AuthErrorCleared());
+                    Navigator.of(context).pop();
+                  },
                 ),
               ],
             ),

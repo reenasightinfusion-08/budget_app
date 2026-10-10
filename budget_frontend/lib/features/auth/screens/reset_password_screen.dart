@@ -10,7 +10,6 @@ import 'package:budget_frontend/core/widgets/sheet_scaffold.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_demo_code_banner.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_error_text.dart';
-import 'package:budget_frontend/features/auth/widgets/auth_loading_overlay.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_submit_button.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
@@ -65,10 +64,12 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
           }
         },
         child: SheetScaffold(
-        overlay: const AuthLoadingOverlay(),
           title: 'Set a new password',
           subtitle: 'Use the code below, then pick a new password.',
-          onBack: () => Navigator.of(context).pop(),
+          onBack: () {
+            context.read<AuthBloc>().add(const AuthErrorCleared());
+            Navigator.of(context).pop();
+          },
           child: Form(
             key: formKey,
             child: Column(
@@ -108,7 +109,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 ),
                 Row(
                   children: [
-                    const Expanded(child: AuthErrorText()),
+                    const Expanded(child: AuthErrorText(screen: AuthScreen.resetPassword)),
                     AppLinkButton(
                       label: 'Get a new code',
                       onPressed: () =>

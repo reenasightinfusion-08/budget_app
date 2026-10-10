@@ -15,16 +15,12 @@ class SheetScaffold extends StatelessWidget {
     required this.subtitle,
     required this.child,
     this.onBack,
-    this.overlay,
   });
 
   final String title;
   final String subtitle;
   final Widget child;
   final VoidCallback? onBack;
-
-  /// Drawn above the whole screen, e.g. a loading overlay.
-  final Widget? overlay;
 
   @override
   Widget build(BuildContext context) => GestureDetector(
@@ -50,7 +46,6 @@ class SheetScaffold extends StatelessWidget {
                   ],
                 ),
               ),
-              if (overlay != null) overlay!,
             ],
           ),
         ),

@@ -12,6 +12,14 @@ enum AuthStatus {
   passwordResetSuccess,
 }
 
+enum AuthScreen {
+  login,
+  signup,
+  forgotPassword,
+  resetPassword,
+  verifyEmail,
+}
+
 @immutable
 class AuthState {
   const AuthState({
@@ -19,7 +27,9 @@ class AuthState {
     this.user,
     this.isLoading = false,
     this.errorMessage,
+    this.errorSource,
     this.googleErrorMessage,
+    this.googleErrorSource,
     this.pendingEmail = '',
     this.resetEmail = '',
     this.demoCode,
@@ -30,7 +40,9 @@ class AuthState {
   final UserModel? user;
   final bool isLoading;
   final String? errorMessage;
+  final AuthScreen? errorSource;
   final String? googleErrorMessage;
+  final AuthScreen? googleErrorSource;
   final String pendingEmail;
   final String resetEmail;
   final String? demoCode;
@@ -42,7 +54,9 @@ class AuthState {
     bool clearUser = false,
     bool? isLoading,
     String? errorMessage,
+    AuthScreen? errorSource,
     String? googleErrorMessage,
+    AuthScreen? googleErrorSource,
     bool clearError = false,
     String? pendingEmail,
     String? resetEmail,
@@ -56,7 +70,9 @@ class AuthState {
       user: clearUser ? null : (user ?? this.user),
       isLoading: isLoading ?? this.isLoading,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      errorSource: clearError ? null : (errorSource ?? this.errorSource),
       googleErrorMessage: clearError ? null : (googleErrorMessage ?? this.googleErrorMessage),
+      googleErrorSource: clearError ? null : (googleErrorSource ?? this.googleErrorSource),
       pendingEmail: pendingEmail ?? this.pendingEmail,
       resetEmail: resetEmail ?? this.resetEmail,
       demoCode: clearDemoCode ? null : (demoCode ?? this.demoCode),

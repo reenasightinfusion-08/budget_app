@@ -14,6 +14,7 @@ class SetupBloc extends Bloc<SetupEvent, SetupState> {
   SetupBloc({required this.profileService}) : super(const SetupState()) {
     on<SetupBudgetAmountChanged>(onBudgetAmountChanged);
     on<SetupCompletedSubmitted>(onCompletedSubmitted);
+    on<SetupReset>((event, emit) => emit(const SetupState()));
   }
 
   static const int paisePerRupee = 100;

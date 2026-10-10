@@ -7,14 +7,19 @@ import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 
 /// Shows a failed Google sign-in right under the Google button.
 class AuthGoogleErrorText extends StatelessWidget {
-  const AuthGoogleErrorText({super.key});
+  const AuthGoogleErrorText({super.key, this.screen});
+
+  final AuthScreen? screen;
 
   @override
   Widget build(BuildContext context) => BlocBuilder<AuthBloc, AuthState>(
-        buildWhen: (previous, current) => previous.googleErrorMessage != current.googleErrorMessage,
+        buildWhen: (previous, current) =>
+            previous.googleErrorMessage != current.googleErrorMessage ||
+            previous.googleErrorSource != current.googleErrorSource,
         builder: (context, state) {
           final message = state.googleErrorMessage;
-          if (message == null) return const SizedBox.shrink();
+          final isMatch = screen == null || state.googleErrorSource == screen;
+          if (message == null || !isMatch) return const SizedBox.shrink();
 
           return Padding(
             padding: EdgeInsets.only(top: 12.h),

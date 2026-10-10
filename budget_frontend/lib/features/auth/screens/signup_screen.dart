@@ -12,7 +12,6 @@ import 'package:budget_frontend/features/auth/widgets/auth_footer_link.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_google_button.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_google_error_text.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_or_divider.dart';
-import 'package:budget_frontend/features/auth/widgets/auth_loading_overlay.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_submit_button.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -71,7 +70,6 @@ class SignupScreenState extends State<SignupScreen> {
           }
         },
         child: SheetScaffold(
-        overlay: const AuthLoadingOverlay(),
           title: 'Create your account',
           subtitle: 'Set up your login to get started.',
           child: Form(
@@ -110,7 +108,7 @@ class SignupScreenState extends State<SignupScreen> {
                   onFieldSubmitted: (_) => submit(),
                 ),
                 12.verticalSpace,
-                const AuthErrorText(),
+                const AuthErrorText(screen: AuthScreen.signup),
                 12.verticalSpace,
                 AuthSubmitButton(label: 'Create account', onPressed: submit),
                 16.verticalSpace,
@@ -120,12 +118,19 @@ class SignupScreenState extends State<SignupScreen> {
                   label: 'Sign up with Google',
                   onPressed: googleSignIn,
                 ),
-                const AuthGoogleErrorText(),
+                const AuthGoogleErrorText(screen: AuthScreen.signup),
                 const Spacer(),
                 AuthFooterLink(
                   prompt: 'Already have an account?',
                   actionLabel: 'Log in',
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () {
+                    final authBloc = context.read<AuthBloc>();
+                    context.read<AuthBloc>().add(const AuthErrorCleared());
+                   // Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed(AppRoutes.login).then((_){
+                      if(mounted) authBloc.add(const AuthErrorCleared());
+                    });
+                  },
                 ),
               ],
             ),
@@ -133,3 +138,4 @@ class SignupScreenState extends State<SignupScreen> {
         ),
       );
 }
+
