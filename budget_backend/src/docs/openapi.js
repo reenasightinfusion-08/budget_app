@@ -72,6 +72,17 @@ const userExample = {
   updatedAt: '2026-10-09T09:05:00.000Z',
 };
 
+const multipartSmartAdd = {
+  type: 'object',
+  required: ['inputType', 'today'],
+  properties: {
+    inputType: { type: 'string', enum: ['image', 'pdf'], example: 'image' },
+    file: { type: 'string', format: 'binary', description: 'The photo (jpeg, png, webp, heic) or PDF. Max 4 MB.' },
+    today: { type: 'string', description: 'The user\'s local day, YYYY-MM-DD.', example: '2026-10-10' },
+    tzOffsetMinutes: { type: 'integer', description: 'Minutes ahead of UTC (IST = 330).', example: 330 },
+  },
+};
+
 module.exports = {
   openapi: '3.0.3',
   info: {
@@ -88,7 +99,7 @@ module.exports = {
     { url: 'https://budgetbackend-mu.vercel.app', description: 'Production' },
     { url: 'http://localhost:3000', description: 'Local' },
   ],
-  tags: [{ name: 'Health' }, { name: 'Auth' }, { name: 'Users' }, { name: 'Categories' }, { name: 'Transactions' }, { name: 'Goals' }],
+  tags: [{ name: 'Health' }, { name: 'Auth' }, { name: 'Users' }, { name: 'Categories' }, { name: 'Transactions' }, { name: 'Goals' }, { name: 'Smart add' }],
   components: {
     securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } },
     schemas: {
@@ -762,6 +773,64 @@ module.exports = {
         },
       },
     },
+
+    '/api/users/me/data': {
+      delete: {
+        tags: ['Users'],
+        summary: 'Start fresh / Clear all',
+        description:
+          'Deletes the user\'s transactions and goals and sets `hasExampleData` to false. The account, name, monthly budget, category limits and settings stay.',
+        security: auth,
+        responses: {
+          200: okResponse('Data cleared', nullData, 'All data cleared'),
+          401: unauthorized,
+          500: serverErr,
+        },
+      },
+    },
+
+    '/api/smart-add': {
+      post: {
+        tags: ['Smart add'],
+        summary: 'Read a bill photo, PDF, voice note or typed text into entries to review',
+        description:
+          '**Photo (`image`) and PDF (`pdf`):** either attach the file as a `file` form field (`multipart/form-data`, max 4 MB) or send it as base64 in `file` (JSON); the server has AI read it. **Voice and typed text (`voice`, `text`):** the app turns speech into text with its own speech-to-text package and sends `text`; typed notes go the same way. Typed and spoken text falls back to a keyword parser if AI is down (`parser: "rules"`); photos and PDFs need AI (502 if it cannot be reached, 422 if no amount was found). One call does everything: it saves an `aiimports` run and adds every entry found to `transactions` (amounts are stored in whole paise, so a bill of ₹2,050 is saved as `205000`; `source` is `receipt`, `statement`, `voice` or `text`). `data` is null; call `GET /api/transactions` to list the new entries. Photos and PDFs must stay under about 3 MB (Vercel body limit). Limited to 30 runs per user per day (429).',
+        security: auth,
+        requestBody: jsonBody(
+          {
+            type: 'object',
+            required: ['inputType', 'today'],
+            properties: {
+              inputType: { type: 'string', enum: ['text', 'voice', 'image', 'pdf'], example: 'image' },
+              text: { type: 'string', maxLength: 20000, description: 'Required for `text` and `voice`.', example: 'metro card recharge 1200' },
+              file: {
+                type: 'object',
+                description: 'Required for `image` and `pdf`.',
+                properties: {
+                  mimeType: { type: 'string', enum: ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'application/pdf'], example: 'image/jpeg' },
+                  data: { type: 'string', description: 'The file, base64 encoded (no `data:` prefix).' },
+                },
+              },
+              today: { type: 'string', description: 'The user\'s local day, YYYY-MM-DD.', example: '2026-10-05' },
+              tzOffsetMinutes: { type: 'integer', description: 'Minutes ahead of UTC (IST = 330). Used to count today\'s runs for the daily limit. Defaults to 0.', example: 330 },
+            },
+          },
+          { inputType: 'image', file: { mimeType: 'image/jpeg', data: '<base64>' }, today: '2026-10-05', tzOffsetMinutes: 330 },
+        ),
+        responses: {
+          201: okResponse('Entries read and added to transactions', nullData, '2 transactions added'),
+          400: err('Missing or invalid field', 'inputType must be text, voice, image or pdf'),
+          413: err('The photo or PDF is too large', 'File is too large. Keep it under about 3 MB.'),
+          401: unauthorized,
+          422: err('No amount was found (the run is saved as failed)', 'Could not find any amount. Try adding it manually.'),
+          502: err('A photo or PDF could not be read because the AI could not be reached', 'Could not read the file right now. Try again, or add it manually.'),
+          429: err('The daily Smart add limit was reached', 'Daily Smart add limit reached. Try again tomorrow.'),
+          500: serverErr,
+        },
+      },
+    },
   },
 };
 
+// Same endpoint, with the photo or PDF attached as a normal file instead of base64.
+module.exports.paths['/api/smart-add'].post.requestBody.content['multipart/form-data'] = { schema: multipartSmartAdd };

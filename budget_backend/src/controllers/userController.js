@@ -53,3 +53,11 @@ exports.deleteMe = asyncHandler(async (req, res) => {
   await User.deleteOne({ _id: user });
   res.json({ success: true, message: 'Account deleted', data: null });
 });
+
+// Start fresh: keeps the account, name, budget, limits and settings.
+exports.clearData = asyncHandler(async (req, res) => {
+  const user = req.user._id;
+  await Promise.all([Transaction.deleteMany({ user }), Goal.deleteMany({ user })]);
+  await User.updateOne({ _id: user }, { $set: { hasExampleData: false } });
+  res.json({ success: true, message: 'All data cleared', data: null });
+});

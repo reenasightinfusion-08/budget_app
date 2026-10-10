@@ -7,6 +7,8 @@ const openapi = require('./docs/openapi');
 const app = express();
 
 app.use(cors());
+// Smart add carries a base64 photo or PDF; every other route keeps the small default limit.
+app.use('/api/smart-add', express.json({ limit: '6mb' }));
 app.use(express.json());
 
 app.get('/', (req, res) => {

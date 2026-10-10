@@ -5,6 +5,9 @@ module.exports = (err, req, res, next) => {
   if (err.name === 'ValidationError') {
     status = 400;
     message = Object.values(err.errors).map((e) => e.message).join(', ');
+  } else if (err.name === 'MulterError') {
+    status = err.code === 'LIMIT_FILE_SIZE' ? 413 : 400;
+    message = err.code === 'LIMIT_FILE_SIZE' ? 'File is too large. Keep it under 4 MB.' : 'Send one file in the "file" field';
   } else if (err.code === 11000) {
     status = 409;
     message = 'Already exists';

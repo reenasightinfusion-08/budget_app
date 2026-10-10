@@ -8,5 +8,6 @@ router.use(requireAuth);
 router.get('/me', users.getMe);
 router.patch('/me', users.updateMe);
 router.delete('/me', users.deleteMe);
+router.delete('/me/data', users.clearData);
 
 module.exports = router;
