@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Transaction = require('../models/Transaction');
 const AiImport = require('../models/AiImport');
+const Goal = require('../models/Goal');
 const asyncHandler = require('../utils/asyncHandler');
 const httpError = require('../utils/httpError');
 
@@ -43,9 +44,12 @@ exports.updateMe = asyncHandler(async (req, res) => {
 });
 
 exports.deleteMe = asyncHandler(async (req, res) => {
-  // goals are removed here too once that collection exists
   const user = req.user._id;
-  await Promise.all([Transaction.deleteMany({ user }), AiImport.deleteMany({ user })]);
+  await Promise.all([
+    Transaction.deleteMany({ user }),
+    Goal.deleteMany({ user }),
+    AiImport.deleteMany({ user }),
+  ]);
   await User.deleteOne({ _id: user });
   res.json({ success: true, message: 'Account deleted', data: null });
 });

@@ -20,12 +20,7 @@ const publicTransaction = (t) => ({
   createdAt: t.createdAt,
 });
 
-// The app's own "today" bounds what counts as the future; if it is missing or
-// claims a day nobody has reached yet, fall back to the furthest-ahead day on Earth.
-const latestAllowedDay = (today) => {
-  const limit = dates.latestPossibleDay();
-  return dates.isDay(today) && today <= limit ? today : limit;
-};
+const { latestAllowedDay } = dates;
 
 const readEntry = (raw, latestDay) => {
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw httpError(400, 'Each entry must be an object');

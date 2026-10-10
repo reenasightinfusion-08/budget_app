@@ -37,6 +37,13 @@ const weekStart = (day) => addDays(day, -((parseDay(day).getUTCDay() + 6) % 7));
 // "not in the future" limit when the app does not say what its today is.
 const latestPossibleDay = () => toDay(new Date(Date.now() + 14 * 60 * 60 * 1000));
 
+// The app's own "today" bounds what counts as the future; if it is missing or
+// claims a day nobody has reached yet, fall back to the furthest-ahead day on Earth.
+const latestAllowedDay = (today) => {
+  const limit = latestPossibleDay();
+  return isDay(today) && today <= limit ? today : limit;
+};
+
 module.exports = {
-  isDay, isMonth, addDays, addMonths, monthStart, daysInMonth, weekStart, latestPossibleDay,
+  latestAllowedDay, isDay, isMonth, addDays, addMonths, monthStart, daysInMonth, weekStart, latestPossibleDay,
 };

@@ -88,7 +88,7 @@ module.exports = {
     { url: 'https://budgetbackend-mu.vercel.app', description: 'Production' },
     { url: 'http://localhost:3000', description: 'Local' },
   ],
-  tags: [{ name: 'Health' }, { name: 'Auth' }, { name: 'Users' }, { name: 'Categories' }, { name: 'Transactions' }],
+  tags: [{ name: 'Health' }, { name: 'Auth' }, { name: 'Users' }, { name: 'Categories' }, { name: 'Transactions' }, { name: 'Goals' }],
   components: {
     securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } },
     schemas: {
@@ -133,6 +133,30 @@ module.exports = {
           category: { type: 'string', description: 'An active category key of the same type. See `GET /api/categories`.', example: 'food' },
           note: { type: 'string', maxLength: 40, example: 'DMart Ready' },
           date: { type: 'string', description: 'YYYY-MM-DD. Cannot be after the user\'s today.', example: '2026-10-03' },
+        },
+      },
+      Goal: {
+        type: 'object',
+        properties: {
+          _id: { type: 'string' },
+          name: { type: 'string', maxLength: 28, example: 'Emergency fund' },
+          icon: { type: 'string', enum: ['shield', 'phone', 'plane', 'house', 'gift', 'star'], example: 'shield' },
+          targetAmount: { type: 'integer', minimum: 100, description: 'Paise.', example: 6000000 },
+          targetMonth: { type: 'string', description: 'YYYY-MM', example: '2027-03' },
+          savedAmount: { type: 'integer', description: 'Paise. Worked out by the server from `contributions`.', example: 3720000 },
+          reachedAt: { type: 'string', format: 'date-time', nullable: true },
+          contributions: {
+            type: 'array',
+            description: 'Oldest first. Negative amounts are Take out.',
+            items: {
+              type: 'object',
+              properties: {
+                amount: { type: 'integer', example: 1200000 },
+                date: { type: 'string', example: '2026-06-02' },
+              },
+            },
+          },
+          createdAt: { type: 'string', format: 'date-time' },
         },
       },
       User: {
@@ -418,7 +442,7 @@ module.exports = {
       delete: {
         tags: ['Users'],
         summary: 'Delete the account',
-        description: 'Permanently deletes the user together with their transactions and Smart add runs (goals too, once those exist).',
+        description: 'Permanently deletes the user together with their transactions and Smart add runs and savings goals.',
         security: auth,
         responses: {
           200: okResponse('Account deleted', nullData, 'Account deleted'),
@@ -635,6 +659,105 @@ module.exports = {
           400: err('The id is not a valid id', 'Invalid _id'),
           401: unauthorized,
           404: err('No such transaction for this user', 'Transaction not found'),
+          500: serverErr,
+        },
+      },
+    },
+
+    '/api/goals': {
+      get: {
+        tags: ['Goals'],
+        summary: 'List goals with totals (Savings screen)',
+        description:
+          'Goals oldest first, each with its money log. `totalSaved` is the sum of `savedAmount`; `thisMonth` is the net money put aside in `month` (Take out counts as negative).',
+        security: auth,
+        parameters: [{ name: 'month', in: 'query', schema: { type: 'string', example: '2026-10' }, description: 'YYYY-MM. Defaults to the current month.' }],
+        responses: {
+          200: okResponse(
+            'Goals',
+            {
+              type: 'object',
+              properties: {
+                goals: { type: 'array', items: { $ref: '#/components/schemas/Goal' } },
+                totalSaved: { type: 'integer', description: 'Paise.' },
+                thisMonth: { type: 'integer', description: 'Paise.' },
+              },
+            },
+            'OK',
+          ),
+          400: err('month is not YYYY-MM', 'month must be YYYY-MM'),
+          401: unauthorized,
+          500: serverErr,
+        },
+      },
+      post: {
+        tags: ['Goals'],
+        summary: 'Create a goal (New goal sheet)',
+        security: auth,
+        requestBody: jsonBody(
+          {
+            type: 'object',
+            required: ['name', 'targetAmount', 'targetMonth'],
+            properties: {
+              name: { type: 'string', maxLength: 28, example: 'Goa trip' },
+              icon: { type: 'string', enum: ['shield', 'phone', 'plane', 'house', 'gift', 'star'], default: 'star' },
+              targetAmount: { type: 'integer', minimum: 100, description: 'Paise.' },
+              targetMonth: { type: 'string', example: '2027-03' },
+            },
+          },
+          { name: 'Goa trip', icon: 'plane', targetAmount: 2000000, targetMonth: '2027-03' },
+        ),
+        responses: {
+          201: okResponse('Goal created', nullData, 'Goal created'),
+          400: err('Missing or invalid field', 'targetMonth must be YYYY-MM'),
+          401: unauthorized,
+          409: err('The user already has a goal with this name', 'You already have a goal with this name'),
+          500: serverErr,
+        },
+      },
+    },
+
+    '/api/goals/{id}/contributions': {
+      post: {
+        tags: ['Goals'],
+        summary: 'Add money or Take out',
+        description:
+          'A positive `amount` adds money, a negative one takes it out. `data` is null; call `GET /api/goals` to read the updated goal. The server recalculates `savedAmount` and sets `reachedAt` the first time the target is reached (the "Goal reached!" toast can be shown when `reachedAt` becomes set), clearing it if money is taken out again. Taking out more than is saved is refused.',
+        security: auth,
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', example: '6a1da848f11b7e3f2d5ee904' } }],
+        requestBody: jsonBody(
+          {
+            type: 'object',
+            required: ['amount', 'date'],
+            properties: {
+              amount: { type: 'integer', description: 'Whole paise, not 0. Negative = Take out.', example: 300000 },
+              date: { type: 'string', description: 'YYYY-MM-DD. Cannot be after the user\'s today.', example: '2026-10-02' },
+              today: { type: 'string', description: 'The user\'s local day, YYYY-MM-DD.' },
+            },
+          },
+          { amount: 300000, date: '2026-10-02', today: '2026-10-02' },
+        ),
+        responses: {
+          201: okResponse('Contribution saved', nullData, 'Money added'),
+          400: err('Invalid amount or date, or more taken out than is saved', 'Cannot take out more than is saved'),
+          401: unauthorized,
+          404: err('No such goal for this user', 'Goal not found'),
+          500: serverErr,
+        },
+      },
+    },
+
+    '/api/goals/{id}': {
+      delete: {
+        tags: ['Goals'],
+        summary: 'Delete a goal and its money log',
+        security: auth,
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', example: '6a1da848f11b7e3f2d5ee904' } }],
+        responses: {
+          200: okResponse('Goal deleted', nullData, 'Goal deleted'),
+          400: err('The id is not a valid id', 'Invalid _id'),
+          401: unauthorized,
+          404: err('No such goal for this user', 'Goal not found'),
           500: serverErr,
         },
       },
