@@ -26,39 +26,51 @@ class FloatingBottomNavBar extends StatelessWidget {
     required this.onTabSelected,
     this.items = const [
       NavItemData(icon: AppIcons.home, label: 'Home'),
-      NavItemData(icon: AppIcons.analytics, label: 'Analytics'),
+      NavItemData(icon: AppIcons.analytics, label: 'Insights'),
       NavItemData(icon: AppIcons.wallet, label: 'Wallet'),
-      NavItemData(icon: AppIcons.person, label: 'Profile'),
+      NavItemData(icon: AppIcons.savings, label: 'Savings'),
     ],
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 70.h,
+    // Dynamic padding logic:
+    // If the left-most item is expanded, left end padding is less (6.w).
+    // Otherwise, left end padding is more (20.w).
+    // If the right-most item is expanded, right end padding is less (6.w).
+    // Otherwise, right end padding is more (20.w).
+    final double leftPadding = selectedIndex == 0 ? 6.w : 20.w;
+    final double rightPadding =
+        selectedIndex == (items.length - 1) ? 6.w : 20.w;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeInOut,
+      height: 64.h,
+      padding: EdgeInsets.only(
+        left: leftPadding,
+        right: rightPadding,
+        top: 6.h,
+        bottom: 6.h,
+      ),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(36.r),
-      //  border: Border.all(color: AppColors.line.withOpacity(0.6), width: 1.w),
-        border: Border.all(color: AppColors.surface),
         boxShadow: [
           BoxShadow(
-            color: AppColors.ink.withOpacity(0.08),
+            color: AppColors.ink.withValues(alpha: 0.08),
             blurRadius: 24.r,
             spreadRadius: 0,
             offset: Offset(0, 8.h),
           ),
           BoxShadow(
-            color: AppColors.cardShadow.withOpacity(0.04),
+            color: AppColors.cardShadow.withValues(alpha: 0.04),
             blurRadius: 12.r,
             spreadRadius: 0,
             offset: Offset(0, 2.h),
           ),
         ],
       ),
-      padding: EdgeInsets.symmetric(
-          horizontal: 6.w,
-          vertical: 5.h),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(items.length, (index) {
@@ -69,11 +81,12 @@ class FloatingBottomNavBar extends StatelessWidget {
             onTap: () => onTabSelected(index),
             behavior: HitTestBehavior.opaque,
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              curve: Curves.easeInOut,
+              duration: const Duration(milliseconds: 220),
+              //curve: Curves.easeInOut,
+              curve: Curves.linear,
               padding: isSelected
-                  ? EdgeInsets.only(left: 5.w, right: 16.w, top: 4.h, bottom: 4.h)
-                  : EdgeInsets.symmetric(horizontal: 4.w, vertical: 8.h),
+                  ? EdgeInsets.only(left: 4.w, right: 16.w, top: 4.h, bottom: 4.h)
+                  : EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.fill : Colors.transparent,
                 borderRadius: BorderRadius.circular(30.r),
@@ -89,7 +102,7 @@ class FloatingBottomNavBar extends StatelessWidget {
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.accent.withOpacity(0.35),
+                            color: AppColors.accent.withValues(alpha: 0.35),
                             blurRadius: 8.r,
                             spreadRadius: 0,
                             offset: Offset(0, 3.h),
@@ -98,7 +111,7 @@ class FloatingBottomNavBar extends StatelessWidget {
                       ),
                       child: Icon(
                         item.icon,
-                        size: 20.sp,
+                        size: 22.sp,
                         color: AppColors.onAccent,
                       ),
                     )

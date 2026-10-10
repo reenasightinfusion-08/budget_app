@@ -65,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           const HomeTabScreen(),
           _buildPlaceholderTab(
-            'Analytics',
+            'Insights',
             'Track your spending and income trends over time.',
             AppIcons.analytics,
           ),
@@ -75,16 +75,16 @@ class _HomeScreenState extends State<HomeScreen> {
             AppIcons.wallet,
           ),
           _buildPlaceholderTab(
-            'Profile & Settings',
-            'Manage your account preferences and security.',
-            AppIcons.person,
+            'Savings',
+            'Track your savings goals and piggy bank.',
+            AppIcons.savings,
           ),
         ],
       ),
       bottomNavigationBar: SafeArea(
         top: false,
         child: Padding(
-          padding: EdgeInsets.fromLTRB(45.w, 0, 45.w, 16.h),
+          padding: EdgeInsets.fromLTRB(40.w, 0, 40.w, 16.h),
           child: FloatingBottomNavBar(
             selectedIndex: _selectedIndex,
             onTabSelected: (index) {

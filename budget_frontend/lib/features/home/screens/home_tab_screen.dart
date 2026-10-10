@@ -60,7 +60,7 @@ class HomeTabScreen extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+          padding: EdgeInsets.symmetric(horizontal: 22.w, vertical: 18.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -77,7 +77,7 @@ class HomeTabScreen extends StatelessWidget {
                         firstLetter,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 18.sp,
+                          fontSize: 20.sp,
                           color: AppColors.accent,
                         ),
                       ),
@@ -107,10 +107,9 @@ class HomeTabScreen extends StatelessWidget {
                   ),
                   const Spacer(),
                   Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                     decoration: BoxDecoration(
-                      color: AppColors.fill,
+                      color: AppColors.surface,
                       borderRadius: AppBorderRadius.pill,
                     ),
                     child: Row(
