@@ -7,13 +7,14 @@ import 'package:budget_frontend/app/app_routes.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
-import 'package:budget_frontend/core/widgets/app_button.dart';
 import 'package:budget_frontend/core/widgets/app_link_button.dart';
 import 'package:budget_frontend/core/widgets/common_container.dart';
 import 'package:budget_frontend/core/widgets/sheet_scaffold.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_demo_code_banner.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_footer_link.dart';
+import 'package:budget_frontend/features/auth/widgets/auth_loading_overlay.dart';
+import 'package:budget_frontend/features/auth/widgets/auth_submit_button.dart';
 
 class VerifyEmailScreen extends StatefulWidget {
   const VerifyEmailScreen({super.key});
@@ -68,6 +69,7 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
         }
       },
       child: SheetScaffold(
+        overlay: const AuthLoadingOverlay(),
       title: 'Verify your email',
       subtitle: 'We sent a 6-digit code to $userEmail',
       onBack: () => Navigator.of(context).pop(),
@@ -180,7 +182,7 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
             ],
           ),
           12.verticalSpace,
-          AppButton(label: 'Verify', onPressed: verifyCode),
+          AuthSubmitButton(label: 'Verify', onPressed: verifyCode),
           const Spacer(),
           AuthFooterLink(
             prompt: 'Wrong email?',
@@ -235,4 +237,3 @@ class _BlinkingCursorState extends State<_BlinkingCursor>
     );
   }
 }
-

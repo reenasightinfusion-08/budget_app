@@ -91,7 +91,7 @@ module.exports = {
     { url: 'https://budgetbackend-mu.vercel.app', description: 'Production' },
     { url: 'http://localhost:3000', description: 'Local' },
   ],
-  tags: [{ name: 'Health' }, { name: 'Auth' }, { name: 'Users' }],
+  tags: [{ name: 'Health' }, { name: 'Auth' }, { name: 'Users' }, { name: 'Categories' }],
   components: {
     securitySchemes: { bearerAuth: { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' } },
     schemas: {
@@ -101,6 +101,17 @@ module.exports = {
           success: { type: 'boolean', example: false },
           message: { type: 'string', example: 'Something went wrong' },
           data: { type: 'object', nullable: true, example: null },
+        },
+      },
+      Category: {
+        type: 'object',
+        properties: {
+          key: { type: 'string', description: 'Stored in transactions.category and users.categoryLimits.', example: 'food' },
+          type: { type: 'string', enum: ['income', 'expense'], example: 'expense' },
+          label: { type: 'string', example: 'Food' },
+          icon: { type: 'string', description: 'Icon key the app maps to an icon.', example: 'food' },
+          color: { type: 'string', example: '#E8913A' },
+          sortOrder: { type: 'integer', example: 1 },
         },
       },
       User: {
@@ -400,6 +411,25 @@ module.exports = {
         security: auth,
         responses: {
           200: okResponse('Account deleted', nullData, 'Account deleted'),
+          401: unauthorized,
+          500: serverErr,
+        },
+      },
+    },
+
+    '/api/categories': {
+      get: {
+        tags: ['Categories'],
+        summary: 'List the shared categories',
+        description:
+          'Active categories for every user, income and expense, ordered by type then `sortOrder`. `other` exists once per type, so match on `type` + `key`. The app loads this once and caches it.',
+        security: auth,
+        responses: {
+          200: okResponse(
+            'Category list',
+            { type: 'object', properties: { categories: { type: 'array', items: { $ref: '#/components/schemas/Category' } } } },
+            'OK',
+          ),
           401: unauthorized,
           500: serverErr,
         },

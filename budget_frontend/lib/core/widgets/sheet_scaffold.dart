@@ -15,12 +15,16 @@ class SheetScaffold extends StatelessWidget {
     required this.subtitle,
     required this.child,
     this.onBack,
+    this.overlay,
   });
 
   final String title;
   final String subtitle;
   final Widget child;
   final VoidCallback? onBack;
+
+  /// Drawn above the whole screen, e.g. a loading overlay.
+  final Widget? overlay;
 
   @override
   Widget build(BuildContext context) => GestureDetector(
@@ -36,21 +40,17 @@ class SheetScaffold extends StatelessWidget {
                 child: CustomScrollView(
                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   slivers: [
+                    SliverToBoxAdapter(
+                      child: SheetHeader(title: title, subtitle: subtitle, onBack: onBack),
+                    ),
                     SliverFillRemaining(
                       hasScrollBody: false,
-                      child: IntrinsicHeight( 
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            SheetHeader(title: title, subtitle: subtitle, onBack: onBack),
-                            Expanded(child: SheetSurface(child: child)),
-                          ],
-                        ),
-                      ),
+                      child: SheetSurface(child: child),
                     ),
                   ],
                 ),
               ),
+              if (overlay != null) overlay!,
             ],
           ),
         ),

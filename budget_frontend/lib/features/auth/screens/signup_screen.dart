@@ -12,6 +12,7 @@ import 'package:budget_frontend/features/auth/widgets/auth_footer_link.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_google_button.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_google_error_text.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_or_divider.dart';
+import 'package:budget_frontend/features/auth/widgets/auth_loading_overlay.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_submit_button.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -70,6 +71,7 @@ class SignupScreenState extends State<SignupScreen> {
           }
         },
         child: SheetScaffold(
+        overlay: const AuthLoadingOverlay(),
           title: 'Create your account',
           subtitle: 'Set up your login to get started.',
           child: Form(

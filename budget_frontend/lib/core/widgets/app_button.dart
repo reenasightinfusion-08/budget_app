@@ -7,24 +7,19 @@ import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_gradients.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
-import 'package:budget_frontend/core/widgets/app_loader.dart';
 
 class AppButton extends StatelessWidget {
   const AppButton({
     super.key,
     required this.label,
     required this.onPressed,
-    this.isLoading = false,
   });
 
   final String label;
   final VoidCallback? onPressed;
-  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
-    final canTap = onPressed != null && !isLoading;
-
     return Opacity(
       opacity: onPressed == null ? 0.4 : 1,
       child: Material(
@@ -35,7 +30,7 @@ class AppButton extends StatelessWidget {
             borderRadius: AppBorderRadius.lg,
           ),
           child: InkWell(
-            onTap: canTap
+            onTap: onPressed != null
                 ? () {
                     FocusManager.instance.primaryFocus?.unfocus();
                     onPressed?.call();
@@ -56,14 +51,7 @@ class AppButton extends StatelessWidget {
                       color: AppColors.pop,
                       shape: BoxShape.circle,
                     ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        if (isLoading) const AppLoader(size: 20, color: AppColors.onPop),
-                        if (!isLoading)
-                          Icon(AppIcons.chevronRight, size: 26.r, color: AppColors.onPop),
-                      ],
-                    ),
+                    child: Icon(AppIcons.chevronRight, size: 26.r, color: AppColors.onPop),
                   ),
                 ],
               ),

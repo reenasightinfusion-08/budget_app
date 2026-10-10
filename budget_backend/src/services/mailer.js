@@ -32,15 +32,9 @@ const INK = '#101A2B';
 const MUTED = '#5B6778';
 const FONT = "-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
 
-const digitCells = (code) =>
-  String(code)
-    .split('')
-    .map(
-      (digit) => `<td style="padding:0 4px;">
-        <div style="width:44px;height:56px;line-height:56px;text-align:center;font-size:28px;font-weight:700;color:${BRAND_DARK};background:#EEF3FA;border:1px solid #D5E1F2;border-radius:10px;font-family:${FONT};">${digit}</div>
-      </td>`,
-    )
-    .join('');
+// One unbroken text node so a double-tap or long-press on mobile selects the whole code.
+const codeBlock = (code) =>
+  `<div style="display:inline-block;padding:18px 20px 18px 30px;background:#EEF3FA;border:1px solid #D5E1F2;border-radius:16px;font-family:'SF Mono',Menlo,Consolas,'Courier New',monospace;font-size:40px;line-height:44px;font-weight:700;letter-spacing:10px;color:${BRAND_DARK};-webkit-user-select:all;user-select:all;">${code}</div>`;
 
 const buildHtml = (heading, intro, code) => `
 <!doctype html>
@@ -64,7 +58,7 @@ const buildHtml = (heading, intro, code) => `
         </tr>
         <tr>
           <td align="center" style="padding:28px 12px 8px;">
-            <table role="presentation" cellpadding="0" cellspacing="0"><tr>${digitCells(code)}</tr></table>
+            ${codeBlock(code)}
           </td>
         </tr>
         <tr>

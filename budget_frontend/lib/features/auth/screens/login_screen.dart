@@ -13,6 +13,7 @@ import 'package:budget_frontend/features/auth/widgets/auth_error_text.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_footer_link.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_google_button.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_google_error_text.dart';
+import 'package:budget_frontend/features/auth/widgets/auth_loading_overlay.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_notice_banner.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_or_divider.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_submit_button.dart';
@@ -74,6 +75,7 @@ class LoginScreenState extends State<LoginScreen> {
         }
       },
       child: SheetScaffold(
+        overlay: const AuthLoadingOverlay(),
         title: 'Welcome back',
         subtitle: 'Log in to pick up where your budget left off.',
         child: Form(
