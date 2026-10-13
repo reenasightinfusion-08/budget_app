@@ -7,8 +7,10 @@ import 'package:budget_frontend/features/auth/models/user_model.dart';
 import 'package:budget_frontend/features/auth/screens/signup_screen.dart';
 import 'package:budget_frontend/features/auth/screens/splash_screen.dart';
 import 'package:budget_frontend/features/auth/screens/verify_email_screen.dart';
+import 'package:budget_frontend/features/history/screen/history_screen.dart';
 import 'package:budget_frontend/features/home/screens/home_screen.dart';
 import 'package:budget_frontend/features/profile/screens/profile_screen.dart';
+import 'package:budget_frontend/features/savings/screen/savings_screen.dart';
 import 'package:budget_frontend/features/setup/screens/setup_screen.dart';
 
 class AppRoutes {
@@ -21,6 +23,8 @@ class AppRoutes {
   static const String setup = '/setup';
   static const String home = '/home';
   static const String profile = '/profile';
+  static const String history = '/history';
+  static const String savings = '/savings';
 
   static String afterAuth(UserModel? user) =>
       (user?.onboardingComplete ?? false) ? home : setup;
@@ -35,5 +39,7 @@ class AppRoutes {
     setup: (_) => const SetupScreen(),
     home: (_) => const HomeScreen(),
     profile: (_) => const ProfileScreen(),
+    history: (_) => const HistoryScreen(),
+    savings: (_) => const SavingsScreen(),
   };
 }

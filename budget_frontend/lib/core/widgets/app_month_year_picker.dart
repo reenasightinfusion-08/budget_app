@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 
 /// A custom, compact Month & Year picker dialog matching the app design system.
@@ -92,7 +94,7 @@ class _AppMonthYearPickerDialogState extends State<AppMonthYearPickerDialog> {
       surfaceTintColor: Colors.transparent,
       insetPadding: EdgeInsets.symmetric(horizontal: 28.w),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24.r),
+        borderRadius: AppBorderRadius.dialog,
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 16.h),
@@ -105,11 +107,7 @@ class _AppMonthYearPickerDialogState extends State<AppMonthYearPickerDialog> {
               children: [
                 Text(
                   '$_displayedYear',
-                  style: GoogleFonts.outfit(
-                    color: AppColors.ink,
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AppTextStyle.cardTitle,
                 ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -117,7 +115,7 @@ class _AppMonthYearPickerDialogState extends State<AppMonthYearPickerDialog> {
                     // Previous Year Button (Disabled if viewing current/minimum year)
                     InkWell(
                       onTap: canGoPrevious ? _previousYear : null,
-                      borderRadius: BorderRadius.circular(20.r),
+                      borderRadius: AppBorderRadius.md,
                       child: Container(
                         width: 34.r,
                         height: 34.r,
@@ -129,7 +127,7 @@ class _AppMonthYearPickerDialogState extends State<AppMonthYearPickerDialog> {
                               : AppColors.fill.withValues(alpha: 0.4),
                         ),
                         child: Icon(
-                          Icons.arrow_back_ios_rounded,
+                          AppIcons.arrowBack,
                           size: 14.sp,
                           color: canGoPrevious
                               ? AppColors.ink
@@ -141,7 +139,7 @@ class _AppMonthYearPickerDialogState extends State<AppMonthYearPickerDialog> {
                     // Next Year Button
                     InkWell(
                       onTap: canGoNext ? _nextYear : null,
-                      borderRadius: BorderRadius.circular(20.r),
+                      borderRadius: AppBorderRadius.md,
                       child: Container(
                         width: 34.r,
                         height: 34.r,
@@ -153,7 +151,7 @@ class _AppMonthYearPickerDialogState extends State<AppMonthYearPickerDialog> {
                               : AppColors.fill.withValues(alpha: 0.4),
                         ),
                         child: Icon(
-                          Icons.arrow_forward_ios_rounded,
+                          AppIcons.arrowForward,
                           size: 14.sp,
                           color: canGoNext
                               ? AppColors.ink
@@ -195,13 +193,12 @@ class _AppMonthYearPickerDialogState extends State<AppMonthYearPickerDialog> {
                   return Container(
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12.r),
+                      borderRadius: AppBorderRadius.xs,
                     ),
                     child: Text(
                       label,
-                      style: GoogleFonts.outfit(
+                      style: AppTextStyle.body.copyWith(
                         color: AppColors.faint.withValues(alpha: 0.4),
-                        fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -210,9 +207,9 @@ class _AppMonthYearPickerDialogState extends State<AppMonthYearPickerDialog> {
 
                 return Material(
                   color: isSelected ? AppColors.accent : AppColors.fill,
-                  borderRadius: BorderRadius.circular(12.r),
+                  borderRadius: AppBorderRadius.xs,
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(12.r),
+                    borderRadius: AppBorderRadius.xs,
                     onTap: () {
                       final selected = DateTime(_displayedYear, month);
                       setState(() => _selectedDate = selected);
@@ -221,9 +218,8 @@ class _AppMonthYearPickerDialogState extends State<AppMonthYearPickerDialog> {
                     child: Center(
                       child: Text(
                         label,
-                        style: GoogleFonts.outfit(
+                        style: AppTextStyle.chip.copyWith(
                           color: isSelected ? Colors.white : AppColors.ink,
-                          fontSize: 14.sp,
                           fontWeight:
                               isSelected ? FontWeight.w700 : FontWeight.w600,
                         ),

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Viewfinder corners -->
+  <path d="M12 25V18C12 14.6863 14.6863 12 18 12H25" stroke="#FF9500" stroke-width="4" stroke-linecap="round"/>
+  <path d="M75 12H82C85.3137 12 88 14.6863 88 18V25" stroke="#FF9500" stroke-width="4" stroke-linecap="round"/>
+  <path d="M12 75V82C12 85.3137 14.6863 88 18 88H25" stroke="#FF9500" stroke-width="4" stroke-linecap="round"/>
+  <path d="M75 88H82C85.3137 88 88 85.3137 88 82V75" stroke="#FF9500" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Receipt Paper -->
+  <g filter="drop-shadow(0px 3px 6px rgba(0,0,0,0.08))">
+    <path d="M22 22C22 18.6863 24.6863 16 28 16H54C57.3137 16 60 18.6863 60 22V77.5L55.5 75L50.5 77.5L45.5 75L40.5 77.5L35.5 75L30.5 77.5L26 75L22 77.5V22Z" fill="#FFFFFF" stroke="#FFA31A" stroke-width="3" stroke-linejoin="round"/>
+    
+    <!-- Receipt text lines -->
+    <path d="M30 27H52" stroke="#FFC980" stroke-width="3" stroke-linecap="round"/>
+    <path d="M30 35H44" stroke="#FFC980" stroke-width="3" stroke-linecap="round"/>
+    <path d="M30 43H48" stroke="#FFC980" stroke-width="3" stroke-linecap="round"/>
+    
+    <!-- Rupee symbol on receipt -->
+    <text x="39" y="62" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="900" fill="#FF8800" text-anchor="middle">₹</text>
+  </g>
+
+  <!-- Camera overlay (overlapping top-right of receipt) -->
+  <g transform="translate(44, 20)">
+    <!-- Camera bump / top dial -->
+    <path d="M14 6H24L26 9H12L14 6Z" fill="#1C273E"/>
+    <rect x="29" y="5" width="4" height="4" rx="1.5" fill="#FFA31A"/>
+    <!-- Camera body -->
+    <rect x="2" y="9" width="42" height="30" rx="8" fill="#1C273E"/>
+    <!-- Lens outer ring -->
+    <circle cx="23" cy="24" r="10.5" fill="#FFFFFF"/>
+    <!-- Lens inner circle -->
+    <circle cx="23" cy="24" r="8" fill="#FFA31A"/>
+    <!-- Lens pupil / reflection -->
+    <circle cx="23" cy="24" r="5" fill="#1C273E"/>
+    <circle cx="25.5" cy="21.5" r="1.8" fill="#FFFFFF"/>
+  </g>
+</svg>

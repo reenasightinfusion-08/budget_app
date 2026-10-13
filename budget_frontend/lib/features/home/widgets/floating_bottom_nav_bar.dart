@@ -5,6 +5,7 @@ import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/features/home/widgets/nav_bar_item.dart';
@@ -143,7 +144,7 @@ class FloatingBottomNavBarState extends State<FloatingBottomNavBar>
     padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
     decoration: BoxDecoration(
       color: AppColors.surface,
-      borderRadius: BorderRadius.circular(36.r),
+      borderRadius: AppBorderRadius.navBar,
       boxShadow: [
         BoxShadow(
           color: AppColors.ink.withValues(alpha: 0.08),
@@ -194,7 +195,7 @@ class FloatingBottomNavBarState extends State<FloatingBottomNavBar>
                             AppColors.fill,
                           ],
                         ),
-                        borderRadius: BorderRadius.circular(32.r),
+                        borderRadius: AppBorderRadius.navItem,
                         border: Border.all(
                           color: AppColors.surface.withValues(
                             alpha: 0.9 * stretch,

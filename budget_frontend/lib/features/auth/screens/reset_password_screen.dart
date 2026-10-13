@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/app/app_routes.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/utils/app_validators.dart';
 import 'package:budget_frontend/core/widgets/app_link_button.dart';
 import 'package:budget_frontend/core/widgets/app_text_field.dart';
@@ -79,7 +80,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 AppTextField(
                   controller: codeController,
                   hint: '6-digit code',
-                  icon: Icons.shield_outlined,
+                  icon: AppIcons.shield,
                   validator: AppValidators.code,
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.next,
@@ -90,7 +91,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 AppTextField(
                   controller: passwordController,
                   hint: 'New password (8+ characters)',
-                  icon: Icons.lock_outline_rounded,
+                  icon: AppIcons.lock,
                   isPassword: true,
                   validator: AppValidators.newPassword,
                   textInputAction: TextInputAction.next,
@@ -100,7 +101,7 @@ class ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 AppTextField(
                   controller: confirmController,
                   hint: 'Confirm new password',
-                  icon: Icons.lock_outline_rounded,
+                  icon: AppIcons.lock,
                   isPassword: true,
                   validator: AppValidators.confirmPassword(passwordController),
                   textInputAction: TextInputAction.done,

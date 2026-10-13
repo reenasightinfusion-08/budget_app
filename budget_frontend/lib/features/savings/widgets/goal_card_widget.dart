@@ -1,9 +1,10 @@
+import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/features/savings/widgets/goal_detail_bottom_sheet.dart';
 
@@ -74,30 +75,22 @@ class GoalCardWidget extends StatelessWidget {
             children: [
               // i. Goal process circle (20% progress)
               const GoalProgressCircle(
-                icon: Icons.laptop_mac_rounded,
+                icon: AppIcons.laptop,
                 progress: 0.20,
               ),
               12.horizontalSpace,
-              // ii. Column: 1st. Laptop, 2nd. 20% · by Apr 2027
+              // ii. Column: 1st. Laptop, 2nd. 20% Â· by Apr 2027
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'Laptop',
-                    style: GoogleFonts.outfit(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.ink,
-                    ),
+                    style: AppTextStyle.cardTitle,
                   ),
                   2.verticalSpace,
                   Text(
                     '20% · by Apr 2027',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.muted,
-                    ),
+                    style: AppTextStyle.subHeader,
                   ),
                 ],
               ),
@@ -108,20 +101,12 @@ class GoalCardWidget extends StatelessWidget {
                 children: [
                   Text(
                     '₹53,200',
-                    style: GoogleFonts.outfit(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.ink,
-                    ),
+                    style: AppTextStyle.cardTitle,
                   ),
                   2.verticalSpace,
                   Text(
                     'of ₹50,000',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.muted,
-                    ),
+                    style: AppTextStyle.subHeader,
                   ),
                 ],
               ),
@@ -129,24 +114,19 @@ class GoalCardWidget extends StatelessWidget {
           ),
           14.verticalSpace,
           // 2. Container that shows monthly saving requirement
-          Container(
+          AppCard(
             width: double.infinity,
-            decoration: BoxDecoration(
-              color: AppColors.fill,
-              borderRadius: BorderRadius.circular(14.r),
-            ),
+            color: AppColors.fill,
+            radius: AppBorderRadius.chip,
             padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
             child: RichText(
               text: TextSpan(
-                style: GoogleFonts.dmSans(
-                  fontSize: 13.sp,
-                  color: AppColors.muted,
-                ),
+                style: AppTextStyle.fieldLabel,
                 children: [
                   const TextSpan(text: 'Save '),
                   TextSpan(
                     text: '₹1,764 a month',
-                    style: GoogleFonts.dmSans(
+                    style: AppTextStyle.fieldLabel.copyWith(
                       fontWeight: FontWeight.w700,
                       color: AppColors.ink,
                     ),

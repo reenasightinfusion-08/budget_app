@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/amount_input_dialog.dart';
-import 'package:budget_frontend/core/widgets/surface_card.dart';
+import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
 import 'package:budget_frontend/features/wallet/models/budget_category_model.dart';
 import 'package:budget_frontend/features/wallet/models/easy_fix.dart';
@@ -47,7 +48,7 @@ class WalletScreenState extends State<WalletScreen> {
         content: Text('Plan updated: moved ${AppFormatters.rupees(fix.amount)} to ${fix.to.label}'),
         backgroundColor: AppColors.accent,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16.r)),
+        shape: RoundedRectangleBorder(borderRadius: AppBorderRadius.dialogInput),
       ),
     );
   }
@@ -97,9 +98,12 @@ class WalletScreenState extends State<WalletScreen> {
               totalBudget: totalBudget,
             ),
             12.verticalSpace,
-            SurfaceCard(
+            AppCard(
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+              border: Border.all(color: AppColors.line),
+              blur: 16,
+              offsetY: 4,
               child: Column(
                 children: [
                   for (final (index, category) in categories.indexed)

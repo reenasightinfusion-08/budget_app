@@ -1,9 +1,11 @@
+import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
+import 'package:budget_frontend/core/widgets/app_card.dart';
 
 /// Tappable "spent / limit" chip.
 class LimitPill extends StatelessWidget {
@@ -17,31 +19,23 @@ class LimitPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
+      child: AppCard(
         height: 38.h,
         padding: EdgeInsets.symmetric(horizontal: 10.w),
-        decoration: BoxDecoration(
-          color: AppColors.fill,
-          borderRadius: BorderRadius.circular(14.r),
-        ),
+        color: AppColors.fill,
+        radius: AppBorderRadius.chip,
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               '${AppFormatters.compactRupees(spent)} / ',
-              style: GoogleFonts.dmSans(
-                fontSize: 12.sp,
+              style: AppTextStyle.description.copyWith(
                 fontWeight: FontWeight.w500,
-                color: AppColors.muted,
               ),
             ),
             Text(
               AppFormatters.rupees(limit),
-              style: GoogleFonts.outfit(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: AppColors.ink,
-              ),
+              style: AppTextStyle.chip,
             ),
           ],
         ),

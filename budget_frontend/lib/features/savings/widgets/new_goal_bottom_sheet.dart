@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
@@ -49,11 +48,7 @@ class NewGoalBottomSheet extends StatefulWidget {
       title: Text(
         'New goal',
         textAlign: TextAlign.center,
-        style: GoogleFonts.outfit(
-          fontSize: 22.sp,
-          fontWeight: FontWeight.w700,
-          color: AppColors.ink,
-        ),
+        style: AppTextStyle.dialogTitle.copyWith(fontSize: 22.sp),
       ),
       child: NewGoalBottomSheet(onSubmit: onSubmit),
     );
@@ -202,7 +197,7 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
           ),
           14.verticalSpace,
           Text(
-            'How much do you need? (₹)',
+            'How much do you need? (â‚¹)',
             style: AppTextStyle.fieldLabel.copyWith(fontSize: 15),
           ),
           6.verticalSpace,

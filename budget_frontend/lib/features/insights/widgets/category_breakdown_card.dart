@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
-
-import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/features/insights/models/insight_models.dart';
 import 'package:budget_frontend/features/insights/widgets/category_spend_row.dart';
 import 'package:budget_frontend/features/insights/widgets/insight_card.dart';
@@ -24,7 +22,7 @@ class CategoryBreakdownCard extends StatelessWidget {
               child: Center(
                 child: Text(
                   'No spending logged this month yet.',
-                  style: GoogleFonts.dmSans(fontSize: 14.sp, color: AppColors.muted),
+                  style: AppTextStyle.emptyState,
                 ),
               ),
             )

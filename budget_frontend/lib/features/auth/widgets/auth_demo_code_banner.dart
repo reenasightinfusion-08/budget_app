@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 
 /// Shows the reset code on screen while the app runs without an email backend.
@@ -18,14 +19,12 @@ class AuthDemoCodeBanner extends StatelessWidget {
           final code = state.demoCode;
           if (code == null) return const SizedBox.shrink();
 
-          return Container(
+          return AppCard(
             width: double.infinity,
             margin: EdgeInsets.only(bottom: 16.h),
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-            decoration: BoxDecoration(
-              color: AppColors.warningSoft,
-              borderRadius: AppBorderRadius.md,
-            ),
+            color: AppColors.warningSoft,
+            radius: AppBorderRadius.md,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

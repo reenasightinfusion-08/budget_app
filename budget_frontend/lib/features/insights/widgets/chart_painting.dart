@@ -1,9 +1,9 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 
 /// Drawing helpers and plot-area insets shared by the insights chart painters.
@@ -14,12 +14,7 @@ class ChartPainting {
   static const double rightMargin = 8;
   static const double bottomMargin = 22;
 
-  static TextStyle get labelStyle => TextStyle(
-    color: AppColors.faint,
-    fontSize: 10.sp,
-    fontWeight: FontWeight.w600,
-    fontFamily: 'DM Sans',
-  );
+  static TextStyle get labelStyle => AppTextStyle.chartLabel;
 
   /// Paints [text] with its top-left corner at [anchor], which receives the measured text size.
   static void paintText(

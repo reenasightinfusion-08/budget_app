@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_config.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 
 enum BudgetStatus { onTrack, careful, over }
@@ -63,14 +64,14 @@ class BudgetCategoryModel {
     );
 
     return [
-      category('food', 'Food', Icons.restaurant_rounded, AppColors.catFood, 5990, 7000),
-      category('bills', 'Bills', Icons.receipt_long_rounded, AppColors.catBills, 5400, 6000),
-      category('travel', 'Travel', Icons.directions_car_rounded, AppColors.catTravel, 4000, 4500),
-      category('shopping', 'Shopping', Icons.shopping_bag_rounded, AppColors.catShopping, 4500, 4000),
-      category('home', 'Home', Icons.home_rounded, AppColors.catHome, 1500, 2500),
-      category('health', 'Health', Icons.favorite_rounded, AppColors.catHealth, 700, 1500),
-      category('fun', 'Fun', Icons.sports_esports_rounded, AppColors.catFun, 2100, 2500),
-      category('other', 'Other', Icons.more_horiz_rounded, AppColors.catOther, 0, 2000),
+      category('food', 'Food', AppIcons.catFood, AppColors.catFood, 5990, 7000),
+      category('bills', 'Bills', AppIcons.catBills, AppColors.catBills, 5400, 6000),
+      category('travel', 'Travel', AppIcons.catTravel, AppColors.catTravel, 4000, 4500),
+      category('shopping', 'Shopping', AppIcons.catShopping, AppColors.catShopping, 4500, 4000),
+      category('home', 'Home', AppIcons.catHome, AppColors.catHome, 1500, 2500),
+      category('health', 'Health', AppIcons.catHealth, AppColors.catHealth, 700, 1500),
+      category('fun', 'Fun', AppIcons.catFun, AppColors.catFun, 2100, 2500),
+      category('other', 'Other', AppIcons.moreHoriz, AppColors.catOther, 0, 2000),
     ];
   }
 }

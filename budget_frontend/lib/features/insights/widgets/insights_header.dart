@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
-import 'package:budget_frontend/core/widgets/surface_card.dart';
+import 'package:budget_frontend/core/widgets/app_card.dart';
 
 class InsightsHeader extends StatelessWidget {
   const InsightsHeader({super.key});
@@ -20,9 +19,10 @@ class InsightsHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text('Insights', style: AppTextStyle.screenTitle),
-        SurfaceCard(
+        AppCard(
           padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 7.h),
-          borderRadius: AppBorderRadius.pill,
+          radius: AppBorderRadius.pill,
+          border: Border.all(color: AppColors.line),
           blur: 8,
           offsetY: 2,
           child: Row(
@@ -32,11 +32,7 @@ class InsightsHeader extends StatelessWidget {
               7.horizontalSpace,
               Text(
                 '${AppFormatters.monthShort(now.month)} ${now.year}',
-                style: GoogleFonts.dmSans(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.ink,
-                ),
+                style: AppTextStyle.chip.copyWith(fontSize: 13.sp),
               ),
             ],
           ),

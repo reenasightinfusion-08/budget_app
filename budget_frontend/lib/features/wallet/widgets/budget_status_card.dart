@@ -1,11 +1,11 @@
+import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_gradients.dart';
-import 'package:budget_frontend/core/widgets/surface_card.dart';
+import 'package:budget_frontend/core/widgets/app_card.dart';
 
 class BudgetStatusTrip extends StatelessWidget {
   const BudgetStatusTrip({
@@ -42,9 +42,10 @@ class StatusCountCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: SurfaceCard(
+      child: AppCard(
         padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 14.h),
-        borderRadius: AppBorderRadius.tile,
+        radius: AppBorderRadius.tile,
+        border: Border.all(color: AppColors.line),
         blur: 10,
         offsetY: 3,
         child: Column(
@@ -53,11 +54,8 @@ class StatusCountCard extends StatelessWidget {
           children: [
             Text(
               count.toString(),
-              style: GoogleFonts.outfit(
-                fontSize: 28.sp,
-                fontWeight: FontWeight.w700,
+              style: AppTextStyle.cardAmount.copyWith(
                 height: 1.0,
-                color: AppColors.ink,
               ),
             ),
             6.verticalSpace,
@@ -74,9 +72,7 @@ class StatusCountCard extends StatelessWidget {
                 6.horizontalSpace,
                 Text(
                   label,
-                  style: GoogleFonts.dmSans(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
+                  style: AppTextStyle.metricTitle.copyWith(
                     color: AppColors.accent,
                   ),
                 ),

@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_config.dart';
 import 'package:budget_frontend/core/constants/app_gradients.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/app_bottom_sheet.dart';
 import 'package:budget_frontend/core/widgets/app_button.dart';
+import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/core/widgets/app_text_field.dart';
 import 'package:budget_frontend/features/wallet/models/budget_category_model.dart';
 import 'package:date_picker_plus/date_picker_plus.dart';
@@ -28,7 +29,7 @@ class SpendIncomeBottomSheet extends StatefulWidget {
     BudgetCategoryModel(
       id: 'salary',
       label: 'Salary',
-      icon: Icons.payments_rounded,
+      icon: AppIcons.payments,
       color: AppColors.success,
       spent: 0,
       limit: 0,
@@ -36,7 +37,7 @@ class SpendIncomeBottomSheet extends StatefulWidget {
     BudgetCategoryModel(
       id: 'side_work',
       label: 'Side Work',
-      icon: Icons.work_rounded,
+      icon: AppIcons.work,
       color: AppColors.catBills,
       spent: 0,
       limit: 0,
@@ -44,7 +45,7 @@ class SpendIncomeBottomSheet extends StatefulWidget {
     BudgetCategoryModel(
       id: 'gift',
       label: 'Gift',
-      icon: Icons.card_giftcard_rounded,
+      icon: AppIcons.gift,
       color: AppColors.catFun,
       spent: 0,
       limit: 0,
@@ -52,7 +53,7 @@ class SpendIncomeBottomSheet extends StatefulWidget {
     BudgetCategoryModel(
       id: 'other',
       label: 'Other',
-      icon: Icons.more_horiz_rounded,
+      icon: AppIcons.moreHoriz,
       color: AppColors.catOther,
       spent: 0,
       limit: 0,
@@ -60,8 +61,8 @@ class SpendIncomeBottomSheet extends StatefulWidget {
   ];
 
   /// Opens the spend and income bottom sheet with the toggle buttons in the title.
-  static Future<void> show(BuildContext context) {
-    final selectedTabIndex = ValueNotifier<int>(0);
+  static Future<void> show(BuildContext context, {int initialTabIndex = 0}) {
+    final selectedTabIndex = ValueNotifier<int>(initialTabIndex);
 
     return AppBottomSheet.show(
       context: context,
@@ -161,13 +162,11 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
             // 1. Card container with gradient, rupee 0, and question
-            Container(
+            AppCard(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 20.w),
-              decoration: BoxDecoration(
-                gradient: AppGradients.card,
-                borderRadius: AppBorderRadius.card,
-              ),
+              isGradient: true,
+              radius: AppBorderRadius.card,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -180,10 +179,9 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
                       children: [
                         Text(
                           '₹',
-                          style: GoogleFonts.outfit(
+                          style: AppTextStyle.amountSymbol.copyWith(
                             fontSize: 35.sp,
                             fontWeight: FontWeight.w400,
-                            color: AppColors.onAccentMuted,
                           ),
                         ),
                         IntrinsicWidth(
@@ -198,16 +196,13 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
                             textAlign: TextAlign.center,
                             decoration: InputDecoration.collapsed(
                               hintText: '0',
-                              hintStyle: GoogleFonts.outfit(
+                              hintStyle: AppTextStyle.amount.copyWith(
                                 fontSize: 55.sp,
-                                fontWeight: FontWeight.w700,
                                 color: AppColors.onAccent.withValues(alpha: 0.4),
                               ),
                             ),
-                            style: GoogleFonts.outfit(
+                            style: AppTextStyle.amount.copyWith(
                               fontSize: 55.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.onAccent,
                             ),
                           ),
                         ),
@@ -219,10 +214,8 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
                     selectedIndex == 0
                         ? 'How much did you spend?'
                         : 'How much come in?',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 15.sp,
+                    style: AppTextStyle.subtitle.copyWith(
                       fontWeight: FontWeight.w500,
-                      color: AppColors.onAccentMuted,
                     ),
                   ),
                 ],
@@ -269,7 +262,7 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
             ),
             16.verticalSpace,
               AppTextField(
-                icon: Icons.edit_note_rounded,
+                icon: AppIcons.editNote,
                 controller: _noteController,
                 hint: 'Add a note (optional)',
                 fillColor: AppColors.surface,
@@ -296,10 +289,8 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
               4.verticalSpace,
               Text(
                 _amountError!,
-                style: GoogleFonts.dmSans(
-                  fontSize: 13.sp,
+                style: AppTextStyle.error.copyWith(
                   fontWeight: FontWeight.w500,
-                  color: AppColors.error,
                 ),
               ),
               4.verticalSpace,
@@ -366,7 +357,7 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
               alignment: Alignment.center,
               child: Icon(
                 category.id == 'food'
-                    ? Icons.soup_kitchen_rounded
+                    ? AppIcons.soupKitchen
                     : category.icon,
                 size: 17.sp,
                 color: isSelected ? Colors.white : category.color,
@@ -375,10 +366,9 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
             8.horizontalSpace,
             Text(
               category.label,
-              style: GoogleFonts.outfit(
-                fontSize: 14.sp,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+              style: AppTextStyle.chip.copyWith(
                 color: isSelected ? Colors.white : AppColors.ink,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
               ),
             ),
           ],
@@ -419,14 +409,13 @@ class _SpendIncomeToggle extends StatelessWidget {
                     alignment: Alignment.center,
                     child: Text(
                       'Spend',
-                      style: GoogleFonts.outfit(
-                        fontSize: 16.sp,
-                        fontWeight: currentIndex == 0
-                            ? FontWeight.w700
-                            : FontWeight.w600,
+                      style: AppTextStyle.input.copyWith(
                         color: currentIndex == 0
                             ? Colors.white
                             : AppColors.ink,
+                        fontWeight: currentIndex == 0
+                            ? FontWeight.w700
+                            : FontWeight.w600,
                       ),
                     ),
                   ),
@@ -447,14 +436,13 @@ class _SpendIncomeToggle extends StatelessWidget {
                     alignment: Alignment.center,
                     child: Text(
                       'Income',
-                      style: GoogleFonts.outfit(
-                        fontSize: 16.sp,
-                        fontWeight: currentIndex == 1
-                            ? FontWeight.w700
-                            : FontWeight.w600,
+                      style: AppTextStyle.input.copyWith(
                         color: currentIndex == 1
                             ? Colors.white
                             : AppColors.ink,
+                        fontWeight: currentIndex == 1
+                            ? FontWeight.w700
+                            : FontWeight.w600,
                       ),
                     ),
                   ),

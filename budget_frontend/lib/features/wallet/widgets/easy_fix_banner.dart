@@ -1,11 +1,12 @@
+import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_gradients.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
+import 'package:budget_frontend/core/widgets/app_card.dart';
 
 class EasyFixBanner extends StatelessWidget {
   const EasyFixBanner({
@@ -23,26 +24,27 @@ class EasyFixBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return AppCard(
       padding: EdgeInsets.fromLTRB(18.w, 12.h, 14.w, 12.h),
-      decoration: BoxDecoration(
-        color: AppColors.popSoft,
-        borderRadius: BorderRadius.circular(24.r),
-      ),
+      color: AppColors.popSoft,
+      radius: AppBorderRadius.dialog,
       child: Row(
         children: [
           Expanded(
             child: RichText(
               text: TextSpan(
-                style: GoogleFonts.dmSans(
-                  fontSize: 14.sp,
+                style: AppTextStyle.body.copyWith(
                   color: AppColors.ink,
                   height: 1.35,
                 ),
                 children: [
-                  const TextSpan(
+                  TextSpan(
                     text: 'Easy fix: ',
-                    style: TextStyle(fontWeight: FontWeight.w700),
+                    style: AppTextStyle.body.copyWith(
+                      color: AppColors.ink,
+                      height: 1.35,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                   TextSpan(
                     text: 'move ${AppFormatters.rupees(amount)} from $fromCategory to cover $toCategory.',
@@ -72,9 +74,7 @@ class EasyFixBanner extends StatelessWidget {
               onPressed: onMove,
               child: Text(
                 'Move it',
-                style: GoogleFonts.dmSans(
-                  fontSize: 13.sp,
-                  fontWeight: FontWeight.w700,
+                style: AppTextStyle.buttonPill.copyWith(
                   color: Colors.white,
                 ),
               ),

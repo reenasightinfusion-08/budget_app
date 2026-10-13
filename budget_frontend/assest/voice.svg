@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Decorative accent dots -->
+  <circle cx="16" cy="38" r="3" fill="#FF7290"/>
+  <circle cx="82" cy="34" r="3.5" fill="#FFC72C"/>
+  <circle cx="78" cy="74" r="2.5" fill="#FF7290"/>
+
+  <!-- Left soundwave -->
+  <path d="M12 50C16 40 20 60 24 50C28 40 32 60 36 50" stroke="#7E8CF0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Right soundwave -->
+  <path d="M64 50C68 40 72 60 76 50C80 40 84 60 88 50" stroke="#7E8CF0" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Microphone Capsule -->
+  <rect x="41" y="16" width="18" height="34" rx="9" fill="#4B63EB"/>
+  <!-- Highlight on capsule -->
+  <path d="M46 22C46 20.3431 47.3431 19 49 19C49.5 19 50 19.5 50 20V32C50 32.5523 49.5523 33 49 33C47.3431 33 46 31.6569 46 30V22Z" fill="#FFFFFF" fill-opacity="0.45"/>
+
+  <!-- Cradle / U-bracket around capsule -->
+  <path d="M33 34V39C33 48.3888 40.6112 56 50 56C59.3888 56 67 48.3888 67 39V34" stroke="#1E283F" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Stand stem -->
+  <path d="M50 56V72" stroke="#1E283F" stroke-width="4.5" stroke-linecap="round"/>
+
+  <!-- Stand base -->
+  <path d="M37 72H63" stroke="#1E283F" stroke-width="5" stroke-linecap="round"/>
+</svg>

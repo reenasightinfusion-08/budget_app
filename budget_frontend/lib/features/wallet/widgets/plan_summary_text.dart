@@ -1,8 +1,7 @@
+import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
-import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 
 /// Says how the sum of category limits compares with the monthly budget.
@@ -27,7 +26,7 @@ class PlanSummaryText extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 4.w),
       child: Text(
         '$summary Tap an amount to change it.',
-        style: GoogleFonts.dmSans(fontSize: 13.sp, color: AppColors.muted, height: 1.4),
+        style: AppTextStyle.description.copyWith(fontSize: 13.sp, height: 1.4),
       ),
     );
   }

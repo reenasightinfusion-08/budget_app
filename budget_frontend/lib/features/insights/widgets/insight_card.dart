@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
-import 'package:budget_frontend/core/widgets/surface_card.dart';
+import 'package:budget_frontend/core/widgets/app_card.dart';
 
 /// Section card with a title row (optional trailing widget), content, and optional footnote.
 class InsightCard extends StatelessWidget {
@@ -23,9 +22,12 @@ class InsightCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SurfaceCard(
+    return AppCard(
       width: double.infinity,
       padding: EdgeInsets.all(18.r),
+      border: Border.all(color: AppColors.line),
+      blur: 16,
+      offsetY: 4,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -43,7 +45,7 @@ class InsightCard extends StatelessWidget {
             12.verticalSpace,
             Text(
               subtitle!,
-              style: GoogleFonts.dmSans(fontSize: 13.sp, color: AppColors.muted, height: 1.35),
+              style: AppTextStyle.subHeader.copyWith(height: 1.35),
             ),
           ],
         ],

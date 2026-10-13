@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
 
 /// Common non-scrollable bottom sheet with rounded corners, drag handle,
 /// close button, and customizable title widget.
@@ -74,7 +75,7 @@ class AppBottomSheet extends StatelessWidget {
                   height: 4.h,
                   decoration: BoxDecoration(
                     color: AppColors.line,
-                    borderRadius: BorderRadius.circular(999.r),
+                    borderRadius: AppBorderRadius.pill,
                   ),
                 ),
               ),
@@ -87,7 +88,7 @@ class AppBottomSheet extends StatelessWidget {
                       radius: 23.r,
                       backgroundColor: AppColors.surface,
                       child: Icon(
-                        Icons.close_rounded,
+                        AppIcons.close,
                         color: AppColors.ink,
                         size: 20.sp,
                       ),

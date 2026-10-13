@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'package:budget_frontend/app/app_routes.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
+import 'package:budget_frontend/core/widgets/amount_input_dialog.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/profile/widgets/data_raw.dart';
@@ -35,7 +37,9 @@ class ProfileMenuCard extends StatelessWidget {
             icon: AppIcons.history,
             title: 'Transaction history',
             subtitle: 'Every spend and income, with search',
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).pushNamed(AppRoutes.history);
+            },
           ),
           const Divider(
             height: 1,
@@ -47,7 +51,9 @@ class ProfileMenuCard extends StatelessWidget {
             icon: AppIcons.savings,
             title: 'Savings goals',
             subtitle: 'Start your first goal',
-            onTap: () {},
+            onTap: () {
+              Navigator.of(context).pushNamed(AppRoutes.savings);
+            },
           ),
           const Divider(
             height: 1,
@@ -57,9 +63,22 @@ class ProfileMenuCard extends StatelessWidget {
           ),
           DataRaw(
             icon: AppIcons.wallet,
-            title: 'Name & monthly budget',
+            title: 'Monthly budget',
             subtitle: '$userName · ${AppFormatters.rupees(budgetAmount)}',
-            onTap: () {},
+            onTap: () async {
+              final currentBudget = setupState.effectiveBudget > 0
+                  ? setupState.effectiveBudget
+                  : budgetAmount;
+              final newBudget = await AmountInputDialog.show(
+                context,
+                title: 'Change Monthly Budget',
+                hint: 'Enter monthly budget',
+                initialValue: currentBudget,
+                fontSize: 22,
+              );
+              if (newBudget == null || newBudget <= 0 || !context.mounted) return;
+              context.read<SetupBloc>().add(SetupBudgetAmountChanged(newBudget));
+            },
           ),
           const Divider(
             height: 1,
@@ -68,11 +87,18 @@ class ProfileMenuCard extends StatelessWidget {
             indent: 16,
           ),
           DataRaw(
-            icon: AppIcons.language,
-            title: 'Look & colors',
-            subtitle: 'Royal · Light',
+            icon: AppIcons.delete,
+            title: 'Clear all entries',
+            subtitle: 'Removes entries and goals from this device',
+            iconColor: AppColors.error,
             onTap: () {},
           ),
+          // DataRaw(
+          //   icon: AppIcons.language,
+          //   title: 'Look & colors',
+          //   subtitle: 'Royal · Light',
+          //   onTap: () {},
+          // ),
         ],
       ),
     );

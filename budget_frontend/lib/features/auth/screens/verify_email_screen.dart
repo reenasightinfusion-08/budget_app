@@ -7,8 +7,8 @@ import 'package:budget_frontend/app/app_routes.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/core/widgets/app_link_button.dart';
-import 'package:budget_frontend/core/widgets/common_container.dart';
 import 'package:budget_frontend/core/widgets/sheet_scaffold.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_demo_code_banner.dart';
@@ -95,10 +95,9 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          CommonContainer(
-            backgroundColor: AppColors.warningSoft,
-            borderRadius: AppBorderRadius.md,
-            borderColor: Colors.transparent,
+          AppCard(
+            color: AppColors.warningSoft,
+            radius: AppBorderRadius.md,
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             margin: EdgeInsets.only(bottom: 20.h),
             child: Text(
@@ -157,31 +156,41 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
                           final char = hasValue ? codeText[index] : '';
 
                           return Expanded(
-                            child: CommonContainer(
+                            child: AppCard(
                               height: 56.h,
                               margin: EdgeInsets.symmetric(horizontal: 4.w),
-                              backgroundColor: isCurrentBoxFocused
+                              color: isCurrentBoxFocused
                                   ? AppColors.surface
                                   : AppColors.fill,
-
-                              borderRadius: AppBorderRadius.md,
-                              borderColor: isCurrentBoxFocused
-                                  ? AppColors.accent
-                                  : (hasValue ? AppColors.accent : AppColors.line),
-                              isFocused: isCurrentBoxFocused,
-                              alignment: Alignment.center,
-                              child: hasValue
-                                  ? Text(
-                                      char,
-                                      style: AppTextStyle.title.copyWith(
-                                        fontSize: 22.sp,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.ink,
-                                      ),
-                                    )
-                                  : (isCurrentBoxFocused
-                                      ? const _BlinkingCursor()
-                                      : const SizedBox.shrink()),
+                              radius: AppBorderRadius.md,
+                              border: Border.all(
+                                color: isCurrentBoxFocused
+                                    ? AppColors.accent
+                                    : (hasValue ? AppColors.accent : AppColors.line),
+                                width: 1.0,
+                              ),
+                              boxShadow: [
+                                if (isCurrentBoxFocused)
+                                  BoxShadow(
+                                    color: AppColors.fill,
+                                    spreadRadius: 3.0,
+                                    blurRadius: 0,
+                                  ),
+                              ],
+                              child: Center(
+                                child: hasValue
+                                    ? Text(
+                                        char,
+                                        style: AppTextStyle.title.copyWith(
+                                          fontSize: 22.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.ink,
+                                        ),
+                                      )
+                                    : (isCurrentBoxFocused
+                                        ? const _BlinkingCursor()
+                                        : const SizedBox.shrink()),
+                              ),
                             ),
                           );
                         }),
@@ -265,7 +274,7 @@ class _BlinkingCursorState extends State<_BlinkingCursor>
         height: 24.h,
         decoration: BoxDecoration(
           color: AppColors.accent,
-          borderRadius: BorderRadius.circular(1.r),
+          borderRadius: AppBorderRadius.indicator,
         ),
       ),
     );

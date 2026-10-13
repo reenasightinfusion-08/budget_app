@@ -71,6 +71,12 @@ flutter:
     - assest/cartoon.svg
     - assest/food.svg
     - assest/food2.svg
+    - assest/scan_bill.svg
+    - assest/voice.svg
+    - assest/pdf.svg
+    - assest/pdf.jpg
+    - assest/scanBill.jpg
+    - assest/voice2.jpg
 
   # To add assets to your application, add an assets section, like this:
   # assets:

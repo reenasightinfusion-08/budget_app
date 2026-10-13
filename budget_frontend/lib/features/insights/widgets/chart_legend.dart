@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_text_style.dart';
 
 /// "In / Out" key for the six-month chart.
 class ChartLegend extends StatelessWidget {
@@ -50,9 +50,7 @@ class ChartLegendItem extends StatelessWidget {
         6.horizontalSpace,
         Text(
           label,
-          style: GoogleFonts.dmSans(
-            fontSize: 12.sp,
-            fontWeight: FontWeight.w600,
+          style: AppTextStyle.metricTitle.copyWith(
             color: AppColors.muted,
           ),
         ),

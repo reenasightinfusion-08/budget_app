@@ -17,7 +17,7 @@ class AppTextField extends StatefulWidget {
     this.fillColor,
     this.backgroundColor,
     this.borderRadius,
-    required this.validator,
+    this.validator,
     this.suffixIcon,
     this.readOnly = false,
     this.isPassword = false,
@@ -39,7 +39,7 @@ class AppTextField extends StatefulWidget {
   final BorderRadius? borderRadius;
   final Widget? suffixIcon;
   final bool readOnly;
-  final FormFieldValidator<String> validator;
+  final FormFieldValidator<String>? validator;
   final bool isPassword;
   final TextInputType? keyboardType;
   final TextInputAction? textInputAction;
@@ -106,7 +106,7 @@ class AppTextFieldState extends State<AppTextField> {
       readOnly: widget.readOnly,
       validator: (value) {
         if (_suppressValidation) return null;
-        return widget.validator(value);
+        return widget.validator?.call(value);
       },
       onTap: _handleUserTap,
       onChanged: _handleUserChange,

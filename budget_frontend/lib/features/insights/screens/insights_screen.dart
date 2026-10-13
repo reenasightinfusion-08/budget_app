@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
-
-import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_layout.dart';
+import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/features/insights/models/insight_models.dart';
 import 'package:budget_frontend/features/insights/widgets/category_breakdown_card.dart';
@@ -38,11 +36,7 @@ class InsightsScreen extends StatelessWidget {
               title: 'Spent this month',
               trailing: Text(
                 AppFormatters.rupees(data.spentThisMonth),
-                style: GoogleFonts.outfit(
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.ink,
-                ),
+                style: AppTextStyle.dialogTitle,
               ),
               subtitle: 'Stay under the dotted line and you\'ll finish inside your budget.',
               child: PaceChart(

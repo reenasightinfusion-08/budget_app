@@ -7,7 +7,6 @@ import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/profile/widgets/profile_account_actions_card.dart';
-import 'package:budget_frontend/features/profile/widgets/profile_data_actions_card.dart';
 import 'package:budget_frontend/features/profile/widgets/profile_header.dart';
 import 'package:budget_frontend/features/profile/widgets/profile_menu_card.dart';
 import 'package:budget_frontend/features/profile/widgets/profile_stats_row.dart';
@@ -53,8 +52,8 @@ class ProfileScreen extends StatelessWidget {
                 const ProfileStatsRow(),
                 15.verticalSpace,
                 const ProfileMenuCard(),
-                15.verticalSpace,
-                const ProfileDataActionsCard(),
+                // 15.verticalSpace,
+                // const ProfileDataActionsCard(),
                 15.verticalSpace,
                 const ProfileAccountActionsCard(),
                 20.verticalSpace,

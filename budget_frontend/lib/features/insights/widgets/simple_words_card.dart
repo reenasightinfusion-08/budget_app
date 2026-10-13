@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
-
+import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
+import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/features/insights/models/insight_models.dart';
 
 /// Plain-language summary of spending pace and last month's savings.
@@ -14,15 +16,17 @@ class SimpleWordsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const bold = TextStyle(fontWeight: FontWeight.w700);
     final paceDiff = AppFormatters.rupees(data.paceDiff.abs().round());
+    final baseStyle = AppTextStyle.body.copyWith(
+      fontSize: 13.5.sp,
+      color: AppColors.ink,
+    );
+    final bold = baseStyle.copyWith(fontWeight: FontWeight.w700);
 
-    return Container(
+    return AppCard(
       padding: EdgeInsets.all(16.r),
-      decoration: BoxDecoration(
-        color: AppColors.popSoft,
-        borderRadius: BorderRadius.circular(24.r),
-      ),
+      color: AppColors.popSoft,
+      radius: AppBorderRadius.dialog,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -30,7 +34,7 @@ class SimpleWordsCard extends StatelessWidget {
             width: 36.r,
             height: 36.r,
             decoration: const BoxDecoration(color: AppColors.popDeep, shape: BoxShape.circle),
-            child: Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 18.sp),
+            child: Icon(AppIcons.autoAwesome, color: Colors.white, size: 18.sp),
           ),
           12.horizontalSpace,
           Expanded(
@@ -39,16 +43,12 @@ class SimpleWordsCard extends StatelessWidget {
               children: [
                 Text(
                   'In simple words',
-                  style: GoogleFonts.outfit(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.ink,
-                  ),
+                  style: AppTextStyle.subCardTitle.copyWith(fontSize: 15.sp),
                 ),
                 4.verticalSpace,
                 RichText(
                   text: TextSpan(
-                    style: GoogleFonts.dmSans(fontSize: 13.5.sp, height: 1.45, color: AppColors.ink),
+                    style: baseStyle,
                     children: [
                       const TextSpan(text: "You've spent "),
                       TextSpan(text: '$paceDiff ${data.isUnderPace ? 'less' : 'more'}', style: bold),

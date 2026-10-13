@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
@@ -60,19 +59,15 @@ class CategorySpendRow extends StatelessWidget {
                 children: [
                   Text(
                     AppFormatters.rupees(spend.amount),
-                    style: GoogleFonts.outfit(
-                      fontSize: 16.sp,
+                    style: AppTextStyle.subCardTitle.copyWith(
                       fontWeight: FontWeight.w600,
-                      color: AppColors.ink,
                     ),
                   ),
                   2.verticalSpace,
                   Text(
                     '${spend.percentageInt}%',
-                    style: GoogleFonts.dmSans(
-                      fontSize: 12.sp,
+                    style: AppTextStyle.description.copyWith(
                       fontWeight: FontWeight.w500,
-                      color: AppColors.muted,
                     ),
                   ),
                 ],

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
-
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_gradients.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/widgets/app_bottom_sheet.dart';
 import 'package:budget_frontend/core/widgets/app_button.dart';
+import 'package:budget_frontend/core/widgets/app_card.dart';
 
 class GoalDetailBottomSheet extends StatefulWidget {
   const GoalDetailBottomSheet({super.key});
@@ -19,11 +19,7 @@ class GoalDetailBottomSheet extends StatefulWidget {
       title: Text(
         'Goal Details',
         textAlign: TextAlign.center,
-        style: GoogleFonts.outfit(
-          fontSize: 22.sp,
-          fontWeight: FontWeight.w700,
-          color: AppColors.ink,
-        ),
+        style: AppTextStyle.dialogTitle.copyWith(fontSize: 22.sp),
       ),
       child: const GoalDetailBottomSheet(),
     );
@@ -61,7 +57,7 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
                   alignment: Alignment.center,
                   child: Text(
                     'Add money',
-                    style: GoogleFonts.outfit(
+                    style: AppTextStyle.chip.copyWith(
                       fontSize: 15.sp,
                       fontWeight: selectedTabIndex == 0
                           ? FontWeight.w700
@@ -89,7 +85,7 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
                   alignment: Alignment.center,
                   child: Text(
                     'Take out',
-                    style: GoogleFonts.outfit(
+                    style: AppTextStyle.chip.copyWith(
                       fontSize: 15.sp,
                       fontWeight: selectedTabIndex == 1
                           ? FontWeight.w700
@@ -112,7 +108,7 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
             selectedTabIndex == 0
                 ? 'How much are you putting aside?'
                 : 'How much are you taking out?',
-            style: GoogleFonts.dmSans(
+            style: AppTextStyle.subtitle.copyWith(
               fontSize: 15.sp,
               fontWeight: FontWeight.w500,
               color: AppColors.muted,
@@ -125,9 +121,8 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
         Center(
           child: Text(
             '₹0',
-            style: GoogleFonts.outfit(
+            style: AppTextStyle.amount.copyWith(
               fontSize: 44.sp,
-              fontWeight: FontWeight.w700,
               color: AppColors.ink,
             ),
           ),
@@ -138,57 +133,39 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
         Row(
           children: [
             Expanded(
-              child: Container(
+              child: AppCard(
                 height: 52.h,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: AppBorderRadius.tile,
-                ),
-                child: Text(
-                  '+₹500',
-                  style: GoogleFonts.outfit(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.ink,
+                radius: AppBorderRadius.tile,
+                child: Center(
+                  child: Text(
+                    '+₹500',
+                    style: AppTextStyle.chip.copyWith(fontSize: 15.sp),
                   ),
                 ),
               ),
             ),
             10.horizontalSpace,
             Expanded(
-              child: Container(
+              child: AppCard(
                 height: 52.h,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: AppBorderRadius.tile,
-                ),
-                child: Text(
-                  '+₹1,000',
-                  style: GoogleFonts.outfit(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.ink,
+                radius: AppBorderRadius.tile,
+                child: Center(
+                  child: Text(
+                    '+₹1,000',
+                    style: AppTextStyle.chip.copyWith(fontSize: 15.sp),
                   ),
                 ),
               ),
             ),
             10.horizontalSpace,
             Expanded(
-              child: Container(
+              child: AppCard(
                 height: 52.h,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: AppBorderRadius.tile,
-                ),
-                child: Text(
-                  '+₹2,000',
-                  style: GoogleFonts.outfit(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.ink,
+                radius: AppBorderRadius.tile,
+                child: Center(
+                  child: Text(
+                    '+₹2,000',
+                    style: AppTextStyle.chip.copyWith(fontSize: 15.sp),
                   ),
                 ),
               ),
@@ -203,27 +180,19 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
           children: [
             Text(
               '₹50,200 saved of ₹50,000',
-              style: GoogleFonts.dmSans(
-                fontSize: 14.sp,
+              style: AppTextStyle.body.copyWith(
                 fontWeight: FontWeight.w500,
-                color: AppColors.muted,
               ),
             ),
             Text(
               ' · ',
-              style: GoogleFonts.dmSans(
-                fontSize: 14.sp,
+              style: AppTextStyle.body.copyWith(
                 fontWeight: FontWeight.w700,
-                color: AppColors.muted,
               ),
             ),
             Text(
               'Goal reached',
-              style: GoogleFonts.dmSans(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
-                color: AppColors.success,
-              ),
+              style: AppTextStyle.notice,
             ),
           ],
         ),
@@ -262,10 +231,8 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
                     isConfirmingDelete
                         ? 'Tap again to delete this goal'
                         : 'Delete goal',
-                    style: GoogleFonts.outfit(
+                    style: AppTextStyle.error.copyWith(
                       fontSize: 15.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.error,
                     ),
                   ),
                 ],

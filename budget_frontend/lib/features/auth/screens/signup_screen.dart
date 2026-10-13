@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/app/app_routes.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/utils/app_validators.dart';
 import 'package:budget_frontend/core/widgets/app_text_field.dart';
 import 'package:budget_frontend/core/widgets/sheet_scaffold.dart';
@@ -80,7 +81,7 @@ class SignupScreenState extends State<SignupScreen> {
                 AppTextField(
                   controller: emailController,
                   hint: 'Email address',
-                  icon: Icons.mail_outline_rounded,
+                  icon: AppIcons.mail,
                   validator: AppValidators.email,
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
@@ -90,7 +91,7 @@ class SignupScreenState extends State<SignupScreen> {
                 AppTextField(
                   controller: passwordController,
                   hint: 'Password (8+ characters)',
-                  icon: Icons.lock_outline_rounded,
+                  icon: AppIcons.lock,
                   isPassword: true,
                   validator: AppValidators.newPassword,
                   textInputAction: TextInputAction.next,
@@ -100,7 +101,7 @@ class SignupScreenState extends State<SignupScreen> {
                 AppTextField(
                   controller: confirmController,
                   hint: 'Confirm password',
-                  icon: Icons.lock_outline_rounded,
+                  icon: AppIcons.lock,
                   isPassword: true,
                   validator: AppValidators.confirmPassword(passwordController),
                   textInputAction: TextInputAction.done,

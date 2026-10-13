@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
@@ -61,16 +61,15 @@ class AmountInputDialogState extends State<AmountInputDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final inputStyle = GoogleFonts.outfit(
+    final inputStyle = AppTextStyle.input.copyWith(
       fontSize: widget.fontSize.sp,
       fontWeight: FontWeight.w600,
-      color: AppColors.ink,
     );
 
     return AlertDialog(
       backgroundColor: AppColors.surface,
       surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24.r)),
+      shape: RoundedRectangleBorder(borderRadius: AppBorderRadius.dialog),
       title: Text(widget.title, style: AppTextStyle.dialogTitle),
       content: TextField(
         controller: controller,
@@ -83,7 +82,7 @@ class AmountInputDialogState extends State<AmountInputDialog> {
           filled: true,
           fillColor: AppColors.fill,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16.r),
+            borderRadius: AppBorderRadius.dialogInput,
             borderSide: BorderSide.none,
           ),
           hintText: widget.hint,
@@ -94,7 +93,10 @@ class AmountInputDialogState extends State<AmountInputDialog> {
           onPressed: () => Navigator.of(context).pop(),
           child: Text(
             'Cancel',
-            style: GoogleFonts.dmSans(fontWeight: FontWeight.w600, color: AppColors.muted),
+            style: AppTextStyle.buttonAction.copyWith(
+              fontWeight: FontWeight.w600,
+              color: AppColors.muted,
+            ),
           ),
         ),
         ElevatedButton(
@@ -102,12 +104,12 @@ class AmountInputDialogState extends State<AmountInputDialog> {
             backgroundColor: AppColors.accent,
             foregroundColor: Colors.white,
             elevation: 0,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999.r)),
+            shape: RoundedRectangleBorder(borderRadius: AppBorderRadius.pill),
           ),
           onPressed: save,
           child: Text(
             'Save',
-            style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.white),
+            style: AppTextStyle.buttonAction,
           ),
         ),
       ],

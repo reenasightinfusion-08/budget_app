@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
 
@@ -39,10 +39,9 @@ class TotalSavedWidget extends StatelessWidget {
             children: [
               Text(
                 'Total saved',
-                style: GoogleFonts.outfit(
+                style: AppTextStyle.cardLabel.copyWith(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.onAccentMuted,
                 ),
               ),
               Container(
@@ -53,10 +52,8 @@ class TotalSavedWidget extends StatelessWidget {
                 ),
                 child: Text(
                   '+${AppFormatters.rupees(monthlyAdded)} this month',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 13.sp,
+                  style: AppTextStyle.buttonPill.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.onPop,
                   ),
                 ),
               ),
@@ -68,18 +65,15 @@ class TotalSavedWidget extends StatelessWidget {
               children: [
                 TextSpan(
                   text: '₹',
-                  style: GoogleFonts.outfit(
+                  style: AppTextStyle.amountSymbol.copyWith(
                     fontSize: 35.sp,
                     fontWeight: FontWeight.w400,
-                    color: AppColors.onAccentMuted,
                   ),
                 ),
                 TextSpan(
                   text: AppFormatters.groupDigits(totalSaved),
-                  style: GoogleFonts.outfit(
+                  style: AppTextStyle.amount.copyWith(
                     fontSize: 55.sp,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.onAccent,
                   ),
                 ),
               ],
@@ -92,7 +86,7 @@ class TotalSavedWidget extends StatelessWidget {
             width: double.infinity,
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.22),
-              borderRadius: BorderRadius.circular(999.r),
+              borderRadius: AppBorderRadius.pill,
             ),
             alignment: Alignment.centerLeft,
             child: FractionallySizedBox(
@@ -100,7 +94,7 @@ class TotalSavedWidget extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   color: AppColors.pop,
-                  borderRadius: BorderRadius.circular(999.r),
+                  borderRadius: AppBorderRadius.pill,
                 ),
               ),
             ),
@@ -108,18 +102,15 @@ class TotalSavedWidget extends StatelessWidget {
           14.verticalSpace,
           RichText(
             text: TextSpan(
-              style: GoogleFonts.dmSans(
+              style: AppTextStyle.subtitle.copyWith(
                 fontSize: 14.sp,
-                height: 1.45,
-                color: AppColors.onAccentMuted,
               ),
               children: [
                 const TextSpan(text: 'Your goals need about '),
                 TextSpan(
                   text: '₹${AppFormatters.groupDigits(monthlyNeeded)} a month',
-                  style: GoogleFonts.dmSans(
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                  style: AppTextStyle.cardTitleWhite.copyWith(
+                    fontSize: 14.sp,
                   ),
                 ),
                 const TextSpan(

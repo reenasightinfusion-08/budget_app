@@ -34,101 +34,97 @@ class AvailableToSpendCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(top: 18.h),
-      width: double.infinity,
-      child: AppCard(
-        isGradient: true,
-        radius: AppBorderRadius.card,
-        padding: EdgeInsets.all(20.r),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              backgroundColor: AppColors.glassFill,
-              foregroundColor: AppColors.onAccent,
-              radius: 25.r,
-              child: Icon(
-                AppIcons.wallet,
-                size: 25.sp,
-              ),
+    return AppCard(
+      isGradient: true,
+      radius: AppBorderRadius.card,
+      padding: EdgeInsets.all(20.r),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            backgroundColor: AppColors.glassFill,
+            foregroundColor: AppColors.onAccent,
+            radius: 25.r,
+            child: Icon(
+              AppIcons.wallet,
+              size: 25.sp,
             ),
-            14.verticalSpace,
-            Text(
-              'Available to spend',
-              style: AppTextStyle.title.copyWith(
-                fontSize: 22.sp,
-                fontWeight: FontWeight.w600,
-                color: AppColors.onAccent,
-              ),
+          ),
+          14.verticalSpace,
+          Text(
+            'Available to spend',
+            style: AppTextStyle.title.copyWith(
+              fontSize: 22.sp,
+              fontWeight: FontWeight.w600,
+              color: AppColors.onAccent,
             ),
-            8.verticalSpace,
-            RichText(
-              text: TextSpan(
-                style: AppTextStyle.subtitle.copyWith(
-                  fontSize: 16.sp,
-                  color: AppColors.onAccentMuted,
-                ),
-                children: [
-                  TextSpan(
-                    text: '${AppFormatters.rupees(15000)} ',
-                    style: AppTextStyle.title.copyWith(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.onAccent,
-                    ),
-                  ),
-                  const TextSpan(
-                    text: 'left this month',
-                  ),
-                ],
+          ),
+          8.verticalSpace,
+          RichText(
+            text: TextSpan(
+              style: AppTextStyle.subtitle.copyWith(
+                fontSize: 16.sp,
+                color: AppColors.onAccentMuted,
               ),
-            ),
-            16.verticalSpace,
-            Container(
-              height: 8.h,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.25),
-                borderRadius: BorderRadius.circular(10.r),
-              ),
-              alignment: Alignment.centerLeft,
-              child: FractionallySizedBox(
-                widthFactor: 0.0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.onAccent,
-                    borderRadius: BorderRadius.circular(10.r),
-                  ),
-                ),
-              ),
-            ),
-            12.verticalSpace,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                RichText(
-                  text: TextSpan(
-                    style: AppTextStyle.chip.copyWith(
-                      color: AppColors.onAccentMuted,
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    text: '${AppFormatters.rupees(0)} / ${AppFormatters.rupees(15000)}',
+                TextSpan(
+                  text: '${AppFormatters.rupees(15000)} ',
+                  style: AppTextStyle.title.copyWith(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.onAccent,
                   ),
                 ),
-                Text(
-                  _getCurrentMonthLastDate(),
+                const TextSpan(
+                  text: 'left this month',
+                ),
+              ],
+            ),
+          ),
+          16.verticalSpace,
+          Container(
+            height: 8.h,
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.25),
+              borderRadius: AppBorderRadius.track,
+            ),
+            alignment: Alignment.centerLeft,
+            child: FractionallySizedBox(
+              widthFactor: 0.0,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppColors.onAccent,
+                  borderRadius: AppBorderRadius.track,
+                ),
+              ),
+            ),
+          ),
+          12.verticalSpace,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              RichText(
+                text: TextSpan(
                   style: AppTextStyle.chip.copyWith(
                     color: AppColors.onAccentMuted,
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                   ),
+                  text: '${AppFormatters.rupees(0)} / ${AppFormatters.rupees(15000)}',
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+              Text(
+                _getCurrentMonthLastDate(),
+                style: AppTextStyle.chip.copyWith(
+                  color: AppColors.onAccentMuted,
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
