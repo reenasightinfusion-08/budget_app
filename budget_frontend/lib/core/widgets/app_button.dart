@@ -14,11 +14,13 @@ class AppButton extends StatelessWidget {
     required this.label,
     required this.onPressed,
     this.isLoading = false,
+    this.isCentered = false,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final bool isLoading;
+  final bool isCentered;
 
   @override
   Widget build(BuildContext context) {
@@ -41,32 +43,54 @@ class AppButton extends StatelessWidget {
             borderRadius: AppBorderRadius.lg,
             child: Container(
               height: 62.h,
-              padding: EdgeInsets.only(left: 28.w, right: 8.w),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(label, style: AppTextStyle.button),
-                  Container(
-                    width: 46.r,
-                    height: 46.r,
-                    decoration: const BoxDecoration(
-                      color: AppColors.pop,
-                      shape: BoxShape.circle,
-                    ),
-                    child: isLoading
-                        ? Center(
-                            child: SizedBox.square(
+              padding: isCentered
+                  ? EdgeInsets.symmetric(horizontal: 16.w)
+                  : EdgeInsets.only(left: 28.w, right: 8.w),
+              child: isCentered
+                  ? Center(
+                      child: isLoading
+                          ? SizedBox.square(
                               dimension: 22.r,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2.5.w,
-                                color: AppColors.onPop,
+                                color: Colors.white,
                               ),
+                            )
+                          : Text(
+                              label,
+                              style: AppTextStyle.button,
+                              textAlign: TextAlign.center,
                             ),
-                          )
-                        : Icon(AppIcons.chevronRight, size: 26.r, color: AppColors.onPop),
-                  ),
-                ],
-              ),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(label, style: AppTextStyle.button),
+                        Container(
+                          width: 46.r,
+                          height: 46.r,
+                          decoration: const BoxDecoration(
+                            color: AppColors.pop,
+                            shape: BoxShape.circle,
+                          ),
+                          child: isLoading
+                              ? Center(
+                                  child: SizedBox.square(
+                                    dimension: 22.r,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.5.w,
+                                      color: AppColors.onPop,
+                                    ),
+                                  ),
+                                )
+                              : Icon(
+                                  AppIcons.chevronRight,
+                                  size: 26.r,
+                                  color: AppColors.onPop,
+                                ),
+                        ),
+                      ],
+                    ),
             ),
           ),
         ),

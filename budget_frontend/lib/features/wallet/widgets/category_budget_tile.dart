@@ -40,48 +40,54 @@ class CategoryBudgetTile extends StatelessWidget {
       children: [
         Padding(
           padding: EdgeInsets.symmetric(vertical: 13.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
-              Row(
-                children: [
-                  CategoryIconBadge(
-                    icon: category.icon,
-                    size: 44,
-                    iconColor: AppColors.accent,
-                    backgroundColor: AppColors.fill,
-                  ),
-                  12.horizontalSpace,
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              CategoryIconBadge(
+                icon: category.icon,
+                size: 44,
+                iconColor: AppColors.accent,
+                backgroundColor: AppColors.fill,
+              ),
+              12.horizontalSpace,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Text(category.label, style: AppTextStyle.toggleTitle),
-                        2.verticalSpace,
-                        Text(
-                          category.statusText,
-                          style: GoogleFonts.dmSans(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.accent,
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(category.label, style: AppTextStyle.toggleTitle),
+                              2.verticalSpace,
+                              Text(
+                                category.statusText,
+                                style: GoogleFonts.dmSans(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.accent,
+                                ),
+                              ),
+                            ],
                           ),
+                        ),
+                        8.horizontalSpace,
+                        LimitPill(
+                          spent: category.spent,
+                          limit: category.limit,
+                          onTap: () => editLimit(context),
                         ),
                       ],
                     ),
-                  ),
-                  8.horizontalSpace,
-                  LimitPill(
-                    spent: category.spent,
-                    limit: category.limit,
-                    onTap: () => editLimit(context),
-                  ),
-                ],
-              ),
-              10.verticalSpace,
-              AppProgressBar(
-                ratio: category.progressRatio,
-                height: 8,
-                gradient: AppGradients.accent,
+                    8.verticalSpace,
+                    AppProgressBar(
+                      ratio: category.progressRatio,
+                      height: 8,
+                      gradient: AppGradients.accent,
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

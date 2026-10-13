@@ -3,15 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/app/app_routes.dart';
+import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_gradients.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
-import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
-import 'package:budget_frontend/features/home/screens/home_tab_screen.dart';
+import 'package:budget_frontend/features/home_tab/screen/home_tab_screen.dart';
 import 'package:budget_frontend/features/home/widgets/floating_bottom_nav_bar.dart';
+import 'package:budget_frontend/features/home/widgets/spend_income_bottom_sheet.dart';
 import 'package:budget_frontend/features/home/widgets/tab_page_transition.dart';
 import 'package:budget_frontend/features/insights/screens/insights_screen.dart';
+import 'package:budget_frontend/features/savings/screen/savings_screen.dart';
 import 'package:budget_frontend/features/wallet/screens/wallet_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -23,38 +25,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-
-  Widget _buildPlaceholderTab(String title, String subtitle, IconData icon) {
-    return SafeArea(
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              12.verticalSpace,
-              Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(10.r),
-                    decoration: const BoxDecoration(
-                      color: AppColors.fill,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(icon, color: AppColors.accent, size: 24.sp),
-                  ),
-                  12.horizontalSpace,
-                  Expanded(child: Text(title, style: AppTextStyle.title)),
-                ],
-              ),
-              8.verticalSpace,
-              Text(subtitle, style: AppTextStyle.body),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,16 +53,37 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             TabPageTransition(
               index: _selectedIndex,
-              children: [
-                const HomeTabScreen(),
-                const InsightsScreen(),
-                const WalletScreen(),
-                _buildPlaceholderTab(
-                  'Savings',
-                  'Track your savings goals and piggy bank.',
-                  AppIcons.savings,
-                ),
+              children: const [
+                HomeTabScreen(),
+                InsightsScreen(),
+                WalletScreen(),
+                SavingsScreen(),
               ],
+            ),
+            Positioned(
+              right: 20.w,
+                bottom: 92.h,
+                child:Container(
+                  width: 56.r,
+                  height: 56.r,
+                  decoration: BoxDecoration(
+                    borderRadius: AppBorderRadius.tile,
+                    gradient: AppGradients.card,
+                    boxShadow: [BoxShadow(color: AppColors.fill, spreadRadius: 3)],
+                  ),
+                  child:
+                  FloatingActionButton(
+                    elevation: 0,
+                    highlightElevation: 0,
+                    focusElevation: 0,
+                    hoverElevation: 0,
+                    backgroundColor: Colors.transparent,
+                    shape: const CircleBorder(),
+                    onPressed: () => SpendIncomeBottomSheet.show(context),
+                    child: Icon(AppIcons.add, color: AppColors.fill, size: 30.sp),
+                  ),
+                ),
+
             ),
             Positioned(
               left: 40.w,
@@ -111,25 +102,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
-        ),
-        floatingActionButton: Container(
-          width: 56.r,
-          height: 56.r,
-          decoration: BoxDecoration(
-            borderRadius: AppBorderRadius.tile,
-            gradient: AppGradients.card,
-            boxShadow: [BoxShadow(color: AppColors.fill, spreadRadius: 3)],
-          ),
-          child: FloatingActionButton(
-            elevation: 0,
-            highlightElevation: 0,
-            focusElevation: 0,
-            hoverElevation: 0,
-            backgroundColor: Colors.transparent,
-            shape: const CircleBorder(),
-            onPressed: () {},
-            child: Icon(AppIcons.add, color: AppColors.fill, size: 30.sp),
-          ),
         ),
       ),
     );
