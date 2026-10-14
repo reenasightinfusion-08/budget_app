@@ -43,6 +43,9 @@ dependencies:
   iconsax_flutter: ^1.0.1
   flutter_svg: ^2.3.0
   date_picker_plus: ^7.0.1
+  image_picker: ^1.2.4
+  file_picker: ^13.1.0
+  speech_to_text: ^7.5.0
 
 dev_dependencies:
   flutter_test:

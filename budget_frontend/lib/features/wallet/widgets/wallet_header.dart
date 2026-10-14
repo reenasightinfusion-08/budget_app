@@ -7,16 +7,40 @@ import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
 
 class WalletHeader extends StatelessWidget {
-  const WalletHeader({super.key, required this.onChangeBudget});
+  const WalletHeader({
+    super.key,
+    required this.onChangeBudget,
+    this.showBackButton = false,
+  });
 
   final VoidCallback onChangeBudget;
+  final bool showBackButton;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text('Budget', style: AppTextStyle.screenTitle),
+        Row(
+          children: [
+            if (showBackButton) ...[
+              GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: CircleAvatar(
+                  radius: 23.r,
+                  backgroundColor: AppColors.surface,
+                  child: Icon(
+                    AppIcons.chevronLeft,
+                    color: AppColors.ink,
+                    size: 25.sp,
+                  ),
+                ),
+              ),
+              15.horizontalSpace,
+            ],
+            Text('Budget', style: AppTextStyle.screenTitle),
+          ],
+        ),
         GestureDetector(
           onTap: onChangeBudget,
           child: AppCard(

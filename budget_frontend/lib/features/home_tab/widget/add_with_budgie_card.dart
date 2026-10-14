@@ -13,9 +13,13 @@ class AddWithBudgieCard extends StatelessWidget {
   const AddWithBudgieCard({
     super.key,
     this.onScanNow,
+    this.onPdfUpload,
+    this.onVoice,
   });
 
   final VoidCallback? onScanNow;
+  final VoidCallback? onPdfUpload;
+  final VoidCallback? onVoice;
 
   @override
   Widget build(BuildContext context) {
@@ -38,58 +42,59 @@ class AddWithBudgieCard extends StatelessWidget {
         ),
         12.verticalSpace,
 
-        // Main AppCard with popDeep color
-        AppCard(
-          color: AppColors.popDeep,
-          radius: AppBorderRadius.card,
-          padding: EdgeInsets.all(12.r),
-          child: Row(
-            children: [
-              // 1st Child: Flex 3, AppCard with transparent scan_bill.svg
-              Expanded(
-                flex: 3,
-                child: AspectRatio(
-                  aspectRatio: 8/7,
-                  child: AppCard(
-                    color: AppColors.glassFill,
-                    radius: AppBorderRadius.md,
-                    padding: EdgeInsets.all(6.r),
-                    child: Center(
-                      child: SvgPicture.asset(
-                        'assest/scan_bill.svg',
-                        fit: BoxFit.contain,
+        // Main AppCard with popDeep color (Scan a bill container)
+        GestureDetector(
+          onTap: onScanNow,
+          behavior: HitTestBehavior.opaque,
+          child: AppCard(
+            color: AppColors.popDeep,
+            radius: AppBorderRadius.card,
+            padding: EdgeInsets.all(10.r),
+            child: Row(
+              children: [
+                // 1st Child: Flex 3, AppCard with transparent scan_bill.svg
+                Expanded(
+                  flex: 3,
+                  child: AspectRatio(
+                    aspectRatio: 8/7,
+                    child: AppCard(
+                      color: AppColors.glassFill,
+                      radius: AppBorderRadius.md,
+                      padding: EdgeInsets.all(6.r),
+                      child: Center(
+                        child: SvgPicture.asset(
+                          'assest/scan_bill.svg',
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              10.horizontalSpace,
+                10.horizontalSpace,
 
-              // 2nd Child: Flex 7, Column with Title, Subtitle, and Button
-              Expanded(
-                flex: 7,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Scan a bill',
-                      style: AppTextStyle.cardTitleWhite,
-                    ),
-                    4.verticalSpace,
-                    Text(
-                      'scan a recepit and i will log it for you',
-                      style: AppTextStyle.cardSubtitle,
-                    ),
-                    10.verticalSpace,
-                    GestureDetector(
-                      onTap: onScanNow,
-                      child: AppCard(
+                // 2nd Child: Flex 7, Column with Title, Subtitle, and Button
+                Expanded(
+                  flex: 7,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Scan a bill',
+                        style: AppTextStyle.cardTitleWhite,
+                      ),
+                      3.verticalSpace,
+                      Text(
+                        'scan a recepit and i will log it for you',
+                        style: AppTextStyle.cardSubtitle,
+                      ),
+                      8.verticalSpace,
+                      AppCard(
                         color: AppColors.pop,
                         radius: AppBorderRadius.pill,
                         padding: EdgeInsets.symmetric(
                           horizontal: 16.w,
-                          vertical: 8.h,
+                          vertical: 6.h,
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -107,11 +112,11 @@ class AddWithBudgieCard extends StatelessWidget {
                           ],
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
 
@@ -126,6 +131,7 @@ class AddWithBudgieCard extends StatelessWidget {
                 title: "Voice",
                 subtitle: "Say or type it",
                 buttonText: "Speak now",
+                onTap: onVoice,
               ),
             ),
             12.horizontalSpace,
@@ -136,6 +142,7 @@ class AddWithBudgieCard extends StatelessWidget {
                 title: "PDF",
                 subtitle: "Bills & statements",
                 buttonText: "Upload",
+                onTap: onPdfUpload,
               ),
             ),
           ],

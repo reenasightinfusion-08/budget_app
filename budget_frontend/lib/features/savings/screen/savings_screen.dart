@@ -10,12 +10,12 @@ import 'package:budget_frontend/features/savings/widgets/saving_button_widget.da
 import 'package:budget_frontend/features/savings/widgets/total_saved_widget.dart';
 
 class SavingsScreen extends StatelessWidget {
-  const SavingsScreen({super.key});
+  const SavingsScreen({super.key, this.showBackButton = false});
+
+  final bool showBackButton;
 
   @override
   Widget build(BuildContext context) {
-    final canPop = ModalRoute.of(context)?.canPop ?? false;
-
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -23,14 +23,14 @@ class SavingsScreen extends StatelessWidget {
             20.w,
             16.h,
             20.w,
-            canPop ? 20.h : AppLayout.navBarClearance.h,
+            showBackButton ? 20.h : AppLayout.navBarClearance.h,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
-                  if (canPop) ...[
+                  if (showBackButton) ...[
                     GestureDetector(
                       onTap: () => Navigator.of(context).pop(),
                       child: CircleAvatar(

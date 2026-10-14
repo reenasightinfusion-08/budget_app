@@ -10,7 +10,9 @@ import 'package:budget_frontend/features/history/widgets/history_grid_view.dart'
 import 'package:budget_frontend/features/history/widgets/history_header.dart';
 
 class HistoryScreen extends StatefulWidget {
-  const HistoryScreen({super.key});
+  const HistoryScreen({super.key, this.initialFilterIndex = 0});
+
+  final int initialFilterIndex;
 
   @override
   State<HistoryScreen> createState() => _HistoryScreenState();
@@ -20,7 +22,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
   final List<HistoryTransactionModel> _transactions =
       List.from(HistoryTransactionModel.dummyData);
   String _searchQuery = '';
-  int _selectedFilterIndex = 0; // 0: All, 1: Money out, 2: Money in
+  late int _selectedFilterIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedFilterIndex = widget.initialFilterIndex;
+  }
 
   List<HistoryTransactionModel> get _filteredTransactions {
     return _transactions.where((tx) {

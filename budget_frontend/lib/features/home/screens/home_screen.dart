@@ -16,6 +16,8 @@ import 'package:budget_frontend/features/insights/screens/insights_screen.dart';
 import 'package:budget_frontend/features/savings/screen/savings_screen.dart';
 import 'package:budget_frontend/features/wallet/screens/wallet_screen.dart';
 
+import 'package:budget_frontend/features/home/widgets/home_tab_scope.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -25,6 +27,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+
+  void _onSelectTab(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,17 +57,19 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       },
       child: Scaffold(
-        body: Stack(
-          children: [
-            TabPageTransition(
-              index: _selectedIndex,
-              children: const [
-                HomeTabScreen(),
-                InsightsScreen(),
-                WalletScreen(),
-                SavingsScreen(),
-              ],
-            ),
+        body: HomeTabScope(
+          onSelectTab: _onSelectTab,
+          child: Stack(
+            children: [
+              TabPageTransition(
+                index: _selectedIndex,
+                children: [
+                  HomeTabScreen(onSelectTab: _onSelectTab),
+                  const InsightsScreen(),
+                  const WalletScreen(),
+                  const SavingsScreen(),
+                ],
+              ),
             Positioned(
               right: 20.w,
                 bottom: 92.h,
@@ -104,6 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

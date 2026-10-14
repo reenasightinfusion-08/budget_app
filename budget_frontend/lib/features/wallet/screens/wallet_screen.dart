@@ -18,7 +18,9 @@ import 'package:budget_frontend/features/wallet/widgets/plan_summary_text.dart';
 import 'package:budget_frontend/features/wallet/widgets/wallet_header.dart';
 
 class WalletScreen extends StatefulWidget {
-  const WalletScreen({super.key});
+  const WalletScreen({super.key, this.showBackButton = false});
+
+  final bool showBackButton;
 
   @override
   State<WalletScreen> createState() => WalletScreenState();
@@ -70,13 +72,16 @@ class WalletScreenState extends State<WalletScreen> {
     final totalBudget = context.select<SetupBloc, int>((bloc) => bloc.state.effectiveBudget);
     final easyFix = EasyFix.find(categories);
 
-    return SafeArea(
+    final content = SafeArea(
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, AppLayout.navBarClearance.h),
+        padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, widget.showBackButton ? 20.h : AppLayout.navBarClearance.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            WalletHeader(onChangeBudget: () => changeBudget(totalBudget)),
+            WalletHeader(
+              onChangeBudget: () => changeBudget(totalBudget),
+              showBackButton: widget.showBackButton,
+            ),
             16.verticalSpace,
             BudgetStatusTrip(
               onTrackCount: countWithStatus(BudgetStatus.onTrack),
@@ -120,5 +125,13 @@ class WalletScreenState extends State<WalletScreen> {
         ),
       ),
     );
+
+    if (widget.showBackButton) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        body: content,
+      );
+    }
+    return content;
   }
 }

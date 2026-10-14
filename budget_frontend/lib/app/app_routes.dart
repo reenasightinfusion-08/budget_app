@@ -13,6 +13,8 @@ import 'package:budget_frontend/features/profile/screens/profile_screen.dart';
 import 'package:budget_frontend/features/savings/screen/savings_screen.dart';
 import 'package:budget_frontend/features/setup/screens/setup_screen.dart';
 
+import 'package:budget_frontend/features/wallet/screens/wallet_screen.dart';
+
 class AppRoutes {
   static const String splash = '/';
   static const String login = '/login';
@@ -25,6 +27,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String history = '/history';
   static const String savings = '/savings';
+  static const String budget = '/budget';
 
   static String afterAuth(UserModel? user) =>
       (user?.onboardingComplete ?? false) ? home : setup;
@@ -39,7 +42,12 @@ class AppRoutes {
     setup: (_) => const SetupScreen(),
     home: (_) => const HomeScreen(),
     profile: (_) => const ProfileScreen(),
-    history: (_) => const HistoryScreen(),
+    history: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      final initialFilterIndex = args is int ? args : 0;
+      return HistoryScreen(initialFilterIndex: initialFilterIndex);
+    },
     savings: (_) => const SavingsScreen(),
+    budget: (_) => const WalletScreen(),
   };
 }

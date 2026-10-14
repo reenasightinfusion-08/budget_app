@@ -115,7 +115,7 @@ class HomeHeader extends StatelessWidget {
               Icon(
                 AppIcons.calendar,
                 size: 14.sp,
-                color: AppColors.accent,
+                color: AppColors.ink,
               ),
               6.horizontalSpace,
               Text(

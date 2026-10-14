@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
@@ -38,12 +37,12 @@ class ProfileUserCard extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 33.r,
-            backgroundColor: AppColors.pop,
-            foregroundColor: AppColors.onPop,
+            backgroundColor: AppColors.glassFill,
+            foregroundColor: AppColors.surface,
             child: Text(
               firstLetter,
               style: AppTextStyle.profileTitle.copyWith(
-                color: AppColors.onPop,
+                color: AppColors.surface,
                 fontSize: 35.sp,
                 fontWeight: FontWeight.w500,
               ),
@@ -55,19 +54,19 @@ class ProfileUserCard extends StatelessWidget {
               Text(
                 userName,
                 style: AppTextStyle.title.copyWith(
-                  color: Colors.white,
+                  color: AppColors.ink,
                 ),
               ),
               Text(
                 'Budget ${AppFormatters.rupees(budgetAmount)} a month',
-                style: AppTextStyle.subtitle,
+                style: AppTextStyle.subtitle.copyWith(color: AppColors.ink),
               ),
             ],
           ),
           CircleAvatar(
             radius: 23.r,
-            backgroundColor: AppColors.pop,
-            foregroundColor: AppColors.onPop,
+            backgroundColor: AppColors.glassFill,
+            foregroundColor: AppColors.surface,
             child: Icon(AppIcons.filter, size: 25.sp),
           ),
         ],

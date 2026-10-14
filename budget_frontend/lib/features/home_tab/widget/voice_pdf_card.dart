@@ -32,11 +32,14 @@ class VoicePdfCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AppCard(
-      color: AppColors.surface,
-      radius: AppBorderRadius.card,
-      padding: EdgeInsets.all(12.r),
-      child: Column(
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AppCard(
+        color: AppColors.surface,
+        radius: AppBorderRadius.card,
+        padding: EdgeInsets.all(10.r),
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Image / Icon box
@@ -72,7 +75,7 @@ class VoicePdfCard extends StatelessWidget {
               ),
             ),
           ),
-          8.verticalSpace,
+          6.verticalSpace,
 
           // Title
           Text(
@@ -86,7 +89,7 @@ class VoicePdfCard extends StatelessWidget {
             subtitle,
             style: AppTextStyle.description,
           ),
-          10.verticalSpace,
+          8.verticalSpace,
 
           // Action Button
           GestureDetector(
@@ -97,7 +100,7 @@ class VoicePdfCard extends StatelessWidget {
               radius: AppBorderRadius.pill,
               padding: EdgeInsets.symmetric(
                 horizontal: 14.w,
-                vertical: 7.h,
+                vertical: 6.h,
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -118,6 +121,7 @@ class VoicePdfCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

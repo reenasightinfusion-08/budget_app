@@ -6,6 +6,7 @@ import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/core/widgets/app_link_button.dart';
+import 'package:budget_frontend/features/history/screen/history_screen.dart';
 
 class RecentHistory extends StatelessWidget {
   const RecentHistory({
@@ -34,7 +35,14 @@ class RecentHistory extends StatelessWidget {
               ),
               AppLinkButton(
                 label: 'See all',
-                onPressed: onSeeAll ?? () {},
+                onPressed: onSeeAll ??
+                    () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const HistoryScreen(),
+                        ),
+                      );
+                    },
               ),
             ],
           ),

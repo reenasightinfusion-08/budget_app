@@ -64,7 +64,7 @@ class _ActionButton extends StatelessWidget {
       child: AppCard(
         color: AppColors.surface,
         radius: AppBorderRadius.navBar,
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
