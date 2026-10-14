@@ -34,6 +34,7 @@ class SheetScaffold extends StatelessWidget {
               SafeArea(
                 bottom: false,
                 child: CustomScrollView(
+                  physics: const ClampingScrollPhysics(),
                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   slivers: [
                     SliverToBoxAdapter(

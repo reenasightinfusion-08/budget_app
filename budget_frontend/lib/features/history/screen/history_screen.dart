@@ -58,7 +58,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             20.w,
             16.h,
             20.w,
-            AppLayout.navBarClearance.h,
+            AppLayout.navBarClearanceOf(context),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

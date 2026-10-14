@@ -7,6 +7,7 @@ import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_gradients.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/home_tab/screen/home_tab_screen.dart';
 import 'package:budget_frontend/features/home/widgets/floating_bottom_nav_bar.dart';
@@ -61,28 +62,30 @@ class _HomeScreenState extends State<HomeScreen> {
           onSelectTab: _onSelectTab,
           child: Stack(
             children: [
-              TabPageTransition(
-                index: _selectedIndex,
-                children: [
-                  HomeTabScreen(onSelectTab: _onSelectTab),
-                  const InsightsScreen(),
-                  const WalletScreen(),
-                  const SavingsScreen(),
-                ],
+              MediaQuery.removePadding(
+                context: context,
+                removeBottom: AppLayout.isIOS,
+                child: TabPageTransition(
+                  index: _selectedIndex,
+                  children: [
+                    HomeTabScreen(onSelectTab: _onSelectTab),
+                    const InsightsScreen(),
+                    const WalletScreen(),
+                    const SavingsScreen(),
+                  ],
+                ),
               ),
-            Positioned(
-              right: 20.w,
-                bottom: 92.h,
-                child:Container(
+              Positioned(
+                right: 20.w,
+                bottom: AppLayout.fabBottom(context),
+                child: Container(
                   width: 56.r,
                   height: 56.r,
                   decoration: BoxDecoration(
                     borderRadius: AppBorderRadius.tile,
                     gradient: AppGradients.card,
-                    boxShadow: [BoxShadow(color: AppColors.fill, spreadRadius: 3)],
                   ),
-                  child:
-                  FloatingActionButton(
+                  child: FloatingActionButton(
                     elevation: 0,
                     highlightElevation: 0,
                     focusElevation: 0,
@@ -93,14 +96,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Icon(AppIcons.add, color: AppColors.fill, size: 30.sp),
                   ),
                 ),
-
-            ),
-            Positioned(
-              left: 40.w,
-              right: 40.w,
-              bottom: 16.h,
-              child: SafeArea(
-                top: false,
+              ),
+              Positioned(
+                left: 40.w,
+                right: 40.w,
+                bottom: AppLayout.navBarBottom(context),
                 child: FloatingBottomNavBar(
                   selectedIndex: _selectedIndex,
                   onTabSelected: (index) {
@@ -110,11 +110,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

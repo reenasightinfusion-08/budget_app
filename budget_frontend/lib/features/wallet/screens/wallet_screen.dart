@@ -74,7 +74,7 @@ class WalletScreenState extends State<WalletScreen> {
 
     final content = SafeArea(
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, widget.showBackButton ? 20.h : AppLayout.navBarClearance.h),
+        padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, widget.showBackButton ? 20.h : AppLayout.navBarClearanceOf(context)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

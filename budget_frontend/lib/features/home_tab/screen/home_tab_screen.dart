@@ -23,7 +23,7 @@ class HomeTabScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, AppLayout.navBarClearance.h),
+        padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, AppLayout.navBarClearanceOf(context)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

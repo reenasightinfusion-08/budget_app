@@ -23,7 +23,7 @@ class SavingsScreen extends StatelessWidget {
             20.w,
             16.h,
             20.w,
-            showBackButton ? 20.h : AppLayout.navBarClearance.h,
+            showBackButton ? 20.h : AppLayout.navBarClearanceOf(context),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

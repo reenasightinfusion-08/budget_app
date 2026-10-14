@@ -27,7 +27,7 @@ class BudgieCard extends StatelessWidget {
                 radius: AppBorderRadius.card,
                 child: Center(
                   child: Text(
-                    'ðŸ¦œ',
+                    '🦜',
                     style: TextStyle(fontSize: 32.sp),
                   ),
                 ),
