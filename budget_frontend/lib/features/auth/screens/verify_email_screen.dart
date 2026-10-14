@@ -81,8 +81,15 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
       listenWhen: (previous, current) => previous.status != current.status,
       listener: (context, state) {
         if (state.status == AuthStatus.authenticated && ModalRoute.of(context)?.isCurrent == true) {
-          Navigator.of(context)
-              .pushNamedAndRemoveUntil(AppRoutes.afterAuth(state.user), (route) => false);
+          final username = state.user?.displayName ?? '';
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRoutes.afterAuth(state.user),
+            (route) => false,
+            arguments: {
+              'fromSignup': true,
+              'username': username,
+            },
+          );
         }
       },
       child: SheetScaffold(

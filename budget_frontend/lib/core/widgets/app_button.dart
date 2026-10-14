@@ -73,21 +73,11 @@ class AppButton extends StatelessWidget {
                             color: AppColors.pop,
                             shape: BoxShape.circle,
                           ),
-                          child: isLoading
-                              ? Center(
-                                  child: SizedBox.square(
-                                    dimension: 22.r,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.5.w,
-                                      color: AppColors.onPop,
-                                    ),
-                                  ),
-                                )
-                              : Icon(
-                                  AppIcons.chevronRight,
-                                  size: 26.r,
-                                  color: AppColors.onPop,
-                                ),
+                          child: Icon(
+                            AppIcons.chevronRight,
+                            size: 26.r,
+                            color: AppColors.onPop,
+                          ),
                         ),
                       ],
                     ),

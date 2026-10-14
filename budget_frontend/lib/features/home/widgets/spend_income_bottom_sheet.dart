@@ -13,6 +13,7 @@ import 'package:budget_frontend/core/widgets/app_bottom_sheet.dart';
 import 'package:budget_frontend/core/widgets/app_button.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/core/widgets/app_text_field.dart';
+import 'package:budget_frontend/core/widgets/app_toast.dart';
 import 'package:budget_frontend/features/wallet/models/budget_category_model.dart';
 import 'package:date_picker_plus/date_picker_plus.dart';
 
@@ -299,13 +300,23 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
             AppButton(
               isCentered: true,
               label: 'Save',
-              onPressed: _amountController.text.trim().isEmpty
-                  ? () {
-                      setState(() => _amountError = 'Please enter an amount to continue');
-                    }
-                  : () {
-                      // TODO: handle save
-                    },
+              onPressed: () {
+                final amountText = _amountController.text.trim();
+                final amount = int.tryParse(amountText) ?? 0;
+                if (amountText.isEmpty || amount <= 0) {
+                  setState(() {
+                    _amountError = 'Please enter an amount to continue';
+                  });
+                  return;
+                }
+
+                setState(() => _amountError = null);
+                AppToast.show(
+                  context,
+                  message: selectedIndex == 1 ? 'income save' : 'expence save',
+                );
+                Navigator.of(context).pop();
+              },
             ),
             8.verticalSpace,
           ],

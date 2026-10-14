@@ -15,14 +15,46 @@ class SheetScaffold extends StatelessWidget {
     required this.subtitle,
     required this.child,
     this.onBack,
+    this.isLoading,
   });
 
   final String title;
   final String subtitle;
   final Widget child;
   final VoidCallback? onBack;
+  final bool? isLoading;
 
   @override
+  Widget build(BuildContext context) {
+    final bool authLoading = context.watch<AuthBloc>().state.isLoading;
+    final bool effectiveLoading = isLoading ?? authLoading;
+
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      behavior: HitTestBehavior.translucent,
+      child: Scaffold(
+        backgroundColor: AppColors.accent,
+        body: Stack(
+          children: [
+            const Positioned.fill(child: SheetBackground()),
+            SafeArea(
+              bottom: false,
+              child: CustomScrollView(
+                keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: SheetHeader(title: title, subtitle: subtitle, onBack: onBack),
+                  ),
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: SheetSurface(child: child),
+                  ),
+                ],
+              ),
+            ),
+            if (effectiveLoading)
+              const Positioned.fill(
+                child: CommonLoader(),
   Widget build(BuildContext context) => GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         behavior: HitTestBehavior.translucent,
@@ -47,8 +79,9 @@ class SheetScaffold extends StatelessWidget {
                   ],
                 ),
               ),
-            ],
-          ),
+          ],
         ),
-      );
+      ),
+    );
+  }
 }

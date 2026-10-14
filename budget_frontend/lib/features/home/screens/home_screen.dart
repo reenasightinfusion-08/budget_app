@@ -13,6 +13,8 @@ import 'package:budget_frontend/features/home_tab/screen/home_tab_screen.dart';
 import 'package:budget_frontend/features/home/widgets/floating_bottom_nav_bar.dart';
 import 'package:budget_frontend/features/home/widgets/spend_income_bottom_sheet.dart';
 import 'package:budget_frontend/features/home/widgets/tab_page_transition.dart';
+import 'package:budget_frontend/core/widgets/app_toast.dart';
+import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
 import 'package:budget_frontend/features/insights/screens/insights_screen.dart';
 import 'package:budget_frontend/features/savings/screen/savings_screen.dart';
 import 'package:budget_frontend/features/wallet/screens/wallet_screen.dart';
@@ -28,6 +30,45 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
+  bool _hasCheckedToast = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_hasCheckedToast) {
+      _hasCheckedToast = true;
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is Map) {
+        final isLogin = args['fromLogin'] == true;
+        final isSignup = args['fromSignup'] == true;
+
+        if (isLogin || isSignup) {
+          final rawName = args['username'] as String?;
+          final authUser = context.read<AuthBloc>().state.user;
+          final setupProfile = context.read<SetupBloc>().state.profile;
+          final username = (rawName != null && rawName.isNotEmpty)
+              ? rawName
+              : (setupProfile?.name.isNotEmpty == true
+                  ? setupProfile!.name
+                  : (authUser?.displayName.isNotEmpty == true
+                      ? authUser!.displayName
+                      : 'User'));
+
+          final message = isLogin ? 'Welcome back! $username' : 'Welcome! $username';
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              AppToast.show(
+                context,
+                message: message,
+                bottom: 95.h,
+              );
+            }
+          });
+        }
+      }
+    }
+  }
 
   void _onSelectTab(int index) {
     setState(() {

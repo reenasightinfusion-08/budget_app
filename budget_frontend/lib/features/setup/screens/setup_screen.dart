@@ -50,17 +50,26 @@ class SetupScreenState extends State<SetupScreen> {
   }
 
   @override
-  Widget build(BuildContext context) => BlocListener<SetupBloc, SetupState>(
+  Widget build(BuildContext context) => BlocConsumer<SetupBloc, SetupState>(
         listenWhen: (previous, current) =>
             previous.savedUser != current.savedUser && current.savedUser != null,
         listener: (context, state) {
           context.read<AuthBloc>().add(AuthUserUpdated(state.savedUser!));
-          Navigator.of(context).pushNamedAndRemoveUntil(AppRoutes.home, (route) => false);
+          final name = state.savedUser?.displayName ?? nameController.text.trim();
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRoutes.home,
+            (route) => false,
+            arguments: {
+              'fromSignup': true,
+              'username': name,
+            },
+          );
         },
-        child: SheetScaffold(
-        title: 'Hi, I’m Budgie',
-        subtitle: 'Two quick answers and I’ll start counting for you.',
-        child: Form(
+        builder: (context, setupState) => SheetScaffold(
+          title: 'Hi, I’m Budgie',
+          subtitle: 'Two quick answers and I’ll start counting for you.',
+          isLoading: setupState.isSaving,
+          child: Form(
           key: formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

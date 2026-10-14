@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/widgets/app_bottom_sheet.dart';
+import 'package:budget_frontend/core/widgets/app_toast.dart';
 import 'package:budget_frontend/features/home/widgets/spend_income_bottom_sheet.dart';
 import 'package:budget_frontend/features/home_tab/widget/smart_add_views.dart';
 
@@ -152,6 +153,10 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
         rawReadText:
             'TAX INVOICE\nBrand Name Retail Ltd.\nDate: ${_formatDate(_entryDate)}\nItems: 1x Groceries & Supplies\nType: $_transactionType\nSubtotal: ₹${_amountController.text}\nTax: ₹0.00\nTotal: ₹${_amountController.text}',
         onAddEntry: () {
+          AppToast.show(
+            context,
+            message: 'expenced saved',
+          );
           Navigator.of(context).pop('entry_added');
         },
         onBack: () {

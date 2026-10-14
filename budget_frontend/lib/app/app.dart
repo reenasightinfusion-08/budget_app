@@ -9,6 +9,7 @@ import 'package:budget_frontend/core/network/api_client.dart';
 import 'package:budget_frontend/features/auth/services/api_auth_service.dart';
 import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
 import 'package:budget_frontend/features/setup/services/profile_service.dart';
+import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 
 class BudgetApp extends StatelessWidget {
   const BudgetApp({super.key, required this.apiClient});
@@ -23,6 +24,9 @@ class BudgetApp extends StatelessWidget {
           ),
           BlocProvider<SetupBloc>(
             create: (context) => SetupBloc(profileService: ProfileService(apiClient)),
+          ),
+          BlocProvider<WalletBloc>(
+            create: (context) => WalletBloc(),
           ),
         ],
         child: ScreenUtilInit(

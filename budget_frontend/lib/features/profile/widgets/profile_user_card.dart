@@ -54,12 +54,12 @@ class ProfileUserCard extends StatelessWidget {
               Text(
                 userName,
                 style: AppTextStyle.title.copyWith(
-                  color: AppColors.ink,
+                  color: AppColors.surface,
                 ),
               ),
               Text(
                 'Budget ${AppFormatters.rupees(budgetAmount)} a month',
-                style: AppTextStyle.subtitle.copyWith(color: AppColors.ink),
+                style: AppTextStyle.subtitle.copyWith(color: AppColors.surface),
               ),
             ],
           ),

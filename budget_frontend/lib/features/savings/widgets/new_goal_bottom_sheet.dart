@@ -11,6 +11,7 @@ import 'package:budget_frontend/core/widgets/app_bottom_sheet.dart';
 import 'package:budget_frontend/core/widgets/app_button.dart';
 import 'package:budget_frontend/core/widgets/app_month_year_picker.dart';
 import 'package:budget_frontend/core/widgets/app_text_field.dart';
+import 'package:budget_frontend/core/widgets/app_toast.dart';
 // ignore: unused_import
 import 'package:date_picker_plus/date_picker_plus.dart';
 
@@ -134,6 +135,10 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
       );
 
       widget.onSubmit?.call(goalData);
+      AppToast.show(
+        context,
+        message: 'Goal saved',
+      );
       Navigator.of(context).pop(goalData);
     }
   }

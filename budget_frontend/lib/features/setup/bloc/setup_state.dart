@@ -26,6 +26,7 @@ class SetupState {
   bool get isComplete => profile != null;
 
   int get effectiveBudget => budgetAmount > 0 ? budgetAmount : AppConfig.defaultMonthlyBudget;
+  int get monthlyBudget => effectiveBudget;
 
   String? get dailyAllowanceLabel => budgetAmount > 0
       ? '${AppFormatters.rupees((budgetAmount / daysInMonth).round())} a day'

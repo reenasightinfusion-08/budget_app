@@ -5,6 +5,7 @@ import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/widgets/app_toast.dart';
 import 'package:budget_frontend/features/history/models/history_transaction_model.dart';
 import 'package:budget_frontend/features/history/widgets/history_grid_view.dart';
 import 'package:budget_frontend/features/history/widgets/history_header.dart';
@@ -109,6 +110,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   setState(() {
                     _transactions.removeWhere((item) => item.id == tx.id);
                   });
+                  AppToast.show(
+                    context,
+                    message: 'History Deleted',
+                  );
                 },
               ),
             ],

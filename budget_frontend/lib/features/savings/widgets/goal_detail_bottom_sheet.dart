@@ -5,9 +5,12 @@ import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_gradients.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/utils/app_formatters.dart';
+import 'package:budget_frontend/core/widgets/amount_input_dialog.dart';
 import 'package:budget_frontend/core/widgets/app_bottom_sheet.dart';
 import 'package:budget_frontend/core/widgets/app_button.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
+import 'package:budget_frontend/core/widgets/app_toast.dart';
 
 class GoalDetailBottomSheet extends StatefulWidget {
   const GoalDetailBottomSheet({super.key});
@@ -32,6 +35,8 @@ class GoalDetailBottomSheet extends StatefulWidget {
 class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
   int selectedTabIndex = 0; // 0: Add money, 1: Take out
   bool isConfirmingDelete = false;
+  int enteredAmount = 0;
+  String? amountError;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +50,10 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
             // Add money button
             Expanded(
               child: GestureDetector(
-                onTap: () => setState(() => selectedTabIndex = 0),
+                onTap: () => setState(() {
+                  selectedTabIndex = 0;
+                  amountError = null;
+                }),
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 12.h),
                   decoration: BoxDecoration(
@@ -73,7 +81,10 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
             // Take out button
             Expanded(
               child: GestureDetector(
-                onTap: () => setState(() => selectedTabIndex = 1),
+                onTap: () => setState(() {
+                  selectedTabIndex = 1;
+                  amountError = null;
+                }),
                 child: Container(
                   padding: EdgeInsets.symmetric(vertical: 12.h),
                   decoration: BoxDecoration(
@@ -117,13 +128,29 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
         ),
         8.verticalSpace,
 
-        // 3. Text: "₹0"
+        // 3. Amount text
         Center(
-          child: Text(
-            '₹0',
-            style: AppTextStyle.amount.copyWith(
-              fontSize: 44.sp,
-              color: AppColors.ink,
+          child: GestureDetector(
+            onTap: () async {
+              final newAmount = await AmountInputDialog.show(
+                context,
+                title: selectedTabIndex == 0 ? 'Add to Goal' : 'Take out',
+                hint: '0',
+                initialValue: enteredAmount,
+              );
+              if (newAmount != null) {
+                setState(() {
+                  enteredAmount = newAmount;
+                  if (enteredAmount > 0) amountError = null;
+                });
+              }
+            },
+            child: Text(
+              '₹${AppFormatters.groupDigits(enteredAmount)}',
+              style: AppTextStyle.amount.copyWith(
+                fontSize: 44.sp,
+                color: AppColors.ink,
+              ),
             ),
           ),
         ),
@@ -133,39 +160,63 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
         Row(
           children: [
             Expanded(
-              child: AppCard(
-                height: 52.h,
-                radius: AppBorderRadius.tile,
-                child: Center(
-                  child: Text(
-                    '+₹500',
-                    style: AppTextStyle.chip.copyWith(fontSize: 15.sp),
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    enteredAmount += 500;
+                    amountError = null;
+                  });
+                },
+                child: AppCard(
+                  height: 52.h,
+                  radius: AppBorderRadius.tile,
+                  child: Center(
+                    child: Text(
+                      '+₹500',
+                      style: AppTextStyle.chip.copyWith(fontSize: 15.sp),
+                    ),
                   ),
                 ),
               ),
             ),
             10.horizontalSpace,
             Expanded(
-              child: AppCard(
-                height: 52.h,
-                radius: AppBorderRadius.tile,
-                child: Center(
-                  child: Text(
-                    '+₹1,000',
-                    style: AppTextStyle.chip.copyWith(fontSize: 15.sp),
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    enteredAmount += 1000;
+                    amountError = null;
+                  });
+                },
+                child: AppCard(
+                  height: 52.h,
+                  radius: AppBorderRadius.tile,
+                  child: Center(
+                    child: Text(
+                      '+₹1,000',
+                      style: AppTextStyle.chip.copyWith(fontSize: 15.sp),
+                    ),
                   ),
                 ),
               ),
             ),
             10.horizontalSpace,
             Expanded(
-              child: AppCard(
-                height: 52.h,
-                radius: AppBorderRadius.tile,
-                child: Center(
-                  child: Text(
-                    '+₹2,000',
-                    style: AppTextStyle.chip.copyWith(fontSize: 15.sp),
+              child: GestureDetector(
+                onTap: () {
+                  setState(() {
+                    enteredAmount += 2000;
+                    amountError = null;
+                  });
+                },
+                child: AppCard(
+                  height: 52.h,
+                  radius: AppBorderRadius.tile,
+                  child: Center(
+                    child: Text(
+                      '+₹2,000',
+                      style: AppTextStyle.chip.copyWith(fontSize: 15.sp),
+                    ),
                   ),
                 ),
               ),
@@ -198,11 +249,38 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
         ),
         24.verticalSpace,
 
+        if (amountError != null) ...[
+          Center(
+            child: Text(
+              amountError!,
+              style: AppTextStyle.error.copyWith(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          8.verticalSpace,
+        ],
+
         // 6. Button: Add to goal / Take out (using AppButton)
         AppButton(
           label: selectedTabIndex == 0 ? 'Add to goal' : 'Take out',
           isCentered: true,
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            if (enteredAmount <= 0) {
+              setState(() {
+                amountError = 'Please select or enter an amount';
+              });
+              return;
+            }
+
+            setState(() => amountError = null);
+            AppToast.show(
+              context,
+              message: selectedTabIndex == 0 ? 'Add to goal' : 'Take out',
+            );
+            Navigator.of(context).pop();
+          },
         ),
         16.verticalSpace,
 
@@ -213,6 +291,10 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
               if (!isConfirmingDelete) {
                 setState(() => isConfirmingDelete = true);
               } else {
+                AppToast.show(
+                  context,
+                  message: 'Goal deleted',
+                );
                 Navigator.of(context).pop();
               }
             },

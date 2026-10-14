@@ -67,8 +67,15 @@ class LoginScreenState extends State<LoginScreen> {
       listener: (context, state) {
         if (ModalRoute.of(context)?.isCurrent != true) return;
         if (state.status == AuthStatus.authenticated) {
-          Navigator.of(context)
-              .pushNamedAndRemoveUntil(AppRoutes.afterAuth(state.user), (route) => false);
+          final username = state.user?.displayName ?? '';
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            AppRoutes.afterAuth(state.user),
+            (route) => false,
+            arguments: {
+              'fromLogin': true,
+              'username': username,
+            },
+          );
         } else if (state.status == AuthStatus.verificationPending) {
           Navigator.of(context).pushNamed(AppRoutes.verifyEmail);
         }
