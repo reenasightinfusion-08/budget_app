@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/widgets/common_loader.dart';
 import 'package:budget_frontend/core/widgets/sheet_background.dart';
 import 'package:budget_frontend/core/widgets/sheet_header.dart';
 import 'package:budget_frontend/core/widgets/sheet_surface.dart';
+import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 
 /// Shared frame for every auth screen: gradient header on top, white sheet
 /// below. [child] sits inside the sheet and may use a [Spacer] to push a
@@ -40,6 +43,7 @@ class SheetScaffold extends StatelessWidget {
             SafeArea(
               bottom: false,
               child: CustomScrollView(
+                physics: const ClampingScrollPhysics(),
                 keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 slivers: [
                   SliverToBoxAdapter(
@@ -55,29 +59,6 @@ class SheetScaffold extends StatelessWidget {
             if (effectiveLoading)
               const Positioned.fill(
                 child: CommonLoader(),
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        behavior: HitTestBehavior.translucent,
-        child: Scaffold(
-          backgroundColor: AppColors.accent,
-          body: Stack(
-            children: [
-              const Positioned.fill(child: SheetBackground()),
-              SafeArea(
-                bottom: false,
-                child: CustomScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  slivers: [
-                    SliverToBoxAdapter(
-                      child: SheetHeader(title: title, subtitle: subtitle, onBack: onBack),
-                    ),
-                    SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: SheetSurface(child: child),
-                    ),
-                  ],
-                ),
               ),
           ],
         ),

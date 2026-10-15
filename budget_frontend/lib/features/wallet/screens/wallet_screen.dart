@@ -56,66 +56,13 @@ class WalletScreen extends StatelessWidget {
         final categories = state.categories;
         final easyFix = state.easyFix;
 
-    final content = SafeArea(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, widget.showBackButton ? 20.h : AppLayout.navBarClearanceOf(context)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            WalletHeader(
-              onChangeBudget: () => changeBudget(totalBudget),
-              showBackButton: widget.showBackButton,
-            ),
-            16.verticalSpace,
-            BudgetStatusTrip(
-              onTrackCount: countWithStatus(BudgetStatus.onTrack),
-              carefulCount: countWithStatus(BudgetStatus.careful),
-              overCount: countWithStatus(BudgetStatus.over),
-            ),
-            16.verticalSpace,
-            if (easyFix != null) ...[
-              EasyFixBanner(
-                amount: easyFix.amount,
-                fromCategory: easyFix.from.label,
-                toCategory: easyFix.to.label,
-                onMove: () => applyEasyFix(easyFix),
-              ),
-              14.verticalSpace,
-            ],
-            PlanSummaryText(
-              plannedTotal: categories.fold(0, (sum, c) => sum + c.limit),
-              totalBudget: totalBudget,
-            ),
-            12.verticalSpace,
-            AppCard(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-              border: Border.all(color: AppColors.line),
-              blur: 16,
-              offsetY: 4,
-              child: Column(
-                children: [
-                  for (final (index, category) in categories.indexed)
-                    CategoryBudgetTile(
-                      category: category,
-                      showDivider: index < categories.length - 1,
-                      onEditLimit: (limit) => setState(() => category.limit = limit),
-                    ),
-                ],
-              ),
-            ),
-            24.verticalSpace,
-          ],
-        ),
-      ),
-    );
         final content = SafeArea(
           child: SingleChildScrollView(
             padding: EdgeInsets.fromLTRB(
               20.w,
               16.h,
               20.w,
-              showBackButton ? 20.h : AppLayout.navBarClearance.h,
+              showBackButton ? 20.h : AppLayout.navBarClearanceOf(context),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
