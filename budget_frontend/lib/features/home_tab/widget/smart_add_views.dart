@@ -5,54 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/network/api_exception.dart';
 import 'package:budget_frontend/core/widgets/app_progress_bar.dart';
 import 'package:budget_frontend/core/widgets/dashed_border_painter.dart';
 
-/// Top mode tabs for Smart Add ("Scan bill", "Voice / type", "PDF")
-class SmartAddTabsRow extends StatelessWidget {
-  const SmartAddTabsRow({
-    super.key,
-    required this.selectedTabIndex,
-    required this.onTabChanged,
-    this.tabs = const ['Scan bill', 'Voice / type', 'PDF'],
-  });
-
-  final int selectedTabIndex;
-  final ValueChanged<int> onTabChanged;
-  final List<String> tabs;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: List.generate(tabs.length, (index) {
-        final isSelected = selectedTabIndex == index;
-        return GestureDetector(
-          onTap: () => onTabChanged(index),
-          behavior: HitTestBehavior.opaque,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 10.h),
-            decoration: BoxDecoration(
-              color: isSelected ? const Color(0xFF3B6EA5) : Colors.transparent,
-              borderRadius: BorderRadius.circular(20.r),
-            ),
-            child: Text(
-              tabs[index],
-              style: GoogleFonts.dmSans(
-                fontSize: 14.sp,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                color: isSelected ? Colors.white : AppColors.muted,
-              ),
-            ),
-          ),
-        );
-      }),
-    );
-  }
-}
-
-/// 1. Empty / Picker UI: Dashed container with icon, title, subtitle, action buttons & bottom manual button
 class SmartAddPickerCard extends StatelessWidget {
   const SmartAddPickerCard({
     super.key,
@@ -183,6 +139,8 @@ class SmartAddProcessingView extends StatelessWidget {
     this.noteText = "The first scan downloads the reader once (about 15 MB),\nthen it's quick.",
     this.changeButtonLabel = 'Change bill photo',
     required this.onChange,
+    this.errorMessage,
+    this.onAddByHand,
   });
 
   final Widget previewChild;
@@ -191,6 +149,8 @@ class SmartAddProcessingView extends StatelessWidget {
   final String noteText;
   final String changeButtonLabel;
   final VoidCallback onChange;
+  final String? errorMessage;
+  final VoidCallback? onAddByHand;
 
   @override
   Widget build(BuildContext context) {
@@ -216,59 +176,135 @@ class SmartAddProcessingView extends StatelessWidget {
           alignment: Alignment.center,
           child: previewChild,
         ),
-        28.verticalSpace,
+        20.verticalSpace,
 
-        // Progress Bar
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 10.w),
-          child: AppProgressBar(
-            ratio: progressRatio,
-            height: 6,
-            color: const Color(0xFF3B6EA5),
-          ),
-        ),
-        14.verticalSpace,
-
-        // Progress Text
-        Text(
-          progressText,
-          style: GoogleFonts.dmSans(
-            fontSize: 14.sp,
-            fontWeight: FontWeight.w500,
-            color: AppColors.muted,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        18.verticalSpace,
-
-        // Note
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Text(
-            noteText,
-            style: GoogleFonts.dmSans(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w400,
-              height: 1.4,
-              color: AppColors.faint,
+        if (errorMessage != null) ...[
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            decoration: BoxDecoration(
+              color: AppColors.error.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(color: AppColors.error.withValues(alpha: 0.25)),
             ),
-            textAlign: TextAlign.center,
+            child: Row(
+              children: [
+                Icon(Icons.error_outline_rounded, color: AppColors.error, size: 22.sp),
+                10.horizontalSpace,
+                Expanded(
+                  child: Text(
+                    errorMessage!,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.error,
+                      height: 1.35,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        16.verticalSpace,
-
-        // Change button
-        TextButton(
-          onPressed: onChange,
-          child: Text(
-            changeButtonLabel,
-            style: GoogleFonts.dmSans(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w600,
+          20.verticalSpace,
+          Row(
+            children: [
+              Expanded(
+                child: TextButton(
+                  onPressed: onChange,
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    backgroundColor: const Color(0xFFF1F5F9),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14.r),
+                    ),
+                  ),
+                  child: Text(
+                    changeButtonLabel,
+                    style: GoogleFonts.dmSans(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.ink,
+                    ),
+                  ),
+                ),
+              ),
+              if (onAddByHand != null) ...[
+                10.horizontalSpace,
+                Expanded(
+                  child: TextButton(
+                    onPressed: onAddByHand,
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                      backgroundColor: const Color(0xFF3B6EA5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14.r),
+                      ),
+                    ),
+                    child: Text(
+                      'Add by hand',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ] else ...[
+          // Progress Bar
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10.w),
+            child: AppProgressBar(
+              ratio: progressRatio,
+              height: 6,
               color: const Color(0xFF3B6EA5),
             ),
           ),
-        ),
+          14.verticalSpace,
+
+          // Progress Text
+          Text(
+            progressText,
+            style: GoogleFonts.dmSans(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+              color: AppColors.muted,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          18.verticalSpace,
+
+          // Note
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Text(
+              noteText,
+              style: GoogleFonts.dmSans(
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w400,
+                height: 1.4,
+                color: AppColors.faint,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          16.verticalSpace,
+
+          // Change button
+          TextButton(
+            onPressed: onChange,
+            child: Text(
+              changeButtonLabel,
+              style: GoogleFonts.dmSans(
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF3B6EA5),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
@@ -289,6 +325,7 @@ class SmartAddReviewView extends StatefulWidget {
     required this.rawReadText,
     required this.onAddEntry,
     required this.onBack,
+    this.isSaving = false,
     this.categories = const [
       'Food',
       'Travel',
@@ -311,6 +348,7 @@ class SmartAddReviewView extends StatefulWidget {
   final String rawReadText;
   final VoidCallback onAddEntry;
   final VoidCallback onBack;
+  final bool isSaving;
   final List<String> categories;
 
   @override
@@ -605,42 +643,58 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
 
         // Primary Button: "Add 1 entry •" -> closes bottom sheet
         GestureDetector(
-          onTap: widget.onAddEntry,
-          child: Container(
+          onTap: widget.isSaving ? null : widget.onAddEntry,
+          behavior: HitTestBehavior.opaque,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
             height: 52.h,
             decoration: BoxDecoration(
-              color: const Color(0xFF3B6EA5),
+              color: widget.isSaving
+                  ? const Color(0xFF3B6EA5).withValues(alpha: 0.7)
+                  : const Color(0xFF3B6EA5),
               borderRadius: BorderRadius.circular(28.r),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Add 1 entry',
-                  style: GoogleFonts.dmSans(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+            child: widget.isSaving
+                ? Center(
+                    child: SizedBox(
+                      width: 22.r,
+                      height: 22.r,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Add 1 entry',
+                        style: GoogleFonts.dmSans(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                      8.horizontalSpace,
+                      Container(
+                        width: 6.r,
+                        height: 6.r,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                8.horizontalSpace,
-                Container(
-                  width: 6.r,
-                  height: 6.r,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
         12.verticalSpace,
 
         // Secondary Button: "Back" -> returns to previous state
         GestureDetector(
-          onTap: widget.onBack,
+          onTap: widget.isSaving ? null : widget.onBack,
+          behavior: HitTestBehavior.opaque,
           child: Container(
             height: 52.h,
             decoration: BoxDecoration(
@@ -656,7 +710,7 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
               style: GoogleFonts.dmSans(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
-                color: AppColors.ink,
+                color: widget.isSaving ? AppColors.muted : AppColors.ink,
               ),
             ),
           ),
@@ -665,4 +719,69 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
       ],
     );
   }
+}
+
+/// Sanitizes backend / AI provider errors into clean, human-friendly messages
+/// without exposing stack traces, internal URLs (e.g. vercel.app), or status codes.
+String sanitizeSmartAddError(Object error, {required String noAmountFallback}) {
+  if (error is ApiException) {
+    final status = error.statusCode;
+    final rawMsg = error.message.toLowerCase();
+
+    // 1. Rate limit / Daily limit
+    if (status == 429 || rawMsg.contains('daily') || rawMsg.contains('limit reached')) {
+      return 'Daily Smart add limit reached. Please try again tomorrow or add by hand.';
+    }
+
+    // 2. File too large
+    if (status == 413 ||
+        rawMsg.contains('too large') ||
+        rawMsg.contains('3 mb') ||
+        rawMsg.contains('4 mb')) {
+      return 'File is too large. Please select a file under 3 MB.';
+    }
+
+    // 3. No amount found
+    if (status == 422 ||
+        rawMsg.contains('could not find any amount') ||
+        rawMsg.contains('no bill amount')) {
+      return noAmountFallback;
+    }
+
+    // 4. AI Provider / Vercel / 500 / 502 / 503 / GoogleGenerativeAI Error
+    if (status == 500 ||
+        status == 502 ||
+        status == 503 ||
+        rawMsg.contains('503') ||
+        rawMsg.contains('500') ||
+        rawMsg.contains('502') ||
+        rawMsg.contains('ai-hub') ||
+        rawMsg.contains('generative') ||
+        rawMsg.contains('google') ||
+        rawMsg.contains('vercel') ||
+        rawMsg.contains('http') ||
+        rawMsg.contains('service')) {
+      return 'The AI reader is temporarily busy. Please try again in a moment or add by hand.';
+    }
+
+    // If message is clean and doesn't contain URLs or technical error traces
+    if (!rawMsg.contains('http') &&
+        !rawMsg.contains('.app') &&
+        !rawMsg.contains('error:') &&
+        !rawMsg.contains('syntax') &&
+        !rawMsg.contains('exception')) {
+      return error.message;
+    }
+  }
+
+  // Network connection error
+  final errStr = error.toString().toLowerCase();
+  if (errStr.contains('socket') ||
+      errStr.contains('network') ||
+      errStr.contains('connection') ||
+      errStr.contains('failed host lookup')) {
+    return 'Network connection error. Please check your internet connection.';
+  }
+
+  return 'The AI reader is temporarily busy. Please try again in a moment or add by hand.';
 }

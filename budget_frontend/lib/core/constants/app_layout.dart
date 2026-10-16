@@ -18,7 +18,7 @@ class AppLayout {
 
   /// Distance from the screen bottom to the add button, always above the nav bar.
   static double fabBottom(BuildContext context) =>
-      isIOS ? navBarBottom(context) + 64.h + 14.h : 92.h;
+      navBarBottom(context) + 64.h + 14.h;
 
   /// Bottom padding for tab content so it scrolls clear of the nav bar.
   static double navBarClearanceOf(BuildContext context) => navBarClearance.h;

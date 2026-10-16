@@ -72,6 +72,10 @@ final class AuthDeleteAccountRequested extends AuthEvent {
   const AuthDeleteAccountRequested();
 }
 
+final class AuthClearDataRequested extends AuthEvent {
+  const AuthClearDataRequested();
+}
+
 final class AuthErrorCleared extends AuthEvent {
   const AuthErrorCleared();
 }

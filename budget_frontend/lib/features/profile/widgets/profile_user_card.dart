@@ -3,18 +3,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_config.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
+import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 
 class ProfileUserCard extends StatelessWidget {
   const ProfileUserCard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final walletState = context.watch<WalletBloc>().state;
     final setupState = context.watch<SetupBloc>().state;
     final authState = context.watch<AuthBloc>().state;
 
@@ -24,9 +27,13 @@ class ProfileUserCard extends StatelessWidget {
         ? userName[0].toUpperCase()
         : 'U';
 
-    final int budgetAmount = setupState.budgetAmount > 0
-        ? setupState.budgetAmount
-        : (authState.user != null ? (authState.user!.monthlyBudget ~/ 100) : 0);
+    final int budgetAmount = walletState.monthlyBudget > 0
+        ? walletState.monthlyBudget
+        : ((authState.user != null && authState.user!.monthlyBudget > 0)
+            ? (authState.user!.monthlyBudget ~/ 100)
+            : (setupState.budgetAmount > 0
+                ? setupState.budgetAmount
+                : AppConfig.defaultMonthlyBudget));
 
     return AppCard(
       radius: AppBorderRadius.card,

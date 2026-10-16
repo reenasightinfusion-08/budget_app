@@ -8,10 +8,16 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/network/api_exception.dart';
 import 'package:budget_frontend/core/widgets/app_bottom_sheet.dart';
 import 'package:budget_frontend/core/widgets/app_toast.dart';
+import 'package:budget_frontend/features/categories/models/category_registry.dart';
+import 'package:budget_frontend/features/history/services/transaction_service.dart';
 import 'package:budget_frontend/features/home/widgets/spend_income_bottom_sheet.dart';
 import 'package:budget_frontend/features/home_tab/widget/smart_add_views.dart';
+import 'package:budget_frontend/features/smart_add/services/smart_add_service.dart';
+import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Lightweight model representing a selected PDF file
 class SelectedPdfData {
@@ -54,14 +60,17 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
   SelectedPdfData? _selectedPdf;
   bool _isLoading = false;
 
-  // Simulation state for API processing
+  // Processing state for API upload
   double _progressRatio = 0.25;
   String _progressText = 'Initializing api 25%';
-  Timer? _simulationTimer;
+  String? _errorMessage;
+  String? _createdTransactionId;
+  TransactionService? _txService;
 
-  // Review state after 100% completion
+  // Review state
   bool _isReviewReady = false;
-  final String _itemName = 'Items Purchased';
+  bool _isSaving = false;
+  String _itemName = 'PDF Invoice';
   late final TextEditingController _amountController;
   String _category = 'Shopping';
   String _transactionType = 'Spend'; // 'Spend' or 'Income'
@@ -70,55 +79,175 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
   @override
   void initState() {
     super.initState();
-    _amountController = TextEditingController(text: '1444.9');
+    _amountController = TextEditingController();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _txService = context.read<TransactionService>();
   }
 
   @override
   void dispose() {
-    _simulationTimer?.cancel();
+    if (_createdTransactionId != null) {
+      try {
+        final txId = _createdTransactionId!;
+        _txService?.deleteTransaction(txId);
+      } catch (_) {}
+    }
     _amountController.dispose();
     super.dispose();
   }
 
-  void _startProgressSimulation() {
-    _simulationTimer?.cancel();
+  Future<void> _processPdfWithSmartAdd(PlatformFile file) async {
+    int fileSize = file.lengthSync() ?? (await file.length()) ?? 1024;
+
     setState(() {
+      _selectedPdf = SelectedPdfData(
+        name: file.name,
+        sizeInBytes: fileSize > 0 ? fileSize : 1024,
+        path: file.path,
+      );
+      _errorMessage = null;
       _isReviewReady = false;
       _progressRatio = 0.25;
-      _progressText = 'Initializing api 25%';
+      _progressText = 'Reading PDF document 25%';
     });
 
-    _simulationTimer = Timer.periodic(const Duration(milliseconds: 600), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
+    try {
+      final bytes = await file.readAsBytes();
+      if (bytes.isEmpty) {
+        throw const ApiException('Could not read the PDF file. Please try again.');
+      }
+      if (bytes.length > 3 * 1024 * 1024) {
+        throw const ApiException('PDF is too large. Keep it under about 3 MB.');
       }
 
+      if (!mounted) return;
       setState(() {
-        if (_progressRatio < 0.50) {
-          _progressRatio = 0.50;
-          _progressText = 'Reading PDF document 50%';
-        } else if (_progressRatio < 0.75) {
-          _progressRatio = 0.75;
-          _progressText = 'Extracting line items & total 75%';
-        } else if (_progressRatio < 1.0) {
-          _progressRatio = 1.0;
-          _progressText = 'Finished 100%';
-          timer.cancel();
-
-          // Smoothly transition to the review card upon 100% completion
-          Future.delayed(const Duration(milliseconds: 450), () {
-            if (mounted) {
-              setState(() {
-                _isReviewReady = true;
-              });
-            }
-          });
-        } else {
-          timer.cancel();
-        }
+        _progressRatio = 0.50;
+        _progressText = 'Uploading & analyzing statement 50%';
       });
-    });
+
+      final smartAddService = context.read<SmartAddService>();
+      final txService = context.read<TransactionService>();
+
+      // Record newest transaction before API call
+      final beforeTxs = await txService.getTransactions(limit: 1);
+      final beforeId = beforeTxs.isNotEmpty ? beforeTxs.first.id : null;
+
+      // Call API
+      await smartAddService.smartAddFile(
+        bytes: bytes,
+        mimeType: 'application/pdf',
+        inputType: 'pdf',
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _progressRatio = 0.85;
+        _progressText = 'Extracting invoice details 85%';
+      });
+
+      // Fetch the newly parsed and saved transaction from backend
+      final afterTxs = await txService.getTransactions(limit: 1);
+      if (afterTxs.isEmpty || afterTxs.first.id == beforeId) {
+        throw const ApiException(
+          'No bill amount found in this PDF. Please upload a clear invoice or bill.',
+        );
+      }
+
+      final newTx = afterTxs.first;
+      _createdTransactionId = newTx.id;
+      _amountController.text =
+          newTx.amount.toStringAsFixed(newTx.amount % 1 == 0 ? 0 : 2);
+      _itemName = newTx.description.isNotEmpty ? newTx.description : 'PDF Invoice';
+      _category = newTx.category;
+      _entryDate = newTx.date;
+      _transactionType = newTx.isIncome ? 'Income' : 'Spend';
+
+      setState(() {
+        _progressRatio = 1.0;
+        _progressText = 'Finished 100%';
+      });
+
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
+      setState(() {
+        _isReviewReady = true;
+      });
+    } catch (e) {
+      debugPrint('Error preparing PDF review: $e');
+      if (!mounted) return;
+      final msg = sanitizeSmartAddError(
+        e,
+        noAmountFallback:
+            'Could not find any bill amount in this PDF. Please upload a clear invoice or bill.',
+      );
+      setState(() {
+        _errorMessage = msg;
+        _progressRatio = 0.0;
+      });
+    }
+  }
+
+  Future<void> _saveReviewedEntry() async {
+    if (_isSaving) return;
+
+    final amountDouble = double.tryParse(_amountController.text.trim()) ?? 0.0;
+    if (amountDouble <= 0) {
+      AppToast.show(context, message: 'Please enter a valid amount');
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    final paise = (amountDouble * 100).round();
+    final isIncome = _transactionType == 'Income';
+    final type = isIncome ? 'income' : 'expense';
+
+    final catModel = CategoryRegistry.find(_category, type);
+    final categoryKey = catModel?.key ?? (isIncome ? 'salary' : 'shopping');
+
+    final now = DateTime.now();
+    final today =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final entryDateStr =
+        '${_entryDate.year}-${_entryDate.month.toString().padLeft(2, '0')}-${_entryDate.day.toString().padLeft(2, '0')}';
+
+    try {
+      final txService = context.read<TransactionService>();
+
+      // Replace the transaction with user's verified values
+      if (_createdTransactionId != null) {
+        await txService.deleteTransaction(_createdTransactionId!);
+      }
+
+      await txService.createTransaction(
+        type: type,
+        amountPaise: paise,
+        category: categoryKey,
+        note: _itemName,
+        date: entryDateStr,
+        today: today,
+      );
+
+      _createdTransactionId = null;
+
+      if (!mounted) return;
+      context.read<WalletBloc>().add(const RefreshWalletSummary());
+      AppToast.show(context, message: 'Transaction added');
+      Navigator.of(context).pop('entry_added');
+    } catch (e) {
+      if (!mounted) return;
+      final err = e is ApiException ? e.message : 'Failed to save entry';
+      AppToast.show(context, message: err);
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
+    }
   }
 
   Future<void> _pickPdf() async {
@@ -141,15 +270,7 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
       }
 
       if (file != null && mounted) {
-        final pickedFile = file;
-        setState(() {
-          _selectedPdf = SelectedPdfData(
-            name: pickedFile.name,
-            sizeInBytes: pickedFile.lengthSync() ?? 102400,
-            path: pickedFile.path,
-          );
-        });
-        _startProgressSimulation();
+        await _processPdfWithSmartAdd(file);
       }
     } on MissingPluginException {
       if (mounted) {
@@ -157,7 +278,7 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
           const SnackBar(
             backgroundColor: Color(0xFFD2513F),
             content: Text(
-              'Please restart the app (press Stop ⏹ then Run ▶ in Android Studio) to enable the native file picker on your phone.',
+              'Please restart the app to enable the native file picker on your phone.',
             ),
             duration: Duration(seconds: 5),
           ),
@@ -186,12 +307,19 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    // 3. Review State: Matches screenshot 2
+    // 3. Review State: Matches shared SmartAddReviewView
     if (_isReviewReady) {
+      final isSpend = _transactionType == 'Spend';
+      final availableCats = isSpend
+          ? CategoryRegistry.expenses.map((c) => c.label).toList()
+          : CategoryRegistry.incomes.map((c) => c.label).toList();
+
       return SmartAddReviewView(
         brandName: _itemName,
         amountController: _amountController,
         category: _category,
+        isSaving: _isSaving,
+        categories: availableCats.isNotEmpty ? availableCats : const ['Shopping', 'Bills', 'Food', 'Other'],
         onCategoryChanged: (val) => setState(() => _category = val),
         entryDate: _entryDate,
         onDateChanged: (val) => setState(() => _entryDate = val),
@@ -202,18 +330,21 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
           });
         },
         rawReadText:
-            'STATEMENT OF ACCOUNTS\nDescription: $_itemName\nDate: ${_formatDate(_entryDate)}\nCategory: $_category\nAmount: ₹${_amountController.text}\nPayment: Online Debit\nStatus: Cleared',
-        onAddEntry: () {
-          AppToast.show(
-            context,
-            message: 'expenced saved',
-          );
-          Navigator.of(context).pop('entry_added');
-        },
-        onBack: () {
+            'STATEMENT OF ACCOUNTS\nDescription: $_itemName\nDate: ${_formatDate(_entryDate)}\nCategory: $_category\nAmount: ₹${_amountController.text}\nType: $_transactionType',
+        onAddEntry: _saveReviewedEntry,
+        onBack: () async {
+          if (_isSaving) return;
+          if (_createdTransactionId != null) {
+            try {
+              final txService = context.read<TransactionService>();
+              await txService.deleteTransaction(_createdTransactionId!);
+            } catch (_) {}
+            _createdTransactionId = null;
+          }
           setState(() {
             _isReviewReady = false;
             _selectedPdf = null;
+            _errorMessage = null;
             _progressRatio = 0.25;
             _progressText = 'Initializing api 25%';
           });
@@ -307,15 +438,17 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
             ),
             progressRatio: _progressRatio,
             progressText: _progressText,
+            errorMessage: _errorMessage,
             changeButtonLabel: 'Change PDF file',
             onChange: () {
-              _simulationTimer?.cancel();
               setState(() {
                 _selectedPdf = null;
+                _errorMessage = null;
                 _progressRatio = 0.25;
                 _progressText = 'Initializing api 25%';
               });
             },
+            onAddByHand: () => Navigator.of(context).pop('manual'),
           ),
         ],
         8.verticalSpace,

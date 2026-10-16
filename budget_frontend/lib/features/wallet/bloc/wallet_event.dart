@@ -1,10 +1,23 @@
 import 'package:flutter/foundation.dart';
 
+import 'package:budget_frontend/features/auth/models/user_model.dart';
 import 'package:budget_frontend/features/wallet/models/easy_fix.dart';
 
 @immutable
 abstract class WalletEvent {
   const WalletEvent();
+}
+
+/// Dispatched to load the wallet from API (GET /users/me).
+class LoadWallet extends WalletEvent {
+  const LoadWallet();
+}
+
+/// Dispatched when syncing wallet with user model already in memory.
+class WalletUserSynced extends WalletEvent {
+  const WalletUserSynced(this.user);
+
+  final UserModel user;
 }
 
 /// Dispatched when the user updates their monthly budget.
@@ -31,3 +44,12 @@ class ApplyWalletEasyFix extends WalletEvent {
 
   final EasyFix fix;
 }
+
+/// Dispatched to refresh the month transaction summary.
+class RefreshWalletSummary extends WalletEvent {
+  const RefreshWalletSummary({this.month, this.today});
+
+  final String? month;
+  final String? today;
+}
+

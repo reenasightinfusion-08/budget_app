@@ -12,20 +12,31 @@ import 'package:budget_frontend/features/insights/widgets/insights_header.dart';
 import 'package:budget_frontend/features/insights/widgets/pace_chart.dart';
 import 'package:budget_frontend/features/insights/widgets/simple_words_card.dart';
 import 'package:budget_frontend/features/insights/widgets/six_month_bar_chart.dart';
-import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
+import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 
 class InsightsScreen extends StatelessWidget {
   const InsightsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final budget = context.select<SetupBloc, int>((bloc) => bloc.state.effectiveBudget);
-    final data = InsightsData.mockForBudget(budget);
+    final walletState = context.watch<WalletBloc>().state;
+    final budget = walletState.monthlyBudget;
+    final summary = walletState.summary;
+    final data = summary != null
+        ? InsightsData.fromSummaryAndBudget(summary, budget)
+        : InsightsData.empty(budget);
 
     return SafeArea(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, AppLayout.navBarClearanceOf(context)),
-        child: Column(
+      child: RefreshIndicator(
+        color: AppColors.accent,
+        onRefresh: () async {
+          context.read<WalletBloc>().add(const LoadWallet());
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, AppLayout.navBarClearanceOf(context)),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const InsightsHeader(),
@@ -57,6 +68,9 @@ class InsightsScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
 }
+}
+
+

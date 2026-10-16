@@ -1,13 +1,17 @@
-import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
+import 'package:budget_frontend/features/history/models/history_transaction_model.dart';
 import 'package:budget_frontend/features/history/screen/history_screen.dart';
 import 'package:budget_frontend/features/home/widgets/home_tab_scope.dart';
+import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 
 class TransactionItemData {
    TransactionItemData({
@@ -109,9 +113,58 @@ class RecentTransactionsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final walletState = context.watch<WalletBloc>().state;
+    final summary = walletState.summary;
+
+    // IN amount
+    final incomeRupees = summary?.incomeRupees ?? 0;
+    final incomeText = AppFormatters.rupees(incomeRupees).replaceAll('₹', '');
+
+    // OUT amount
+    final expenseRupees = summary != null ? summary.expenseRupees : walletState.totalSpent;
+    final expenseText = AppFormatters.rupees(expenseRupees).replaceAll('₹', '');
+
+    // OUT description: compare with last month so far if available
+    String outDescription = 'this month';
+    if (summary != null && summary.previousMonthSoFarRupees > 0) {
+      final prev = summary.previousMonthSoFarRupees;
+      final diff = ((summary.expenseRupees - prev) / prev * 100).round();
+      if (diff < 0) {
+        outDescription = '${-diff}% less than last mo';
+      } else if (diff > 0) {
+        outDescription = '$diff% more than last mo';
+      } else {
+        outDescription = 'same as last month';
+      }
+    }
+
+    // PER DAY safe spend
+    final now = DateTime.now();
+    final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
+    final daysLeft = (daysInMonth - now.day + 1).clamp(1, daysInMonth);
+    final perDaySafe = walletState.availableToSpend > 0
+        ? (walletState.availableToSpend / daysLeft).round()
+        : 0;
+    final perDayText = AppFormatters.rupees(perDaySafe).replaceAll('₹', '');
+
+    // TOP SPEND category
+    final topCat = summary?.topExpenseCategory;
+    final topSpendAmount = topCat != null
+        ? AppFormatters.rupees(topCat.totalRupees).replaceAll('₹', '')
+        : '0';
+    final topSpendDesc = topCat != null
+        ? HistoryTransactionModel.categoryKeyToLabel(topCat.category)
+        : 'nothing logged yet';
+    final topSpendIcon = topCat != null
+        ? HistoryTransactionModel.categoryKeyToIcon(topCat.category)
+        : AppIcons.moreHoriz;
+    final topSpendColor = topCat != null
+        ? HistoryTransactionModel.categoryKeyToColor(topCat.category)
+        : AppColors.catOther;
+
     return Column(
       children: [
-        // 1st Row: 2 items
+        // 1st Row: 2 items (IN & OUT)
         Row(
           children: [
             Expanded(
@@ -125,7 +178,7 @@ class RecentTransactionsWidget extends StatelessWidget {
                 },
                 data: TransactionItemData(
                   title: 'IN',
-                  amount: '0',
+                  amount: incomeText,
                   textColor: AppColors.catHealth,
                   icon: AppIcons.arrowDownLeft,
                   iconColor: AppColors.catHealth,
@@ -146,11 +199,11 @@ class RecentTransactionsWidget extends StatelessWidget {
                 },
                 data: TransactionItemData(
                   title: 'OUT',
-                  amount: '0',
+                  amount: expenseText,
                   icon: AppIcons.arrowUpRight,
                   iconColor: AppColors.catShopping,
                   color: AppColors.catShopping.withValues(alpha: 0.15),
-                  description: '------------------',
+                  description: outDescription,
                 ),
               ),
             ),
@@ -158,18 +211,18 @@ class RecentTransactionsWidget extends StatelessWidget {
         ),
         12.verticalSpace,
 
-        // 2nd Row: 2 items
+        // 2nd Row: 2 items (PER DAY & TOP SPEND)
         Row(
           children: [
             Expanded(
               child: TransactionItemWidget(
                 data: TransactionItemData(
                   title: 'PER DAY',
-                  amount: '789',
+                  amount: perDayText,
                   icon: Icons.lock_clock,
                   iconColor: AppColors.catTravel,
                   color: AppColors.catTravel.withValues(alpha: 0.15),
-                  description: 'safe to spend',
+                  description: '$daysLeft days left',
                 ),
               ),
             ),
@@ -179,16 +232,17 @@ class RecentTransactionsWidget extends StatelessWidget {
                 onTap: () => _selectTab(context, 2),
                 data: TransactionItemData(
                   title: 'TOP SPEND',
-                  amount: '250',
-                  icon: AppIcons.moreHoriz,
-                  iconColor: AppColors.catOther,
-                  color: AppColors.catOther.withValues(alpha: 0.15),
-                  description: 'nothing logged yet',
+                  amount: topSpendAmount,
+                  icon: topSpendIcon,
+                  iconColor: topSpendColor,
+                  color: topSpendColor.withValues(alpha: 0.15),
+                  description: topSpendDesc,
                 ),
               ),
             ),
           ],
         ),
+
 
         12.verticalSpace,
 

@@ -14,6 +14,7 @@ import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
 import 'package:budget_frontend/features/setup/widgets/setup_budget_card.dart';
 import 'package:budget_frontend/features/setup/widgets/setup_quick_amounts.dart';
+import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 
 class SetupScreen extends StatefulWidget {
   const SetupScreen({super.key});
@@ -46,6 +47,10 @@ class SetupScreenState extends State<SetupScreen> {
 
   void submit() {
     if (!formKey.currentState!.validate()) return;
+    final amount = AppFormatters.parseDigits(budgetController.text);
+    if (amount > 0) {
+      context.read<SetupBloc>().add(SetupBudgetAmountChanged(amount));
+    }
     context.read<SetupBloc>().add(SetupCompletedSubmitted(name: nameController.text.trim()));
   }
 
@@ -55,6 +60,7 @@ class SetupScreenState extends State<SetupScreen> {
             previous.savedUser != current.savedUser && current.savedUser != null,
         listener: (context, state) {
           context.read<AuthBloc>().add(AuthUserUpdated(state.savedUser!));
+          context.read<WalletBloc>().add(WalletUserSynced(state.savedUser!));
           final name = state.savedUser?.displayName ?? nameController.text.trim();
           Navigator.of(context).pushNamedAndRemoveUntil(
             AppRoutes.home,

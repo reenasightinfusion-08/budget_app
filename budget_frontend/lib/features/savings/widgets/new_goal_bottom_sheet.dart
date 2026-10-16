@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
@@ -6,16 +7,17 @@ import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_gradients.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/network/api_exception.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/app_bottom_sheet.dart';
 import 'package:budget_frontend/core/widgets/app_button.dart';
 import 'package:budget_frontend/core/widgets/app_month_year_picker.dart';
 import 'package:budget_frontend/core/widgets/app_text_field.dart';
 import 'package:budget_frontend/core/widgets/app_toast.dart';
-// ignore: unused_import
-import 'package:date_picker_plus/date_picker_plus.dart';
+import 'package:budget_frontend/features/savings/bloc/goal_bloc.dart';
+import 'package:budget_frontend/features/savings/services/goal_service.dart';
 
-/// Model holding the 4 data points of a created goal.
+/// Model holding the data points of a created goal.
 class NewGoalData {
   final String title;
   final IconData icon;
@@ -73,21 +75,17 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
   final TextEditingController dateController = TextEditingController();
 
   DateTime? selectedGoalDate;
-  int selectedIconIndex = 5; // Default to last icon (AppIcons.savings)
+  int selectedIconIndex = 2; // Default to 'plane'
+  bool _isSaving = false;
 
-  // The 4 variables storing the entered data on submit
-  String? goalTitle;
-  IconData? goalIcon;
-  int? goalAmount;
-  DateTime? goalTargetDate;
-
-  static const List<IconData> icons = [
-    AppIcons.shield,
-    AppIcons.wallet,
-    AppIcons.analytics,
-    AppIcons.home,
-    AppIcons.calendar,
-    AppIcons.savings,
+  // Icons matching backend enum: ['shield', 'phone', 'plane', 'house', 'gift', 'star']
+  static const List<(IconData, String)> goalIcons = [
+    (AppIcons.shield, 'shield'),
+    (Icons.phone_iphone_rounded, 'phone'),
+    (Icons.flight_rounded, 'plane'),
+    (AppIcons.home, 'house'),
+    (AppIcons.gift, 'gift'),
+    (Icons.star_rounded, 'star'),
   ];
 
   @override
@@ -117,29 +115,61 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
     }
   }
 
-  void _submitForm() {
+  Future<void> _submitForm() async {
     final isFormValid = _formKey.currentState?.validate() ?? false;
+    if (!isFormValid) return;
 
-    if (isFormValid) {
-      // Store all four values in variables
-      goalTitle = nameController.text.trim();
-      goalIcon = icons[selectedIconIndex];
-      goalAmount = AppFormatters.parseDigits(amountController.text);
-      goalTargetDate = selectedGoalDate;
+    if (selectedGoalDate == null) {
+      AppToast.show(context, message: 'Please select a target date');
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    final name = nameController.text.trim();
+    final iconEntry = goalIcons[selectedIconIndex];
+    final amountRupees = AppFormatters.parseDigits(amountController.text);
+    final targetMonth =
+        '${selectedGoalDate!.year}-${selectedGoalDate!.month.toString().padLeft(2, '0')}';
+
+    try {
+      final goalService = context.read<GoalService>();
+      await goalService.createGoal(
+        name: name,
+        icon: iconEntry.$2,
+        targetAmountPaise: amountRupees * 100,
+        targetMonth: targetMonth,
+      );
+
+      if (!mounted) return;
+      context.read<GoalBloc>().add(const LoadGoals());
 
       final goalData = NewGoalData(
-        title: goalTitle!,
-        icon: goalIcon!,
-        amount: goalAmount!,
-        targetDate: goalTargetDate!,
+        title: name,
+        icon: iconEntry.$1,
+        amount: amountRupees,
+        targetDate: selectedGoalDate!,
       );
-
       widget.onSubmit?.call(goalData);
+
+      AppToast.show(context, message: 'Goal created');
+      Navigator.of(context).pop(goalData);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
       AppToast.show(
         context,
-        message: 'Goal saved',
+        message: e.message,
+        backgroundColor: AppColors.error,
       );
-      Navigator.of(context).pop(goalData);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      AppToast.show(
+        context,
+        message: 'Failed to create goal. Please try again.',
+        backgroundColor: AppColors.error,
+      );
     }
   }
 
@@ -159,10 +189,13 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
             borderRadius: AppBorderRadius.card,
             fillColor: AppColors.surface,
             controller: nameController,
-            hint: 'e.g. New Laptop',
+            hint: 'e.g. Goa trip',
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter what you are saving for';
+              }
+              if (value.trim().length > 28) {
+                return 'Name must be 28 characters or less';
               }
               return null;
             },
@@ -175,7 +208,7 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
           8.verticalSpace,
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(icons.length, (index) {
+            children: List.generate(goalIcons.length, (index) {
               final isSelected = selectedIconIndex == index;
               return GestureDetector(
                 onTap: () {
@@ -192,7 +225,7 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
                     color: isSelected ? null : AppColors.surface,
                   ),
                   child: Icon(
-                    icons[index],
+                    goalIcons[index].$1,
                     size: 20.sp,
                     color: isSelected ? AppColors.pop : AppColors.catOther,
                   ),
@@ -202,7 +235,7 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
           ),
           14.verticalSpace,
           Text(
-            'How much do you need? (â‚¹)',
+            'How much do you need? (₹)',
             style: AppTextStyle.fieldLabel.copyWith(fontSize: 15),
           ),
           6.verticalSpace,
@@ -210,7 +243,7 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
             borderRadius: AppBorderRadius.card,
             fillColor: AppColors.surface,
             controller: amountController,
-            hint: 'e.g. 50000',
+            hint: 'e.g. 20000',
             keyboardType: TextInputType.number,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
@@ -255,7 +288,8 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
           AppButton(
             label: 'Create goal',
             isCentered: true,
-            onPressed: _submitForm,
+            isLoading: _isSaving,
+            onPressed: _isSaving ? null : _submitForm,
           ),
         ],
       ),
@@ -265,3 +299,4 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
 
 typedef NewGoalSheet = NewGoalBottomSheet;
 typedef NewGoalWidget = NewGoalBottomSheet;
+

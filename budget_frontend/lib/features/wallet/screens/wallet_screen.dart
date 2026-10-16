@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_config.dart';
 import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/amount_input_dialog.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
+import 'package:budget_frontend/core/widgets/app_toast.dart';
+import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
 import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 import 'package:budget_frontend/features/wallet/models/budget_category_model.dart';
@@ -18,10 +20,25 @@ import 'package:budget_frontend/features/wallet/widgets/easy_fix_banner.dart';
 import 'package:budget_frontend/features/wallet/widgets/plan_summary_text.dart';
 import 'package:budget_frontend/features/wallet/widgets/wallet_header.dart';
 
-class WalletScreen extends StatelessWidget {
+class WalletScreen extends StatefulWidget {
   const WalletScreen({super.key, this.showBackButton = false});
 
   final bool showBackButton;
+
+  @override
+  State<WalletScreen> createState() => _WalletScreenState();
+}
+
+class _WalletScreenState extends State<WalletScreen> {
+  @override
+  void initState() {
+    super.initState();
+    final authUser = context.read<AuthBloc>().state.user;
+    if (authUser != null && authUser.monthlyBudget > 0) {
+      context.read<WalletBloc>().add(WalletUserSynced(authUser));
+    }
+    context.read<WalletBloc>().add(const LoadWallet());
+  }
 
   Future<void> _changeBudget(BuildContext context, int currentBudget) async {
     final newBudget = await AmountInputDialog.show(
@@ -34,42 +51,54 @@ class WalletScreen extends StatelessWidget {
     if (newBudget == null || newBudget <= 0 || !context.mounted) return;
     context.read<WalletBloc>().add(UpdateMonthlyBudget(newBudget));
     context.read<SetupBloc>().add(SetupBudgetAmountChanged(newBudget));
+    final currentUser = context.read<AuthBloc>().state.user;
+    if (currentUser != null) {
+      context.read<AuthBloc>().add(AuthUserUpdated(currentUser.copyWith(monthlyBudget: newBudget * 100)));
+    }
+    AppToast.show(context, message: 'Monthly budget updated');
   }
 
   void _applyEasyFix(BuildContext context, EasyFix fix) {
     context.read<WalletBloc>().add(ApplyWalletEasyFix(fix));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Plan updated: moved ${AppFormatters.rupees(fix.amount)} to ${fix.to.label}'),
-        backgroundColor: AppColors.accent,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: AppBorderRadius.dialogInput),
-      ),
+    AppToast.show(
+      context,
+      message: 'Plan updated: moved ${AppFormatters.rupees(fix.amount)} to ${fix.to.label}',
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final authUser = context.watch<AuthBloc>().state.user;
     return BlocBuilder<WalletBloc, WalletState>(
       builder: (context, state) {
-        final totalBudget = state.monthlyBudget;
+        final totalBudget = state.monthlyBudget > 0
+            ? state.monthlyBudget
+            : ((authUser != null && authUser.monthlyBudget > 0)
+                ? (authUser.monthlyBudget ~/ 100)
+                : AppConfig.defaultMonthlyBudget);
         final categories = state.categories;
         final easyFix = state.easyFix;
 
         final content = SafeArea(
-          child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-              20.w,
-              16.h,
-              20.w,
-              showBackButton ? 20.h : AppLayout.navBarClearanceOf(context),
-            ),
-            child: Column(
+          child: RefreshIndicator(
+            color: AppColors.accent,
+            onRefresh: () async {
+              context.read<WalletBloc>().add(const LoadWallet());
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.fromLTRB(
+                20.w,
+                16.h,
+                20.w,
+                widget.showBackButton ? 20.h : AppLayout.navBarClearanceOf(context),
+              ),
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 WalletHeader(
                   onChangeBudget: () => _changeBudget(context, totalBudget),
-                  showBackButton: showBackButton,
+                  showBackButton: widget.showBackButton,
                 ),
                 16.verticalSpace,
                 BudgetStatusTrip(
@@ -111,6 +140,10 @@ class WalletScreen extends StatelessWidget {
                                     newLimit: limit,
                                   ),
                                 );
+                            AppToast.show(
+                              context,
+                              message: '${category.label} limit updated',
+                            );
                           },
                         ),
                     ],
@@ -120,9 +153,10 @@ class WalletScreen extends StatelessWidget {
               ],
             ),
           ),
-        );
+        ),
+      );
 
-        if (showBackButton) {
+        if (widget.showBackButton) {
           return Scaffold(
             backgroundColor: AppColors.background,
             body: content,

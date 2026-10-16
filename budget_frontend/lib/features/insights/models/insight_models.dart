@@ -2,9 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'package:budget_frontend/core/constants/app_config.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
-import 'package:budget_frontend/features/wallet/models/budget_category_model.dart';
+import 'package:budget_frontend/features/history/models/history_transaction_model.dart';
+import 'package:budget_frontend/features/history/models/month_summary_model.dart';
 
 class CategorySpend {
   const CategorySpend({
@@ -74,64 +74,99 @@ class InsightsData {
 
   int get maxCategoryAmount => categorySpends.fold(1, (max, c) => math.max(max, c.amount));
 
-  static const List<int> dailyIncrements = [
-    3200, 1800, 400, 1200, 240, 2600, 300, 900, 150, 1600,
-    500, 2200, 350, 1800, 200, 700, 650, 400, 1900, 300,
-    1500, 200, 1700, 350, 1000, 450, 1200, 300, 500, 200, 300,
-  ];
-  static const List<int> sixMonthIncome = [52000, 58000, 52000, 58000, 52000, 58000];
-  static const List<int> sixMonthExpense = [28500, 31200, 27400, 34200, 29800, 18400];
-
-  /// Sample data until real transactions are wired in, scaled from the default budget to [budget].
-  factory InsightsData.mockForBudget(int budget) {
+  /// Empty insights when no live transaction data is available.
+  factory InsightsData.empty(int budget) {
     final now = DateTime.now();
     final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
     final currentDay = now.day.clamp(1, daysInMonth);
-    final factor = budget / AppConfig.defaultMonthlyBudget;
-
-    final cumulative = <double>[];
-    var running = 0.0;
-    for (var day = 0; day < currentDay; day++) {
-      running += dailyIncrements[day % dailyIncrements.length] * factor;
-      cumulative.add(running);
-    }
-    final spent = running.round();
-
-    final monthlyRecords = List.generate(6, (i) {
-      final isCurrent = i == 5;
-      return MonthlyRecord(
-        month: AppFormatters.monthShort(DateTime(now.year, now.month - 5 + i).month),
-        income: (sixMonthIncome[i] * factor).round(),
-        expense: isCurrent ? spent : (sixMonthExpense[i] * factor).round(),
-        isCurrent: isCurrent,
-      );
-    });
-
-    final spendingCategories = BudgetCategoryModel.generateInitial(budget)
-        .where((c) => c.spent > 0)
-        .toList()
-      ..sort((a, b) => b.spent.compareTo(a.spent));
 
     return InsightsData(
       budget: budget,
-      spentThisMonth: spent,
+      spentThisMonth: 0,
+      daysInMonth: daysInMonth,
+      currentDay: currentDay,
+      cumulativeSpending: const [],
+      monthlyRecords: const [],
+      categorySpends: const [],
+      previousMonthSaved: 0,
+      previousMonthName: AppFormatters.monthName(DateTime(now.year, now.month - 1).month),
+      previousMonthIncome: 0,
+    );
+  }
+
+  /// Builds insights from live API transaction summary.
+  factory InsightsData.fromSummaryAndBudget(
+    MonthSummaryModel summary,
+    int budget,
+  ) {
+    final now = DateTime.now();
+    final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
+    final currentDay = now.day.clamp(1, daysInMonth);
+
+    // Map daily spending for cumulative curve
+    final dailyMap = {for (final d in summary.daily) d.date: d.spentRupees};
+    final cumulative = <double>[];
+    var running = 0.0;
+    for (var d = 1; d <= currentDay; d++) {
+      final dateStr =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}-${d.toString().padLeft(2, '0')}';
+      running += dailyMap[dateStr] ?? 0;
+      cumulative.add(running);
+    }
+
+    // 6-month historical bars
+    final monthlyRecords = summary.months.map((m) {
+      DateTime? parsed;
+      try {
+        parsed = DateTime.parse('${m.month}-01');
+      } catch (_) {}
+      final monthName = parsed != null ? AppFormatters.monthShort(parsed.month) : m.month;
+      return MonthlyRecord(
+        month: monthName,
+        income: m.incomeRupees,
+        expense: m.expenseRupees,
+        isCurrent: m.month == summary.month,
+      );
+    }).toList();
+
+    // Category breakdown
+    final expenseCategories = summary.byCategory
+        .where((c) => c.type == 'expense' && c.totalPaise > 0)
+        .toList()
+      ..sort((a, b) => b.totalPaise.compareTo(a.totalPaise));
+
+    final totalSpent = summary.expenseRupees;
+    final categorySpends = expenseCategories.map((c) {
+      return CategorySpend(
+        name: HistoryTransactionModel.categoryKeyToLabel(c.category),
+        amount: c.totalRupees,
+        totalSpent: totalSpent,
+        color: HistoryTransactionModel.categoryKeyToColor(c.category),
+        icon: HistoryTransactionModel.categoryKeyToIcon(c.category),
+      );
+    }).toList();
+
+    // Previous month comparison
+    SummaryMonthItem? prevMonth;
+    if (summary.months.length >= 2) {
+      prevMonth = summary.months[summary.months.length - 2];
+    }
+    final prevIncome = prevMonth?.incomeRupees ?? 0;
+    final prevExpense = prevMonth?.expenseRupees ?? 0;
+    final prevSaved = (prevIncome - prevExpense).clamp(0, double.infinity).toInt();
+
+    return InsightsData(
+      budget: budget,
+      spentThisMonth: totalSpent,
       daysInMonth: daysInMonth,
       currentDay: currentDay,
       cumulativeSpending: cumulative,
       monthlyRecords: monthlyRecords,
-      categorySpends: [
-        for (final c in spendingCategories)
-          CategorySpend(
-            name: c.label,
-            amount: c.spent,
-            totalSpent: spent,
-            color: c.color,
-            icon: c.icon,
-          ),
-      ],
-      previousMonthSaved: (14500 * factor).round(),
+      categorySpends: categorySpends,
+      previousMonthSaved: prevSaved,
       previousMonthName: AppFormatters.monthName(DateTime(now.year, now.month - 1).month),
-      previousMonthIncome: (52000 * factor).round(),
+      previousMonthIncome: prevIncome,
     );
   }
 }
+

@@ -31,6 +31,32 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
   void initState() {
     super.initState();
     otpController.addListener(_onOtpChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _focusOtpInput();
+      }
+    });
+  }
+
+  void _focusOtpInput() {
+    if (errorMessage != null || context.read<AuthBloc>().state.errorMessage != null) {
+      if (mounted) {
+        setState(() {
+          errorMessage = null;
+        });
+        context.read<AuthBloc>().add(const AuthErrorCleared());
+      }
+    }
+
+    otpController.selection = TextSelection.collapsed(
+      offset: otpController.text.length,
+    );
+
+    if (focusNode.hasFocus) {
+      focusNode.unfocus();
+    }
+    FocusScope.of(context).requestFocus(focusNode);
+    SystemChannels.textInput.invokeMethod('TextInput.show');
   }
 
   void _onOtpChanged() {
@@ -127,6 +153,8 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
                   autofocus: true,
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.done,
+                  enableSuggestions: false,
+                  autocorrect: false,
                   autofillHints: const [AutofillHints.oneTimeCode],
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
@@ -139,15 +167,7 @@ class VerifyEmailScreenState extends State<VerifyEmailScreen> {
               MouseRegion(
                 cursor: SystemMouseCursors.text,
                 child: GestureDetector(
-                  onTap: () {
-                    if (errorMessage != null || context.read<AuthBloc>().state.errorMessage != null) {
-                      setState(() {
-                        errorMessage = null;
-                      });
-                      context.read<AuthBloc>().add(const AuthErrorCleared());
-                    }
-                    focusNode.requestFocus();
-                  },
+                  onTap: _focusOtpInput,
                   behavior: HitTestBehavior.opaque,
                   child: ListenableBuilder(
                     listenable: Listenable.merge([otpController, focusNode]),

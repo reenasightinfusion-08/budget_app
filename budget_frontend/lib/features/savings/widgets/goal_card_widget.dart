@@ -1,11 +1,12 @@
-import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
-import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
+import 'package:budget_frontend/features/savings/models/goal_model.dart';
 import 'package:budget_frontend/features/savings/widgets/goal_detail_bottom_sheet.dart';
 
 /// Circular progress ring surrounding an icon for goal tracking.
@@ -57,88 +58,117 @@ class GoalProgressCircle extends StatelessWidget {
 
 /// Goal display card with progress circle, details, and monthly saving target.
 class GoalCardWidget extends StatelessWidget {
-  const GoalCardWidget({super.key});
+  const GoalCardWidget({
+    super.key,
+    required this.goal,
+    this.onTap,
+  });
+
+  final GoalModel goal;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => GoalDetailBottomSheet.show(context),
+      onTap: onTap ?? () => GoalDetailBottomSheet.show(context, goal: goal),
+      behavior: HitTestBehavior.opaque,
       child: AppCard(
         isGradient: false,
         radius: AppBorderRadius.card,
         padding: EdgeInsets.all(16.r),
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 1. Row containing circle, title/percentage, and amounts
-          Row(
-            children: [
-              // i. Goal process circle (20% progress)
-              const GoalProgressCircle(
-                icon: AppIcons.laptop,
-                progress: 0.20,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                GoalProgressCircle(
+                  icon: goal.iconData,
+                  progress: goal.progressRatio,
+                ),
+                12.horizontalSpace,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        goal.name,
+                        style: AppTextStyle.cardTitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      2.verticalSpace,
+                      Text(
+                        '${goal.progressPercent}% · by ${goal.formattedTargetMonth}',
+                        style: AppTextStyle.subHeader,
+                      ),
+                    ],
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      AppFormatters.rupees(goal.savedAmountRupees),
+                      style: AppTextStyle.cardTitle,
+                    ),
+                    2.verticalSpace,
+                    Text(
+                      'of ${AppFormatters.rupees(goal.targetAmountRupees)}',
+                      style: AppTextStyle.subHeader,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            if (!goal.isReached && goal.monthlyNeededRupees > 0) ...[
+              14.verticalSpace,
+              AppCard(
+                width: double.infinity,
+                color: AppColors.fill,
+                radius: AppBorderRadius.chip,
+                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+                child: RichText(
+                  text: TextSpan(
+                    style: AppTextStyle.fieldLabel,
+                    children: [
+                      const TextSpan(text: 'Save '),
+                      TextSpan(
+                        text: '${AppFormatters.rupees(goal.monthlyNeededRupees)} a month',
+                        style: AppTextStyle.fieldLabel.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.ink,
+                        ),
+                      ),
+                      TextSpan(text: ' to reach it by ${goal.formattedTargetMonth}.'),
+                    ],
+                  ),
+                ),
               ),
-              12.horizontalSpace,
-              // ii. Column: 1st. Laptop, 2nd. 20% Â· by Apr 2027
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Laptop',
-                    style: AppTextStyle.cardTitle,
-                  ),
-                  2.verticalSpace,
-                  Text(
-                    '20% · by Apr 2027',
-                    style: AppTextStyle.subHeader,
-                  ),
-                ],
-              ),
-              const Spacer(),
-              // iii. Column: 1st. ₹53,200, 2nd. of ₹50,000
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '₹53,200',
-                    style: AppTextStyle.cardTitle,
-                  ),
-                  2.verticalSpace,
-                  Text(
-                    'of ₹50,000',
-                    style: AppTextStyle.subHeader,
-                  ),
-                ],
+            ] else if (goal.isReached) ...[
+              14.verticalSpace,
+              AppCard(
+                width: double.infinity,
+                color: AppColors.successSoft,
+                radius: AppBorderRadius.chip,
+                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+                child: Row(
+                  children: [
+                    Icon(Icons.check_circle_rounded, color: AppColors.success, size: 18.sp),
+                    8.horizontalSpace,
+                    Text(
+                      'Goal reached! 🎉',
+                      style: AppTextStyle.fieldLabel.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.success,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
-          ),
-          14.verticalSpace,
-          // 2. Container that shows monthly saving requirement
-          AppCard(
-            width: double.infinity,
-            color: AppColors.fill,
-            radius: AppBorderRadius.chip,
-            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
-            child: RichText(
-              text: TextSpan(
-                style: AppTextStyle.fieldLabel,
-                children: [
-                  const TextSpan(text: 'Save '),
-                  TextSpan(
-                    text: '₹1,764 a month',
-                    style: AppTextStyle.fieldLabel.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.ink,
-                    ),
-                  ),
-                  const TextSpan(text: ' to reach it by Apr 2027.'),
-                ],
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

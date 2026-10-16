@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:budget_frontend/app/app_routes.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/widgets/app_toast.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/profile/widgets/profile_account_actions_card.dart';
 import 'package:budget_frontend/features/profile/widgets/profile_header.dart';
@@ -21,7 +22,9 @@ class ProfileScreen extends StatelessWidget {
       listenWhen: (previous, current) =>
           current.status == AuthStatus.unauthenticated ||
           (current.errorMessage != null &&
-              previous.errorMessage != current.errorMessage),
+              previous.errorMessage != current.errorMessage) ||
+          (current.successMessage != null &&
+              previous.successMessage != current.successMessage),
       listener: (context, state) {
         if (state.status == AuthStatus.unauthenticated) {
           Navigator.of(context).pushNamedAndRemoveUntil(
@@ -29,13 +32,17 @@ class ProfileScreen extends StatelessWidget {
             (route) => false,
           );
         } else if (state.errorMessage != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage!),
-              backgroundColor: AppColors.error,
-            ),
+          AppToast.show(
+            context,
+            message: state.errorMessage!,
+            backgroundColor: AppColors.error,
           );
           context.read<AuthBloc>().add(const AuthErrorCleared());
+        } else if (state.successMessage != null) {
+          AppToast.show(
+            context,
+            message: state.successMessage!,
+          );
         }
       },
       child: Scaffold(
@@ -52,8 +59,6 @@ class ProfileScreen extends StatelessWidget {
                 const ProfileStatsRow(),
                 15.verticalSpace,
                 const ProfileMenuCard(),
-                // 15.verticalSpace,
-                // const ProfileDataActionsCard(),
                 15.verticalSpace,
                 const ProfileAccountActionsCard(),
                 20.verticalSpace,

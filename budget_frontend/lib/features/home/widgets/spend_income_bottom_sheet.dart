@@ -9,13 +9,18 @@ import 'package:budget_frontend/core/constants/app_gradients.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
+import 'package:budget_frontend/core/network/api_exception.dart';
 import 'package:budget_frontend/core/widgets/app_bottom_sheet.dart';
 import 'package:budget_frontend/core/widgets/app_button.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/core/widgets/app_text_field.dart';
 import 'package:budget_frontend/core/widgets/app_toast.dart';
+import 'package:budget_frontend/features/categories/bloc/category_bloc.dart';
+import 'package:budget_frontend/features/history/services/transaction_service.dart';
+import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 import 'package:budget_frontend/features/wallet/models/budget_category_model.dart';
 import 'package:date_picker_plus/date_picker_plus.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SpendIncomeBottomSheet extends StatefulWidget {
   const SpendIncomeBottomSheet({
@@ -24,42 +29,6 @@ class SpendIncomeBottomSheet extends StatefulWidget {
   });
 
   final ValueNotifier<int>? selectedTabIndex;
-
-  /// Income categories list: 1. Salary 2. Side Work 3. Gift 4. Other.
-  static final List<BudgetCategoryModel> incomeCategories = [
-    BudgetCategoryModel(
-      id: 'salary',
-      label: 'Salary',
-      icon: AppIcons.payments,
-      color: AppColors.success,
-      spent: 0,
-      limit: 0,
-    ),
-    BudgetCategoryModel(
-      id: 'side_work',
-      label: 'Side Work',
-      icon: AppIcons.work,
-      color: AppColors.catBills,
-      spent: 0,
-      limit: 0,
-    ),
-    BudgetCategoryModel(
-      id: 'gift',
-      label: 'Gift',
-      icon: AppIcons.gift,
-      color: AppColors.catFun,
-      spent: 0,
-      limit: 0,
-    ),
-    BudgetCategoryModel(
-      id: 'other',
-      label: 'Other',
-      icon: AppIcons.moreHoriz,
-      color: AppColors.catOther,
-      spent: 0,
-      limit: 0,
-    ),
-  ];
 
   /// Opens the spend and income bottom sheet with the toggle buttons in the title.
   static Future<void> show(BuildContext context, {int initialTabIndex = 0}) {
@@ -83,16 +52,100 @@ class SpendIncomeBottomSheet extends StatefulWidget {
 }
 
 class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
-  late final List<BudgetCategoryModel> _categories;
-  List<BudgetCategoryModel> get incomeCategories => SpendIncomeBottomSheet.incomeCategories;
-  String _selectedSpendCategoryId = 'food';
-  String _selectedIncomeCategoryId = 'salary';
+  String? _selectedSpendCategoryId;
+  String? _selectedIncomeCategoryId;
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _amountController = TextEditingController();
   late final TextEditingController _dateController;
   final FocusNode _amountFocusNode = FocusNode();
   DateTime _selectedDate = DateTime.now();
   String? _amountError;
+  bool _isSaving = false;
+
+  String _formatDateForApi(DateTime d) {
+    final y = d.year.toString().padLeft(4, '0');
+    final m = d.month.toString().padLeft(2, '0');
+    final day = d.day.toString().padLeft(2, '0');
+    return '$y-$m-$day';
+  }
+
+  Future<void> _submitTransaction(int selectedIndex) async {
+    if (_isSaving) return;
+    final amountText = _amountController.text.trim();
+    final amount = int.tryParse(amountText) ?? 0;
+    if (amountText.isEmpty || amount <= 0) {
+      setState(() {
+        _amountError = 'Please enter an amount to continue';
+      });
+      return;
+    }
+
+    setState(() {
+      _amountError = null;
+      _isSaving = true;
+    });
+
+    final isIncome = selectedIndex == 1;
+    final type = isIncome ? 'income' : 'expense';
+
+    final categoryState = context.read<CategoryBloc>().state;
+    String category;
+    if (isIncome) {
+      category = (_selectedIncomeCategoryId != null && _selectedIncomeCategoryId!.isNotEmpty)
+          ? _selectedIncomeCategoryId!
+          : (categoryState.incomeCategories.isNotEmpty
+              ? categoryState.incomeCategories.first.key
+              : 'salary');
+    } else {
+      category = (_selectedSpendCategoryId != null && _selectedSpendCategoryId!.isNotEmpty)
+          ? _selectedSpendCategoryId!
+          : (categoryState.expenseCategories.isNotEmpty
+              ? categoryState.expenseCategories.first.key
+              : 'food');
+    }
+    final note = _noteController.text.trim();
+    final date = _formatDateForApi(_selectedDate);
+    final today = _formatDateForApi(DateTime.now());
+
+    try {
+      final transactionService = context.read<TransactionService>();
+      await transactionService.createTransaction(
+        type: type,
+        amountPaise: amount * 100,
+        category: category,
+        note: note,
+        date: date,
+        today: today,
+      );
+
+      if (!mounted) return;
+      context.read<WalletBloc>().add(const RefreshWalletSummary());
+      final formattedAmount = AppFormatters.rupees(amount);
+      AppToast.show(
+        context,
+        message: isIncome
+            ? '$formattedAmount Income saved'
+            : '$formattedAmount Spend saved',
+      );
+      Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      AppToast.show(
+        context,
+        message: e.message,
+        backgroundColor: AppColors.error,
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      AppToast.show(
+        context,
+        message: 'Failed to add transaction. Please try again.',
+        backgroundColor: AppColors.error,
+      );
+    }
+  }
 
   String _formatDate(DateTime date) {
     return '${date.day} ${AppFormatters.monthShort(date.month)} ${date.year}';
@@ -123,13 +176,6 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
     super.initState();
     _selectedDate = DateTime.now();
     _dateController = TextEditingController(text: _formatDate(_selectedDate));
-    _categories = BudgetCategoryModel.generateInitial(AppConfig.defaultMonthlyBudget);
-    if (_categories.isNotEmpty) {
-      _selectedSpendCategoryId = _categories.first.id;
-    }
-    if (incomeCategories.isNotEmpty) {
-      _selectedIncomeCategoryId = incomeCategories.first.id;
-    }
     _amountController.addListener(() {
       setState(() {
         if (_amountError != null && _amountController.text.isNotEmpty) {
@@ -225,41 +271,66 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
             16.verticalSpace,
 
             // 2. Horizontally scrollable row with categories based on selectedIndex
-            SingleChildScrollView(
-              key: ValueKey<int>(selectedIndex),
-              scrollDirection: Axis.horizontal,
-              clipBehavior: Clip.none,
-              child: Row(
-                children: [
-                  if (selectedIndex == 0) ...[
-                    for (int i = 0; i < _categories.length; i++) ...[
-                      if (i > 0) 10.horizontalSpace,
-                      _buildCategoryChip(
-                        _categories[i],
-                        isSelected: _selectedSpendCategoryId == _categories[i].id,
-                        onTap: () {
-                          setState(() {
-                            _selectedSpendCategoryId = _categories[i].id;
-                          });
-                        },
-                      ),
+            Builder(
+              builder: (context) {
+                final categoryState = context.watch<CategoryBloc>().state;
+                final expenseList = categoryState.expenseCategories.isNotEmpty
+                    ? categoryState.expenseCategories
+                        .map((c) => BudgetCategoryModel.fromCategoryModel(c))
+                        .toList()
+                    : BudgetCategoryModel.generateInitial(AppConfig.defaultMonthlyBudget);
+
+                final incomeList = categoryState.incomeCategories.isNotEmpty
+                    ? categoryState.incomeCategories
+                        .map((c) => BudgetCategoryModel.fromCategoryModel(c))
+                        .toList()
+                    : BudgetCategoryModel.defaultIncomeCategories();
+
+                final currentSpendId = (expenseList.any((c) => c.id == _selectedSpendCategoryId))
+                    ? _selectedSpendCategoryId
+                    : (expenseList.isNotEmpty ? expenseList.first.id : 'food');
+
+                final currentIncomeId = (incomeList.any((c) => c.id == _selectedIncomeCategoryId))
+                    ? _selectedIncomeCategoryId
+                    : (incomeList.isNotEmpty ? incomeList.first.id : 'salary');
+
+                return SingleChildScrollView(
+                  key: ValueKey<int>(selectedIndex),
+                  scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none,
+                  child: Row(
+                    children: [
+                      if (selectedIndex == 0) ...[
+                        for (int i = 0; i < expenseList.length; i++) ...[
+                          if (i > 0) 10.horizontalSpace,
+                          _buildCategoryChip(
+                            expenseList[i],
+                            isSelected: currentSpendId == expenseList[i].id,
+                            onTap: () {
+                              setState(() {
+                                _selectedSpendCategoryId = expenseList[i].id;
+                              });
+                            },
+                          ),
+                        ],
+                      ] else ...[
+                        for (int i = 0; i < incomeList.length; i++) ...[
+                          if (i > 0) 10.horizontalSpace,
+                          _buildCategoryChip(
+                            incomeList[i],
+                            isSelected: currentIncomeId == incomeList[i].id,
+                            onTap: () {
+                              setState(() {
+                                _selectedIncomeCategoryId = incomeList[i].id;
+                              });
+                            },
+                          ),
+                        ],
+                      ],
                     ],
-                  ] else ...[
-                    for (int i = 0; i < incomeCategories.length; i++) ...[
-                      if (i > 0) 10.horizontalSpace,
-                      _buildCategoryChip(
-                        incomeCategories[i],
-                        isSelected: _selectedIncomeCategoryId == incomeCategories[i].id,
-                        onTap: () {
-                          setState(() {
-                            _selectedIncomeCategoryId = incomeCategories[i].id;
-                          });
-                        },
-                      ),
-                    ],
-                  ],
-                ],
-              ),
+                  ),
+                );
+              },
             ),
             16.verticalSpace,
               AppTextField(
@@ -300,23 +371,8 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
             AppButton(
               isCentered: true,
               label: 'Save',
-              onPressed: () {
-                final amountText = _amountController.text.trim();
-                final amount = int.tryParse(amountText) ?? 0;
-                if (amountText.isEmpty || amount <= 0) {
-                  setState(() {
-                    _amountError = 'Please enter an amount to continue';
-                  });
-                  return;
-                }
-
-                setState(() => _amountError = null);
-                AppToast.show(
-                  context,
-                  message: selectedIndex == 1 ? 'income save' : 'expence save',
-                );
-                Navigator.of(context).pop();
-              },
+              isLoading: _isSaving,
+              onPressed: _isSaving ? null : () => _submitTransaction(selectedIndex),
             ),
             8.verticalSpace,
           ],
@@ -367,9 +423,7 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
               ),
               alignment: Alignment.center,
               child: Icon(
-                category.id == 'food'
-                    ? AppIcons.soupKitchen
-                    : category.icon,
+                category.icon,
                 size: 17.sp,
                 color: isSelected ? Colors.white : category.color,
               ),

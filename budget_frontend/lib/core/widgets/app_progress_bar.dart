@@ -11,28 +11,41 @@ class AppProgressBar extends StatelessWidget {
     required this.height,
     this.color,
     this.gradient,
+    this.backgroundColor,
+    this.borderRadius,
   });
 
   final double ratio;
   final double height;
   final Color? color;
   final Gradient? gradient;
+  final Color? backgroundColor;
+  final BorderRadiusGeometry? borderRadius;
 
   @override
   Widget build(BuildContext context) {
-    final radius = AppBorderRadius.bar;
+    final effectiveRadius = borderRadius ?? AppBorderRadius.bar;
 
     return Container(
       height: height.h,
       width: double.infinity,
-      decoration: BoxDecoration(color: AppColors.fill, borderRadius: radius),
-      alignment: Alignment.centerLeft,
-      child: FractionallySizedBox(
-        widthFactor: ratio,
-        child: Container(
-          decoration: BoxDecoration(color: color, gradient: gradient, borderRadius: radius),
-        ),
+      decoration: BoxDecoration(
+        color: backgroundColor ?? AppColors.fill,
+        borderRadius: effectiveRadius,
       ),
+      alignment: Alignment.centerLeft,
+      child: ratio <= 0
+          ? const SizedBox.shrink()
+          : FractionallySizedBox(
+              widthFactor: ratio.clamp(0.0, 1.0),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: color,
+                  gradient: gradient,
+                  borderRadius: effectiveRadius,
+                ),
+              ),
+            ),
     );
   }
 }

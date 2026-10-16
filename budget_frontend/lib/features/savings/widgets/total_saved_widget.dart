@@ -6,20 +6,23 @@ import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
+import 'package:budget_frontend/core/widgets/app_progress_bar.dart';
 
 class TotalSavedWidget extends StatelessWidget {
   const TotalSavedWidget({
     super.key,
-    this.totalSaved = 50200,
-    this.monthlyAdded = 50200,
-    this.targetTotal = 70000,
-    this.monthlyNeeded = 1764,
+    this.totalSaved = 0,
+    this.monthlyAdded = 0,
+    this.targetTotal = 0,
+    this.monthlyNeeded = 0,
+    this.hasGoals = false,
   });
 
   final int totalSaved;
   final int monthlyAdded;
   final int targetTotal;
   final int monthlyNeeded;
+  final bool hasGoals;
 
   @override
   Widget build(BuildContext context) {
@@ -44,19 +47,22 @@ class TotalSavedWidget extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                decoration: BoxDecoration(
-                  color: AppColors.pop,
-                  borderRadius: AppBorderRadius.card,
-                ),
-                child: Text(
-                  '+${AppFormatters.rupees(monthlyAdded)} this month',
-                  style: AppTextStyle.buttonPill.copyWith(
-                    fontWeight: FontWeight.w600,
+              if (hasGoals && targetTotal > 0)
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                  decoration: BoxDecoration(
+                    color: AppColors.pop,
+                    borderRadius: AppBorderRadius.card,
+                  ),
+                  child: Text(
+                    totalSaved >= targetTotal
+                        ? 'Target reached! 🎉'
+                        : 'Target: ${AppFormatters.rupees(targetTotal)}',
+                    style: AppTextStyle.buttonPill.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
           5.verticalSpace,
@@ -79,46 +85,49 @@ class TotalSavedWidget extends StatelessWidget {
               ],
             ),
           ),
-          12.verticalSpace,
-          // Progress Bar: Translucent track (total to save) & Pop color (already saved)
-          Container(
-            height: 8.h,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.22),
+          if (hasGoals) ...[
+            12.verticalSpace,
+            AppProgressBar(
+              ratio: progressRatio,
+              height: 8,
+              color: AppColors.pop,
+              backgroundColor: Colors.white.withValues(alpha: 0.22),
               borderRadius: AppBorderRadius.pill,
             ),
-            alignment: Alignment.centerLeft,
-            child: FractionallySizedBox(
-              widthFactor: progressRatio,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.pop,
-                  borderRadius: AppBorderRadius.pill,
-                ),
-              ),
-            ),
-          ),
+          ],
           14.verticalSpace,
-          RichText(
-            text: TextSpan(
+          if (!hasGoals)
+            Text(
+              'Pick something you want, like an emergency fund or a new phone. Budgie works out how much to put aside each month.',
               style: AppTextStyle.subtitle.copyWith(
                 fontSize: 14.sp,
               ),
-              children: [
-                const TextSpan(text: 'Your goals need about '),
-                TextSpan(
-                  text: '₹${AppFormatters.groupDigits(monthlyNeeded)} a month',
-                  style: AppTextStyle.cardTitleWhite.copyWith(
-                    fontSize: 14.sp,
+            )
+          else if (targetTotal > 0 && totalSaved >= targetTotal)
+            Text(
+              'All current goals reached! Great job!',
+              style: AppTextStyle.cardTitleWhite.copyWith(fontSize: 14.sp),
+            )
+          else
+            RichText(
+              text: TextSpan(
+                style: AppTextStyle.subtitle.copyWith(
+                  fontSize: 14.sp,
+                ),
+                children: [
+                  const TextSpan(text: 'Your goals need about '),
+                  TextSpan(
+                    text: '₹${AppFormatters.groupDigits(monthlyNeeded)} a month',
+                    style: AppTextStyle.cardTitleWhite.copyWith(
+                      fontSize: 14.sp,
+                    ),
                   ),
-                ),
-                const TextSpan(
-                  text: ". Add this month's income to see how much you can save.",
-                ),
-              ],
+                  const TextSpan(
+                    text: ". Add this month's income to see how much you can save.",
+                  ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );

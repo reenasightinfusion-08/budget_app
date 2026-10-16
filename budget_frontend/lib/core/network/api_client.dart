@@ -39,6 +39,9 @@ class ApiClient {
   Future<Map<String, dynamic>> post(String path, [Map<String, dynamic>? body]) =>
       send('POST', path, body);
 
+  Future<Map<String, dynamic>> postFull(String path, [Map<String, dynamic>? body]) =>
+      sendFull('POST', path, body);
+
   Future<Map<String, dynamic>> patch(String path, Map<String, dynamic> body) =>
       send('PATCH', path, body);
 
@@ -63,6 +66,51 @@ class ApiClient {
       debugPrint('API $method $path: timed out');
       throw const ApiException('The server took too long to respond. Try again.');
     }
+  }
+
+  Future<Map<String, dynamic>> sendFull(String method, String path, [Map<String, dynamic>? body]) async {
+    final request = http.Request(method, Uri.parse('${AppConfig.apiBaseUrl}$path'));
+    request.headers['Content-Type'] = 'application/json';
+    if (token != null) request.headers['Authorization'] = 'Bearer $token';
+    if (body != null) request.body = jsonEncode(body);
+
+    try {
+      final response = await http.Response.fromStream(await request.send().timeout(timeout));
+      return parseFull(response, '$method $path');
+    } on SocketException catch (e) {
+      debugPrint('API $method $path: network error $e');
+      throw const ApiException('No internet connection. Check it and try again.');
+    } on http.ClientException catch (e) {
+      debugPrint('API $method $path: client error $e');
+      throw const ApiException('No internet connection. Check it and try again.');
+    } on TimeoutException {
+      debugPrint('API $method $path: timed out');
+      throw const ApiException('The server took too long to respond. Try again.');
+    }
+  }
+
+  Map<String, dynamic> parseFull(http.Response response, String label) {
+    if (response.statusCode >= 200 && response.statusCode < 300 && response.body.trim().isEmpty) {
+      return <String, dynamic>{'success': true, 'message': 'OK', 'data': null};
+    }
+
+    Map<String, dynamic> body;
+    try {
+      final decoded = jsonDecode(response.body);
+      body = decoded is Map<String, dynamic> ? decoded : <String, dynamic>{};
+    } on FormatException {
+      debugPrint('API $label: unexpected body ${response.statusCode}: ${response.body}');
+      throw ApiException('Unexpected response from the server.', statusCode: response.statusCode);
+    }
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      debugPrint('API $label: ${response.statusCode} ${response.body}');
+      throw ApiException(
+        body['message'] as String? ?? 'Something went wrong. Please try again.',
+        statusCode: response.statusCode,
+      );
+    }
+    return body;
   }
 
   Map<String, dynamic> parse(http.Response response, String label) {

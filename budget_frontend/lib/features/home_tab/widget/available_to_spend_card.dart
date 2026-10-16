@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_config.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
+import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
+import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 
 class AvailableToSpendCard extends StatelessWidget {
   const AvailableToSpendCard({super.key});
@@ -34,6 +38,18 @@ class AvailableToSpendCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final walletState = context.watch<WalletBloc>().state;
+    final authState = context.watch<AuthBloc>().state;
+    final int monthlyBudget = walletState.monthlyBudget > 0
+        ? walletState.monthlyBudget
+        : ((authState.user != null && authState.user!.monthlyBudget > 0)
+            ? (authState.user!.monthlyBudget ~/ 100)
+            : AppConfig.defaultMonthlyBudget);
+    final int totalSpent = walletState.totalSpent;
+    final int availableToSpend = walletState.availableToSpend;
+    final double progress = walletState.spendProgress;
+    final bool isOverBudget = walletState.remainingBudget < 0;
+
     return AppCard(
       isGradient: true,
       radius: AppBorderRadius.card,
@@ -68,15 +84,15 @@ class AvailableToSpendCard extends StatelessWidget {
               ),
               children: [
                 TextSpan(
-                  text: '${AppFormatters.rupees(15000)} ',
+                  text: '${AppFormatters.rupees(isOverBudget ? -walletState.remainingBudget : availableToSpend)} ',
                   style: AppTextStyle.title.copyWith(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w700,
                     color: AppColors.onAccent,
                   ),
                 ),
-                const TextSpan(
-                  text: 'left this month',
+                TextSpan(
+                  text: isOverBudget ? 'over budget' : 'left this month',
                 ),
               ],
             ),
@@ -91,7 +107,7 @@ class AvailableToSpendCard extends StatelessWidget {
             ),
             alignment: Alignment.centerLeft,
             child: FractionallySizedBox(
-              widthFactor: 0.0,
+              widthFactor: progress,
               child: Container(
                 decoration: BoxDecoration(
                   color: AppColors.onAccent,
@@ -111,7 +127,7 @@ class AvailableToSpendCard extends StatelessWidget {
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                   ),
-                  text: '${AppFormatters.rupees(0)} / ${AppFormatters.rupees(15000)}',
+                  text: '${AppFormatters.rupees(totalSpent)} / ${AppFormatters.rupees(monthlyBudget)}',
                 ),
               ),
               Text(

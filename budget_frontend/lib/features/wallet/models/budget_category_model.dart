@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_config.dart';
-import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
+
+import 'package:budget_frontend/features/categories/models/category_model.dart';
+import 'package:budget_frontend/features/categories/models/category_registry.dart';
 
 enum BudgetStatus { onTrack, careful, over }
 
@@ -43,35 +44,73 @@ class BudgetCategoryModel {
     return (spent / limit).clamp(0.0, 1.0);
   }
 
-  /// Sample plan with spend and limits scaled from the default budget to [totalBudget].
-  static List<BudgetCategoryModel> generateInitial(int totalBudget) {
-    final factor = totalBudget / AppConfig.defaultMonthlyBudget;
-
-    BudgetCategoryModel category(
-      String id,
-      String label,
-      IconData icon,
-      Color color,
-      int spent,
-      int limit,
-    ) => BudgetCategoryModel(
-      id: id,
-      label: label,
-      icon: icon,
-      color: color,
-      spent: (spent * factor).round(),
-      limit: (limit * factor).round(),
+  factory BudgetCategoryModel.fromCategoryModel(
+    CategoryModel cat, {
+    int spent = 0,
+    int limit = 0,
+  }) {
+    return BudgetCategoryModel(
+      id: cat.key,
+      label: cat.label,
+      icon: cat.icon,
+      color: cat.color,
+      spent: spent,
+      limit: limit,
     );
+  }
 
-    return [
-      category('food', 'Food', AppIcons.catFood, AppColors.catFood, 5990, 7000),
-      category('bills', 'Bills', AppIcons.catBills, AppColors.catBills, 5400, 6000),
-      category('travel', 'Travel', AppIcons.catTravel, AppColors.catTravel, 4000, 4500),
-      category('shopping', 'Shopping', AppIcons.catShopping, AppColors.catShopping, 4500, 4000),
-      category('home', 'Home', AppIcons.catHome, AppColors.catHome, 1500, 2500),
-      category('health', 'Health', AppIcons.catHealth, AppColors.catHealth, 700, 1500),
-      category('fun', 'Fun', AppIcons.catFun, AppColors.catFun, 2100, 2500),
-      category('other', 'Other', AppIcons.moreHoriz, AppColors.catOther, 0, 2000),
-    ];
+  static const Map<String, int> _defaultLimits = {
+    'food': 7000,
+    'bills': 6000,
+    'travel': 4500,
+    'shopping': 4000,
+    'home': 2500,
+    'health': 1500,
+    'fun': 2500,
+    'other': 2000,
+  };
+
+  /// Generates budget category models dynamically from API categories ([liveCategories] or [CategoryRegistry.expenses]).
+  static List<BudgetCategoryModel> generateInitial(
+    int totalBudget, [
+    Map<String, int>? customLimitsPaise,
+    List<CategoryModel>? liveCategories,
+  ]) {
+    final factor = totalBudget / AppConfig.defaultMonthlyBudget;
+    final sourceList = (liveCategories != null && liveCategories.isNotEmpty)
+        ? liveCategories.where((c) => c.isExpense).toList()
+        : CategoryRegistry.expenses;
+
+    if (sourceList.isEmpty) return const [];
+
+    return sourceList.map((cat) {
+      final int defaultLimit = _defaultLimits[cat.key] ?? 2000;
+      final int effectiveLimit = (customLimitsPaise != null &&
+              customLimitsPaise.containsKey(cat.key))
+          ? (customLimitsPaise[cat.key]! ~/ 100)
+          : (defaultLimit * factor).round();
+
+      return BudgetCategoryModel(
+        id: cat.key,
+        label: cat.label,
+        icon: cat.icon,
+        color: cat.color,
+        spent: 0,
+        limit: effectiveLimit,
+      );
+    }).toList();
+  }
+
+  /// Builds income category models dynamically from API categories ([CategoryRegistry.incomes]).
+  static List<BudgetCategoryModel> defaultIncomeCategories([
+    List<CategoryModel>? liveCategories,
+  ]) {
+    final sourceList = (liveCategories != null && liveCategories.isNotEmpty)
+        ? liveCategories.where((c) => c.isIncome).toList()
+        : CategoryRegistry.incomes;
+
+    return sourceList
+        .map((cat) => BudgetCategoryModel.fromCategoryModel(cat))
+        .toList();
   }
 }

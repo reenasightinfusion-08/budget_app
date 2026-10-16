@@ -7,10 +7,15 @@ import 'package:google_fonts/google_fonts.dart';
 
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/network/api_exception.dart';
 import 'package:budget_frontend/core/widgets/app_bottom_sheet.dart';
 import 'package:budget_frontend/core/widgets/app_toast.dart';
+import 'package:budget_frontend/features/categories/models/category_registry.dart';
+import 'package:budget_frontend/features/history/services/transaction_service.dart';
 import 'package:budget_frontend/features/home/widgets/spend_income_bottom_sheet.dart';
 import 'package:budget_frontend/features/home_tab/widget/smart_add_views.dart';
+import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
@@ -46,11 +51,13 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
   final stt.SpeechToText _speech = stt.SpeechToText();
   bool _speechAvailable = false;
   bool _isListening = false;
-  Timer? _speechSimulationTimer;
+  bool _isProcessing = false;
+  String? _inlineError;
 
   // Review state
   bool _isReviewReady = false;
-  String _itemName = 'Lunch & Fuel';
+  bool _isSaving = false;
+  String _itemName = 'Voice Entry';
   late final TextEditingController _amountController;
   String _category = 'Food';
   String _transactionType = 'Spend'; // 'Spend' or 'Income'
@@ -62,12 +69,16 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
     _textController = TextEditingController();
     _textController.addListener(_onTextChanged);
     _focusNode = FocusNode();
-    _amountController = TextEditingController(text: '750.00');
+    _amountController = TextEditingController();
     _initSpeech();
   }
 
   void _onTextChanged() {
-    if (mounted) setState(() {});
+    if (_inlineError != null) {
+      setState(() => _inlineError = null);
+    } else {
+      if (mounted) setState(() {});
+    }
   }
 
   Future<void> _initSpeech() async {
@@ -75,7 +86,13 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
       _speechAvailable = await _speech.initialize(
         onError: (val) {
           debugPrint('Speech recognition error: $val');
-          if (mounted) setState(() => _isListening = false);
+          if (mounted) {
+            setState(() {
+              _isListening = false;
+              _inlineError =
+                  'Could not recognize speech. Please try again or type by hand.';
+            });
+          }
         },
         onStatus: (val) {
           debugPrint('Speech recognition status: $val');
@@ -95,7 +112,6 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
     try {
       _speech.stop();
     } catch (_) {}
-    _speechSimulationTimer?.cancel();
     _textController.removeListener(_onTextChanged);
     _textController.dispose();
     _focusNode.dispose();
@@ -108,7 +124,6 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
       try {
         await _speech.stop();
       } catch (_) {}
-      _speechSimulationTimer?.cancel();
       if (mounted) setState(() => _isListening = false);
       return;
     }
@@ -118,13 +133,17 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
     }
 
     if (_speechAvailable) {
-      setState(() => _isListening = true);
+      setState(() {
+        _isListening = true;
+        _inlineError = null;
+      });
       try {
         await _speech.listen(
           onResult: (SpeechRecognitionResult result) {
             if (mounted) {
               setState(() {
                 _textController.text = result.recognizedWords;
+                _inlineError = null;
               });
             }
           },
@@ -136,130 +155,282 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
           ),
         );
       } catch (e) {
-        debugPrint('Speech listen failed, falling back to simulation: $e');
-        _startFallbackSimulation();
+        debugPrint('Speech listen failed: $e');
+        if (mounted) {
+          setState(() {
+            _isListening = false;
+            _inlineError =
+                'Speech recognition failed. Please try again or type by hand.';
+          });
+        }
       }
     } else {
-      _startFallbackSimulation();
+      if (mounted) {
+        setState(() {
+          _isListening = false;
+          _inlineError =
+              'Microphone permission is required for voice input, or type using the keyboard.';
+        });
+      }
     }
   }
 
-  void _startFallbackSimulation() {
-    setState(() => _isListening = true);
-    final sampleWords = [
-      'lunch',
-      ' 250',
-      ' and',
-      ' fuel',
-      ' 500',
-      ' yesterday',
-    ];
-    int wordIndex = 0;
-    _textController.clear();
+  double? _parseAmountFromText(String rawText) {
+    if (rawText.trim().isEmpty) return null;
 
-    _speechSimulationTimer?.cancel();
-    _speechSimulationTimer =
-        Timer.periodic(const Duration(milliseconds: 250), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
+    final lower = rawText.toLowerCase();
+
+    // 1. Explicit currency patterns (e.g. ₹250, rs 250, 250 rs, 250 rupees, $50)
+    final explicitCurrencyReg = RegExp(
+      r'(?:(?:₹|rs\.?|inr|\$)\s*(\d+(?:\.\d+)?))|(?:(\d+(?:\.\d+)?)\s*(?:rs\.?|rupees|inr|bucks|dollars))',
+    );
+    final explicitMatches = explicitCurrencyReg.allMatches(lower);
+    if (explicitMatches.isNotEmpty) {
+      double total = 0.0;
+      for (final m in explicitMatches) {
+        final valStr = m.group(1) ?? m.group(2);
+        if (valStr != null) {
+          total += double.tryParse(valStr) ?? 0.0;
+        }
+      }
+      if (total > 0) return total;
+    }
+
+    // 2. Strip out non-amount contextual numbers
+    String cleaned = lower;
+
+    // Ordinal dates/numbers: 1st, 2nd, 3rd, 4th, 15th, etc.
+    cleaned = cleaned.replaceAll(RegExp(r'\b\d+(?:st|nd|rd|th)\b'), ' ');
+
+    // Calendar years: 2020-2029
+    cleaned = cleaned.replaceAll(RegExp(r'\b202\d\b'), ' ');
+
+    // Context words with numbers: table 4, room 101, seat 12, gate 5, order 123, flight 402, etc.
+    cleaned = cleaned.replaceAll(
+      RegExp(r'\b(?:table|room|seat|gate|flat|order|id|bus|train|flight|platform|no|number)\s*#?\s*\d+\b'),
+      ' ',
+    );
+
+    // Quantities with units: 2 kg, 5 km, 3 hrs, 10 pcs, etc.
+    cleaned = cleaned.replaceAll(
+      RegExp(r'\b\d+\s*(?:items?|pcs|pieces?|qty|kg|kgs|km|kms|hours?|hrs|mins?|minutes?|%|percent)\b'),
+      ' ',
+    );
+
+    // Quantities before common counted items: "2 pizzas", "3 coffees", "4 beers", "2 plates", "5 tickets"
+    cleaned = cleaned.replaceAll(
+      RegExp(r'\b\d+\s+(?:pizzas?|burgers?|coffees?|beers?|plates?|bottles?|tickets?|cups?|drinks?|cans?|packs?|people|persons?)\b'),
+      ' ',
+    );
+
+    // 3. Look for numbers preceded by payment / cost prepositions (e.g. "for 250", "paid 500", "spent 120", "was 180")
+    final paymentLeadReg = RegExp(
+      r'(?:for|paid|spent|cost|price|bill|was|amount)\s+(\d+(?:\.\d+)?)',
+    );
+    final paymentMatches = paymentLeadReg.allMatches(cleaned);
+    if (paymentMatches.isNotEmpty) {
+      double total = 0.0;
+      for (final m in paymentMatches) {
+        final val = double.tryParse(m.group(1) ?? '0') ?? 0.0;
+        total += val;
+      }
+      if (total > 0) return total;
+    }
+
+    // 4. Standalone numbers remaining in the cleaned text
+    final numReg = RegExp(r'\b\d+(?:\.\d+)?\b');
+    final matches = numReg.allMatches(cleaned).toList();
+
+    if (matches.isNotEmpty) {
+      // Sum only if numbers are explicitly linked with "and", "&", or "+"
+      if (matches.length > 1 &&
+          (cleaned.contains(' and ') || cleaned.contains(' & ') || cleaned.contains(' + '))) {
+        double total = 0.0;
+        for (final m in matches) {
+          total += double.tryParse(m.group(0) ?? '0') ?? 0.0;
+        }
+        if (total > 0) return total;
       }
 
-      if (wordIndex < sampleWords.length) {
-        setState(() {
-          _textController.text =
-              _textController.text + sampleWords[wordIndex];
-        });
-        wordIndex++;
-      } else {
-        timer.cancel();
-        setState(() => _isListening = false);
+      // Single remaining number is the amount
+      if (matches.length == 1) {
+        final val = double.tryParse(matches.first.group(0) ?? '0');
+        if (val != null && val > 0) return val;
       }
-    });
+
+      // If multiple numbers without "and", prefer the largest/final monetary amount
+      double maxVal = 0.0;
+      for (final m in matches) {
+        final val = double.tryParse(m.group(0) ?? '0') ?? 0.0;
+        if (val > maxVal) maxVal = val;
+      }
+      if (maxVal > 0) return maxVal;
+    }
+
+    // 5. Fallback: simple English number words
+    final wordMap = {
+      'one': 1.0,
+      'two': 2.0,
+      'three': 3.0,
+      'four': 4.0,
+      'five': 5.0,
+      'six': 6.0,
+      'seven': 7.0,
+      'eight': 8.0,
+      'nine': 9.0,
+      'ten': 10.0,
+      'twenty': 20.0,
+      'thirty': 30.0,
+      'forty': 40.0,
+      'fifty': 50.0,
+      'sixty': 60.0,
+      'seventy': 70.0,
+      'eighty': 80.0,
+      'ninety': 90.0,
+      'hundred': 100.0,
+      'thousand': 1000.0,
+    };
+    final words = cleaned.split(RegExp(r'\s+'));
+    double wordTotal = 0.0;
+    for (final w in words) {
+      if (wordMap.containsKey(w)) {
+        wordTotal += wordMap[w]!;
+      }
+    }
+    return wordTotal > 0 ? wordTotal : null;
   }
 
-  void _processAndReview() {
+  Future<void> _processAndReview() async {
     final text = _textController.text.trim();
     if (text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: const Color(0xFFD9534F),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          content: Row(
-            children: [
-              const Icon(
-                Icons.info_outline_rounded,
-                color: Colors.white,
-                size: 20,
-              ),
-              10.horizontalSpace,
-              Expanded(
-                child: Text(
-                  'Please speak or type an expense first',
-                  style: GoogleFonts.dmSans(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13.sp,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      setState(() {
+        _inlineError = 'Please speak or type an expense first.';
+      });
       return;
     }
 
-    _extractDetailsFromText(text);
+    final amount = _parseAmountFromText(text);
+    if (amount == null || amount <= 0) {
+      setState(() {
+        _inlineError =
+            'Could not find any amount. Please include an amount (e.g. "Lunch 250").';
+      });
+      return;
+    }
 
     setState(() {
+      _inlineError = null;
+      _isProcessing = true;
+    });
+
+    await Future.delayed(const Duration(milliseconds: 300));
+    if (!mounted) return;
+
+    _extractDetailsFromText(text, amount);
+
+    setState(() {
+      _isProcessing = false;
       _isReviewReady = true;
+      _entryDate = DateTime.now(); // default to Today so it's recent on top
     });
   }
 
-  void _extractDetailsFromText(String rawText) {
+  void _extractDetailsFromText(String rawText, double amount) {
     final lower = rawText.toLowerCase();
 
-    // Parse amounts: look for digits
-    final numReg = RegExp(r'\d+(?:\.\d+)?');
-    final matches = numReg.allMatches(rawText);
-    double totalAmount = 0.0;
-    for (final m in matches) {
-      totalAmount += double.tryParse(m.group(0) ?? '0') ?? 0.0;
-    }
+    _amountController.text =
+        amount.toStringAsFixed(amount % 1 == 0 ? 0 : 2);
 
-    if (totalAmount > 0) {
-      _amountController.text = totalAmount.toStringAsFixed(2);
-    } else {
-      _amountController.text = '750.00';
+    // Clean note: strip numbers, currencies and filler prepositions
+    String cleanNote = rawText
+        .replaceAll(RegExp(r'\b\d+(?:\.\d+)?\b'), ' ')
+        .replaceAll(RegExp(r'\b\d+(?:st|nd|rd|th)\b', caseSensitive: false), ' ')
+        .replaceAll(RegExp(r'[₹$€£,.]'), ' ')
+        .replaceAll(RegExp(r'\b(?:rs\.?|rupees|inr|bucks|dollars)\b', caseSensitive: false), ' ')
+        .replaceAll(RegExp(r'\b(?:for|paid|spent|cost|yesterday|today|was)\b', caseSensitive: false), ' ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+
+    if (cleanNote.isNotEmpty) {
+      cleanNote = cleanNote[0].toUpperCase() + cleanNote.substring(1);
     }
 
     if (lower.contains('salary') || lower.contains('income')) {
       _transactionType = 'Income';
       _category = 'Income';
-      _itemName = 'Salary Deposit';
-    } else if (lower.contains('uber') || lower.contains('cab')) {
+      _itemName = cleanNote.isNotEmpty ? cleanNote : 'Salary Deposit';
+    } else if (lower.contains('uber') || lower.contains('ola') || lower.contains('cab')) {
       _transactionType = 'Spend';
       _category = 'Travel';
-      _itemName = 'Uber Ride';
-    } else if (lower.contains('fuel') || lower.contains('petrol')) {
+      _itemName = cleanNote.isNotEmpty ? cleanNote : 'Uber Ride';
+    } else if (lower.contains('fuel') || lower.contains('petrol') || lower.contains('diesel')) {
       _transactionType = 'Spend';
       _category = 'Travel';
-      _itemName = 'Fuel & Petrol';
+      _itemName = cleanNote.isNotEmpty ? cleanNote : 'Fuel & Petrol';
     } else if (lower.contains('lunch') ||
         lower.contains('dinner') ||
-        lower.contains('food')) {
+        lower.contains('food') ||
+        lower.contains('coffee') ||
+        lower.contains('tea') ||
+        lower.contains('pizza') ||
+        lower.contains('burger') ||
+        lower.contains('grocer')) {
       _transactionType = 'Spend';
       _category = 'Food';
-      _itemName = 'Lunch & Dining';
+      _itemName = cleanNote.isNotEmpty ? cleanNote : 'Lunch & Dining';
     } else {
       _transactionType = 'Spend';
       _category = 'Other';
-      _itemName = 'Voice Entry';
+      _itemName = cleanNote.isNotEmpty ? cleanNote : 'Voice Entry';
+    }
+  }
+
+  Future<void> _saveReviewedEntry() async {
+    if (_isSaving) return;
+    final amountDouble = double.tryParse(_amountController.text.trim()) ?? 0.0;
+    if (amountDouble <= 0) {
+      AppToast.show(context, message: 'Please enter a valid amount');
+      return;
+    }
+    final paise = (amountDouble * 100).round();
+    final isIncome = _transactionType == 'Income';
+    final type = isIncome ? 'income' : 'expense';
+
+    final catModel = CategoryRegistry.find(_category, type);
+    final categoryKey = catModel?.key ?? (isIncome ? 'salary' : 'food');
+
+    final now = DateTime.now();
+    final today =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final entryDateStr =
+        '${_entryDate.year}-${_entryDate.month.toString().padLeft(2, '0')}-${_entryDate.day.toString().padLeft(2, '0')}';
+
+    setState(() => _isSaving = true);
+    try {
+      final txService = context.read<TransactionService>();
+      final msg = await txService.bulkTransactions(
+        today: today,
+        entries: [
+          {
+            'type': type,
+            'amount': paise,
+            'category': categoryKey,
+            'note': _itemName,
+            'date': entryDateStr,
+          }
+        ],
+      );
+
+      if (!mounted) return;
+      context.read<WalletBloc>().add(const RefreshWalletSummary());
+      AppToast.show(context, message: msg);
+      Navigator.of(context).pop('entry_added');
+    } catch (e) {
+      if (!mounted) return;
+      final err = e is ApiException ? e.message : 'Failed to save entry';
+      AppToast.show(context, message: err);
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
@@ -271,10 +442,16 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
   Widget build(BuildContext context) {
     // 3. Review State: Matches shared SmartAddReviewView
     if (_isReviewReady) {
+      final isSpend = _transactionType == 'Spend';
+      final availableCats = isSpend
+          ? CategoryRegistry.expenses.map((c) => c.label).toList()
+          : CategoryRegistry.incomes.map((c) => c.label).toList();
+
       return SmartAddReviewView(
         brandName: _itemName,
         amountController: _amountController,
         category: _category,
+        categories: availableCats.isNotEmpty ? availableCats : const ['Food', 'Travel', 'Shopping', 'Other'],
         onCategoryChanged: (val) => setState(() => _category = val),
         entryDate: _entryDate,
         onDateChanged: (val) => setState(() => _entryDate = val),
@@ -285,15 +462,11 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
           });
         },
         rawReadText:
-            'VOICE TRANSCRIPTION\nNote: ${_textController.text}\nDate: ${_formatDate(_entryDate)}\nCategory: $_category\nAmount: ₹${_amountController.text}\nType: $_transactionType\nStatus: Parsed successfully',
-        onAddEntry: () {
-          AppToast.show(
-            context,
-            message: 'expenced saved',
-          );
-          Navigator.of(context).pop('entry_added');
-        },
+            'VOICE TRANSCRIPTION\nNote: ${_textController.text}\nDate: ${_formatDate(_entryDate)}\nCategory: $_category\nAmount: ₹${_amountController.text}\nType: $_transactionType',
+        isSaving: _isSaving,
+        onAddEntry: _saveReviewedEntry,
         onBack: () {
+          if (_isSaving) return;
           setState(() {
             _isReviewReady = false;
           });
@@ -482,25 +655,59 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
                 ),
         ),
 
-        16.verticalSpace,
+        14.verticalSpace,
+
+        if (_inlineError != null) ...[
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+            decoration: BoxDecoration(
+              color: AppColors.error.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(14.r),
+              border: Border.all(
+                color: AppColors.error.withValues(alpha: 0.25),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.error_outline_rounded,
+                  color: AppColors.error,
+                  size: 20.sp,
+                ),
+                10.horizontalSpace,
+                Expanded(
+                  child: Text(
+                    _inlineError!,
+                    style: GoogleFonts.dmSans(
+                      color: AppColors.error,
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          12.verticalSpace,
+        ],
 
         // Action Button: "Add entries •"
         Builder(
           builder: (context) {
             final hasText = _textController.text.trim().isNotEmpty;
             return GestureDetector(
-              onTap: _processAndReview,
+              onTap: _isProcessing ? null : _processAndReview,
               behavior: HitTestBehavior.opaque,
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(vertical: 14.h),
                 decoration: BoxDecoration(
-                  color: hasText
+                  color: hasText && !_isProcessing
                       ? const Color(0xFF3B6EA5)
                       : const Color(0xFFA8C5E2).withValues(alpha: 0.65),
                   borderRadius: BorderRadius.circular(24.r),
-                  boxShadow: hasText
+                  boxShadow: hasText && !_isProcessing
                       ? [
                           BoxShadow(
                             color: const Color(0xFF3B6EA5).withValues(alpha: 0.25),
@@ -514,7 +721,7 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Add entries',
+                      _isProcessing ? 'Reading with Budgie...' : 'Add entries',
                       style: GoogleFonts.dmSans(
                         fontSize: 15.sp,
                         fontWeight: FontWeight.w700,

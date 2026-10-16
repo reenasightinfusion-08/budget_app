@@ -90,6 +90,11 @@ class ApiAuthService implements AuthService {
   }
 
   @override
+  Future<void> clearData() async {
+    await client.delete('/users/me/data');
+  }
+
+  @override
   Future<void> logout() async {
     await googleAuth.signOut();
     await client.clearToken();

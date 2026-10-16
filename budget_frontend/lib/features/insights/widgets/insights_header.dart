@@ -28,7 +28,7 @@ class InsightsHeader extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(AppIcons.calendar, size: 14.sp, color: AppColors.accent),
+              Icon(AppIcons.calendar, size: 14.sp, color: AppColors.ink),
               7.horizontalSpace,
               Text(
                 '${AppFormatters.monthShort(now.month)} ${now.year}',

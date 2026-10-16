@@ -32,5 +32,7 @@ abstract class AuthService {
 
   Future<void> deleteAccount();
 
+  Future<void> clearData();
+
   Future<void> logout();
 }

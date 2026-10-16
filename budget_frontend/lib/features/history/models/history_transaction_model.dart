@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:budget_frontend/core/constants/app_colors.dart';
-import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
+import 'package:budget_frontend/features/categories/models/category_registry.dart';
 
 /// Indicates whether a transaction is incoming (income) or outgoing (spend).
 enum TransactionType {
@@ -23,6 +22,7 @@ class HistoryTransactionModel {
   const HistoryTransactionModel({
     this.id = '',
     required this.date,
+    this.createdAt,
     required this.amount,
     required this.type,
     required this.icon,
@@ -34,6 +34,7 @@ class HistoryTransactionModel {
 
   final String id;
   final DateTime date;
+  final DateTime? createdAt;
   final double amount;
   final TransactionType type;
   final IconData icon;
@@ -50,19 +51,7 @@ class HistoryTransactionModel {
 
   /// Returns the effective icon tint.
   Color get effectiveIconColor =>
-      iconColor ??
-      switch (category) {
-        'Food' => AppColors.catFood,
-        'Fun' => AppColors.catFun,
-        'Shopping' => AppColors.catShopping,
-        'Bills' => AppColors.catBills,
-        'Travel' => AppColors.catTravel,
-        'Health' => AppColors.catHealth,
-        'Salary' => AppColors.success,
-        'Side Work' => AppColors.catBills,
-        'Gift' => AppColors.catFun,
-        _ => (isIncome ? AppColors.success : AppColors.ink),
-      };
+      iconColor ?? CategoryRegistry.getColor(category, null, isIncome);
 
   /// Formatted rupee string, e.g. "₹1,200".
   String get formattedAmount => AppFormatters.rupees(amount.round());
@@ -88,6 +77,7 @@ class HistoryTransactionModel {
   HistoryTransactionModel copyWith({
     String? id,
     DateTime? date,
+    DateTime? createdAt,
     double? amount,
     TransactionType? type,
     IconData? icon,
@@ -99,6 +89,7 @@ class HistoryTransactionModel {
     return HistoryTransactionModel(
       id: id ?? this.id,
       date: date ?? this.date,
+      createdAt: createdAt ?? this.createdAt,
       amount: amount ?? this.amount,
       type: type ?? this.type,
       icon: icon ?? this.icon,
@@ -109,131 +100,59 @@ class HistoryTransactionModel {
     );
   }
 
-  /// Dummy transactions matching design screenshot and supporting all filter modes.
-  static List<HistoryTransactionModel> get dummyData => [
-        HistoryTransactionModel(
-          id: 'tx_1',
-          date: DateTime(2026, 10, 13), // Today
-          amount: 799,
-          type: TransactionType.spend,
-          icon: AppIcons.catBills,
-          bgColor: const Color(0xFFECEFFC),
-          iconColor: AppColors.catBills,
-          description: 'WiFi & Internet',
-          category: 'Bills',
-        ),
-        HistoryTransactionModel(
-          id: 'tx_2',
-          date: DateTime(2026, 10, 11),
-          amount: 1600,
-          type: TransactionType.spend,
-          icon: AppIcons.catFood,
-          bgColor: const Color(0xFFFFF1E5),
-          iconColor: AppColors.catFood,
-          description: 'Groceries',
-          category: 'Food',
-        ),
-        HistoryTransactionModel(
-          id: 'tx_3',
-          date: DateTime(2026, 10, 9),
-          amount: 900,
-          type: TransactionType.spend,
-          icon: AppIcons.catFun,
-          bgColor: const Color(0xFFFDE8F3),
-          iconColor: AppColors.catFun,
-          description: 'Movie night',
-          category: 'Fun',
-        ),
-        HistoryTransactionModel(
-          id: 'tx_4',
-          date: DateTime(2026, 10, 7),
-          amount: 2600,
-          type: TransactionType.spend,
-          icon: AppIcons.catShopping,
-          bgColor: const Color(0xFFFDEAEA),
-          iconColor: AppColors.catShopping,
-          description: 'Sneakers',
-          category: 'Shopping',
-        ),
-        HistoryTransactionModel(
-          id: 'tx_5',
-          date: DateTime(2026, 10, 6),
-          amount: 540,
-          type: TransactionType.spend,
-          icon: AppIcons.catTravel,
-          bgColor: const Color(0xFFE5F5F8),
-          iconColor: AppColors.catTravel,
-          description: 'Metro recharge',
-          category: 'Travel',
-        ),
-        HistoryTransactionModel(
-          id: 'tx_6',
-          date: DateTime(2026, 10, 5),
-          amount: 14500,
-          type: TransactionType.income,
-          icon: AppIcons.work,
-          bgColor: const Color(0xFFE3F4EA),
-          iconColor: AppColors.success,
-          description: 'Freelance app design milestone',
-          category: 'Side Work',
-        ),
-        HistoryTransactionModel(
-          id: 'tx_7',
-          date: DateTime(2026, 10, 4),
-          amount: 1850,
-          type: TransactionType.spend,
-          icon: AppIcons.catFood,
-          bgColor: const Color(0xFFFFF1E5),
-          iconColor: AppColors.catFood,
-          description: 'Dinner with friends',
-          category: 'Food',
-        ),
-        HistoryTransactionModel(
-          id: 'tx_8',
-          date: DateTime(2026, 10, 3),
-          amount: 2100,
-          type: TransactionType.spend,
-          icon: AppIcons.catBills,
-          bgColor: const Color(0xFFECEFFC),
-          iconColor: AppColors.catBills,
-          description: 'Electricity bill payment',
-          category: 'Bills',
-        ),
-        HistoryTransactionModel(
-          id: 'tx_9',
-          date: DateTime(2026, 10, 1),
-          amount: 55000,
-          type: TransactionType.income,
-          icon: AppIcons.payments,
-          bgColor: const Color(0xFFE3F4EA),
-          iconColor: AppColors.success,
-          description: 'Monthly salary credited',
-          category: 'Salary',
-        ),
-        HistoryTransactionModel(
-          id: 'tx_10',
-          date: DateTime(2026, 9, 28),
-          amount: 650,
-          type: TransactionType.spend,
-          icon: AppIcons.catHealth,
-          bgColor: const Color(0xFFE6F5EE),
-          iconColor: AppColors.catHealth,
-          description: 'Pharmacy medicines',
-          category: 'Health',
-        ),
-        HistoryTransactionModel(
-          id: 'tx_11',
-          date: DateTime(2026, 9, 25),
-          amount: 5000,
-          type: TransactionType.income,
-          icon: AppIcons.gift,
-          bgColor: const Color(0xFFFDE8F3),
-          iconColor: AppColors.catFun,
-          description: 'Birthday gift received',
-          category: 'Gift',
-        ),
-      ];
+  static String categoryKeyToLabel(String key, [String? type]) =>
+      CategoryRegistry.getLabel(key, type);
 
-  /// Alias for backward compatibility.
-  static List<HistoryTransactionModel> get sampleTransactions => dummyData;
+  static IconData categoryKeyToIcon(String key, [String? type]) =>
+      CategoryRegistry.getIcon(key, type);
+
+  static Color categoryKeyToColor(String key, [bool isIncome = false]) =>
+      CategoryRegistry.getColor(key, isIncome ? 'income' : 'expense', isIncome);
+
+  factory HistoryTransactionModel.fromJson(Map<String, dynamic> json) {
+    final typeStr = (json['type'] as String?)?.toLowerCase() ?? 'expense';
+    final isIncome = typeStr == 'income';
+    final type = isIncome ? TransactionType.income : TransactionType.spend;
+
+    final rawAmount = (json['amount'] as num?)?.toInt() ?? 0;
+    // amount in paise -> double amount in rupees
+    final double amountRupees = rawAmount / 100.0;
+
+    final catKey = (json['category'] as String?) ?? 'other';
+    final label = categoryKeyToLabel(catKey);
+    final icon = categoryKeyToIcon(catKey);
+    final color = categoryKeyToColor(catKey, isIncome);
+
+    DateTime date;
+    try {
+      final dateStr = json['date'] as String?;
+      date = dateStr != null ? DateTime.parse(dateStr) : DateTime.now();
+    } catch (_) {
+      date = DateTime.now();
+    }
+
+    DateTime? createdAt;
+    try {
+      final createdStr = json['createdAt'] as String?;
+      if (createdStr != null) {
+        createdAt = DateTime.parse(createdStr);
+      }
+    } catch (_) {}
+
+    final note = (json['note'] as String?) ?? '';
+    final description = note.isNotEmpty ? note : label;
+
+    return HistoryTransactionModel(
+      id: (json['_id'] as String?) ?? '',
+      date: date,
+      createdAt: createdAt,
+      amount: amountRupees,
+      type: type,
+      icon: icon,
+      bgColor: color.withValues(alpha: 0.15),
+      iconColor: color,
+      description: description,
+      category: label,
+    );
+  }
 }

@@ -1,30 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_gradients.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/network/api_exception.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/amount_input_dialog.dart';
 import 'package:budget_frontend/core/widgets/app_bottom_sheet.dart';
 import 'package:budget_frontend/core/widgets/app_button.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/core/widgets/app_toast.dart';
+import 'package:budget_frontend/features/savings/bloc/goal_bloc.dart';
+import 'package:budget_frontend/features/savings/models/goal_model.dart';
+import 'package:budget_frontend/features/savings/services/goal_service.dart';
 
 class GoalDetailBottomSheet extends StatefulWidget {
-  const GoalDetailBottomSheet({super.key});
+  const GoalDetailBottomSheet({super.key, required this.goal});
 
-  /// Opens the goal detail bottom sheet.
-  static Future<void> show(BuildContext context) {
+  final GoalModel goal;
+
+  /// Opens the goal detail bottom sheet for [goal].
+  static Future<void> show(BuildContext context, {required GoalModel goal}) {
     return AppBottomSheet.show(
       context: context,
       title: Text(
-        'Goal Details',
+        goal.name,
         textAlign: TextAlign.center,
         style: AppTextStyle.dialogTitle.copyWith(fontSize: 22.sp),
       ),
-      child: const GoalDetailBottomSheet(),
+      child: GoalDetailBottomSheet(goal: goal),
     );
   }
 
@@ -37,6 +45,95 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
   bool isConfirmingDelete = false;
   int enteredAmount = 0;
   String? amountError;
+  bool _isSaving = false;
+
+  String _formatDate(DateTime d) {
+    final y = d.year.toString().padLeft(4, '0');
+    final m = d.month.toString().padLeft(2, '0');
+    final day = d.day.toString().padLeft(2, '0');
+    return '$y-$m-$day';
+  }
+
+  Future<void> _submitContribution() async {
+    if (enteredAmount <= 0) {
+      setState(() {
+        amountError = 'Please select or enter an amount';
+      });
+      return;
+    }
+
+    if (selectedTabIndex == 1 && enteredAmount > widget.goal.savedAmountRupees) {
+      setState(() {
+        amountError = 'Cannot take out more than saved (${AppFormatters.rupees(widget.goal.savedAmountRupees)})';
+      });
+      return;
+    }
+
+    setState(() {
+      amountError = null;
+      _isSaving = true;
+    });
+
+    final now = DateTime.now();
+    final today = _formatDate(now);
+    final amountPaise = (selectedTabIndex == 0 ? enteredAmount : -enteredAmount) * 100;
+
+    try {
+      final goalService = context.read<GoalService>();
+      await goalService.addContribution(
+        goalId: widget.goal.id,
+        amountPaise: amountPaise,
+        date: today,
+        today: today,
+      );
+
+      if (!mounted) return;
+      context.read<GoalBloc>().add(const LoadGoals());
+
+      AppToast.show(
+        context,
+        message: selectedTabIndex == 0
+            ? '${AppFormatters.rupees(enteredAmount)} added to goal'
+            : '${AppFormatters.rupees(enteredAmount)} taken out',
+      );
+      Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      AppToast.show(context, message: e.message, backgroundColor: AppColors.error);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      AppToast.show(context, message: 'Failed to update goal', backgroundColor: AppColors.error);
+    }
+  }
+
+  Future<void> _deleteGoal() async {
+    if (!isConfirmingDelete) {
+      setState(() => isConfirmingDelete = true);
+      return;
+    }
+
+    setState(() => _isSaving = true);
+    try {
+      final goalService = context.read<GoalService>();
+      await goalService.deleteGoal(widget.goal.id);
+
+      if (!mounted) return;
+      context.read<GoalBloc>().add(const LoadGoals());
+
+      AppToast.show(context, message: 'Goal deleted');
+      Navigator.of(context).pop();
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      AppToast.show(context, message: e.message, backgroundColor: AppColors.error);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      AppToast.show(context, message: 'Failed to delete goal', backgroundColor: AppColors.error);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +155,7 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
                   padding: EdgeInsets.symmetric(vertical: 12.h),
                   decoration: BoxDecoration(
                     borderRadius: AppBorderRadius.pill,
-                    gradient:
-                        selectedTabIndex == 0 ? AppGradients.card : null,
+                    gradient: selectedTabIndex == 0 ? AppGradients.card : null,
                     color: selectedTabIndex == 0 ? null : Colors.transparent,
                   ),
                   alignment: Alignment.center,
@@ -67,12 +163,8 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
                     'Add money',
                     style: AppTextStyle.chip.copyWith(
                       fontSize: 15.sp,
-                      fontWeight: selectedTabIndex == 0
-                          ? FontWeight.w700
-                          : FontWeight.w600,
-                      color: selectedTabIndex == 0
-                          ? Colors.white
-                          : AppColors.ink,
+                      fontWeight: selectedTabIndex == 0 ? FontWeight.w700 : FontWeight.w600,
+                      color: selectedTabIndex == 0 ? Colors.white : AppColors.ink,
                     ),
                   ),
                 ),
@@ -89,8 +181,7 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
                   padding: EdgeInsets.symmetric(vertical: 12.h),
                   decoration: BoxDecoration(
                     borderRadius: AppBorderRadius.pill,
-                    gradient:
-                        selectedTabIndex == 1 ? AppGradients.card : null,
+                    gradient: selectedTabIndex == 1 ? AppGradients.card : null,
                     color: selectedTabIndex == 1 ? null : Colors.transparent,
                   ),
                   alignment: Alignment.center,
@@ -98,12 +189,8 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
                     'Take out',
                     style: AppTextStyle.chip.copyWith(
                       fontSize: 15.sp,
-                      fontWeight: selectedTabIndex == 1
-                          ? FontWeight.w700
-                          : FontWeight.w600,
-                      color: selectedTabIndex == 1
-                          ? Colors.white
-                          : AppColors.ink,
+                      fontWeight: selectedTabIndex == 1 ? FontWeight.w700 : FontWeight.w600,
+                      color: selectedTabIndex == 1 ? Colors.white : AppColors.ink,
                     ),
                   ),
                 ),
@@ -113,7 +200,7 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
         ),
         24.verticalSpace,
 
-        // 2. Text: "How much are you putting aside?" / "How much are you taking out?"
+        // 2. Subtitle
         Center(
           child: Text(
             selectedTabIndex == 0
@@ -156,7 +243,7 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
         ),
         20.verticalSpace,
 
-        // 4. Row: Three containers with tile border radius
+        // 4. Quick amount chips (+₹500, +₹1,000, +₹2,000)
         Row(
           children: [
             Expanded(
@@ -225,26 +312,28 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
         ),
         20.verticalSpace,
 
-        // 5. Row: "₹50,200 saved of ₹50,000 · Goal reached"
+        // 5. Saved of Target progress text
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              '₹50,200 saved of ₹50,000',
+              '${AppFormatters.rupees(widget.goal.savedAmountRupees)} saved of ${AppFormatters.rupees(widget.goal.targetAmountRupees)}',
               style: AppTextStyle.body.copyWith(
                 fontWeight: FontWeight.w500,
               ),
             ),
-            Text(
-              ' · ',
-              style: AppTextStyle.body.copyWith(
-                fontWeight: FontWeight.w700,
+            if (widget.goal.isReached) ...[
+              Text(
+                ' · ',
+                style: AppTextStyle.body.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-            Text(
-              'Goal reached',
-              style: AppTextStyle.notice,
-            ),
+              Text(
+                'Goal reached',
+                style: AppTextStyle.notice,
+              ),
+            ],
           ],
         ),
         24.verticalSpace,
@@ -262,42 +351,19 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
           8.verticalSpace,
         ],
 
-        // 6. Button: Add to goal / Take out (using AppButton)
+        // 6. Action button (Add to goal / Take out)
         AppButton(
           label: selectedTabIndex == 0 ? 'Add to goal' : 'Take out',
           isCentered: true,
-          onPressed: () {
-            if (enteredAmount <= 0) {
-              setState(() {
-                amountError = 'Please select or enter an amount';
-              });
-              return;
-            }
-
-            setState(() => amountError = null);
-            AppToast.show(
-              context,
-              message: selectedTabIndex == 0 ? 'Add to goal' : 'Take out',
-            );
-            Navigator.of(context).pop();
-          },
+          isLoading: _isSaving,
+          onPressed: _isSaving ? null : _submitContribution,
         ),
         16.verticalSpace,
 
-        // 7. Delete goal (Tap again to confirm)
+        // 7. Delete goal
         Center(
           child: GestureDetector(
-            onTap: () {
-              if (!isConfirmingDelete) {
-                setState(() => isConfirmingDelete = true);
-              } else {
-                AppToast.show(
-                  context,
-                  message: 'Goal deleted',
-                );
-                Navigator.of(context).pop();
-              }
-            },
+            onTap: _isSaving ? null : _deleteGoal,
             child: Padding(
               padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
               child: Row(

@@ -1,10 +1,13 @@
-import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
+import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 
 enum DayBarState {
   filled, // Solid blue (completed day)
@@ -28,27 +31,61 @@ class ThisWeekCard extends StatelessWidget {
   const ThisWeekCard({
     super.key,
     this.title = 'This week',
-    this.totalAmount = '₹0',
-    this.days,
   });
 
   final String title;
-  final String totalAmount;
-  final List<DaySpendingData>? days;
-
-  static const List<DaySpendingData> defaultDays = [
-    DaySpendingData(day: 'M', state: DayBarState.filled),
-    DaySpendingData(day: 'T', state: DayBarState.current),
-    DaySpendingData(day: 'W', state: DayBarState.upcoming),
-    DaySpendingData(day: 'T', state: DayBarState.upcoming),
-    DaySpendingData(day: 'F', state: DayBarState.upcoming),
-    DaySpendingData(day: 'S', state: DayBarState.upcoming),
-    DaySpendingData(day: 'S', state: DayBarState.upcoming),
-  ];
 
   @override
   Widget build(BuildContext context) {
-    final items = days ?? defaultDays;
+    final walletState = context.watch<WalletBloc>().state;
+    final summary = walletState.summary;
+
+    final now = DateTime.now();
+    final todayStr =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+
+    final weekStartDate = (summary != null && summary.weekStart.isNotEmpty)
+        ? (DateTime.tryParse(summary.weekStart) ??
+            now.subtract(Duration(days: now.weekday - 1)))
+        : now.subtract(Duration(days: now.weekday - 1));
+
+    final dailyMap = summary != null
+        ? {for (final d in summary.daily) d.date: d.spentRupees}
+        : <String, int>{};
+
+    const dayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    var weekTotal = 0;
+
+    final generatedItems = List.generate(7, (i) {
+      final dayDate = DateTime(
+          weekStartDate.year, weekStartDate.month, weekStartDate.day + i);
+      final dateStr =
+          '${dayDate.year}-${dayDate.month.toString().padLeft(2, '0')}-${dayDate.day.toString().padLeft(2, '0')}';
+      final spent = dailyMap[dateStr] ?? 0;
+      weekTotal += spent;
+
+      DayBarState state;
+      if (dateStr == todayStr) {
+        state = DayBarState.current;
+      } else if (dayDate.isBefore(DateTime(now.year, now.month, now.day))) {
+        state = DayBarState.filled;
+      } else {
+        state = DayBarState.upcoming;
+      }
+
+      return DaySpendingData(
+        day: dayLabels[i],
+        amount: spent.toDouble(),
+        state: state,
+      );
+    });
+
+    final items = generatedItems;
+    final displayTotal = AppFormatters.rupees(weekTotal);
+
+    final double maxSpent = items
+        .map((e) => e.amount)
+        .fold<double>(0.0, (a, b) => a > b ? a : b);
 
     return AppCard(
       color: AppColors.surface,
@@ -57,7 +94,7 @@ class ThisWeekCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 1. Top Header Row: "This week" and "₹0"
+          // 1. Top Header Row: "This week" and total weekly spend
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -66,42 +103,66 @@ class ThisWeekCard extends StatelessWidget {
                 style: AppTextStyle.cardTitle,
               ),
               Text(
-                totalAmount,
+                displayTotal,
                 style: AppTextStyle.cardTitle,
               ),
             ],
           ),
+          20.verticalSpace,
 
-          // 2. Chart Space
-          120.verticalSpace,
-
-          // 3. Bottom 7 Days Row
+          // 2. Weekly Bar Chart Area matching design
           Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: items.map((item) {
               final isCurrent = item.state == DayBarState.current;
               final isFilled = item.state == DayBarState.filled;
+              final hasSpend = item.amount > 0;
+
+              double barHeight;
+              if (hasSpend && maxSpent > 0) {
+                final ratio = (item.amount / maxSpent).clamp(0.0, 1.0);
+                barHeight = (ratio * 84.h + 16.h).clamp(16.h, 100.h);
+              } else {
+                barHeight = 8.h;
+              }
+
+              Color barColor;
+              BoxBorder? barBorder;
+
+              if (isCurrent) {
+                barColor = const Color(0xFFB5D1F8);
+                barBorder = Border.all(
+                  color: const Color(0xFF3E6EA6),
+                  width: 1.5.w,
+                );
+              } else if (isFilled && hasSpend) {
+                barColor = const Color(0xFF3E6EA6);
+                barBorder = null;
+              } else {
+                barColor = const Color(0xFFE5ECF4);
+                barBorder = null;
+              }
 
               return Expanded(
                 child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 3.w),
+                  padding: EdgeInsets.symmetric(horizontal: 4.w),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        height: 10.h,
-                        decoration: BoxDecoration(
-                          color: isFilled
-                              ? const Color(0xFF3E6EA6)
-                              : isCurrent
-                                  ? const Color(0xFFB5D1F8)
-                                  : const Color(0xFFE5ECF4),
-                          border: isCurrent
-                              ? Border.all(
-                                  color: const Color(0xFF3E6EA6),
-                                  width: 1.5.w,
-                                )
-                              : null,
-                          borderRadius: BorderRadius.circular(5.r),
+                      SizedBox(
+                        height: 104.h,
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 300),
+                            height: barHeight,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: barColor,
+                              border: barBorder,
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                          ),
                         ),
                       ),
                       8.verticalSpace,

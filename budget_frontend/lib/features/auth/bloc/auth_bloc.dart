@@ -24,6 +24,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthUserUpdated>(onUserUpdated);
     on<AuthLogoutRequested>(onLogoutRequested);
     on<AuthDeleteAccountRequested>(onDeleteAccountRequested);
+    on<AuthClearDataRequested>(onClearDataRequested);
     on<AuthErrorCleared>(onErrorCleared);
   }
 
@@ -206,6 +207,33 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       debugPrint('AuthBloc deleteAccount error: $e\n$stack');
       emit(state.copyWith(
         status: AuthStatus.authenticated,
+        isLoading: false,
+        errorMessage: 'Something went wrong. Please try again.',
+      ));
+    }
+  }
+
+  Future<void> onClearDataRequested(
+    AuthClearDataRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(state.copyWith(isLoading: true, clearError: true));
+    try {
+      await authService.clearData();
+      final updatedUser = state.user?.copyWith(hasExampleData: false);
+      emit(state.copyWith(
+        isLoading: false,
+        user: updatedUser,
+        successMessage: 'All data cleared successfully',
+      ));
+    } on ApiException catch (e) {
+      emit(state.copyWith(
+        isLoading: false,
+        errorMessage: e.message,
+      ));
+    } catch (e, stack) {
+      debugPrint('AuthBloc clearData error: $e\n$stack');
+      emit(state.copyWith(
         isLoading: false,
         errorMessage: 'Something went wrong. Please try again.',
       ));

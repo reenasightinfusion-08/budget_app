@@ -89,20 +89,22 @@ class HistoryTransactionCard extends StatelessWidget {
             ),
           ),
 
-          // Delete icon button
-          12.horizontalSpace,
-          GestureDetector(
-            onTap: onDelete,
-            behavior: HitTestBehavior.opaque,
-            child: Padding(
-              padding: EdgeInsets.all(4.r),
-              child: Icon(
-                AppIcons.delete,
-                size: 20.sp,
-                color: AppColors.faint,
+          // Delete icon button (only shown when onDelete callback is provided)
+          if (onDelete != null) ...[
+            12.horizontalSpace,
+            GestureDetector(
+              onTap: onDelete,
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: EdgeInsets.all(4.r),
+                child: Icon(
+                  AppIcons.delete,
+                  size: 20.sp,
+                  color: AppColors.faint,
+                ),
               ),
             ),
-          ),
+          ],
         ],
       ),
     ),

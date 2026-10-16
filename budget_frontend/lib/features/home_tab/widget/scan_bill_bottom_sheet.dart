@@ -9,10 +9,16 @@ import 'package:image_picker/image_picker.dart';
 
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/network/api_exception.dart';
 import 'package:budget_frontend/core/widgets/app_bottom_sheet.dart';
 import 'package:budget_frontend/core/widgets/app_toast.dart';
+import 'package:budget_frontend/features/categories/models/category_registry.dart';
+import 'package:budget_frontend/features/history/services/transaction_service.dart';
 import 'package:budget_frontend/features/home/widgets/spend_income_bottom_sheet.dart';
 import 'package:budget_frontend/features/home_tab/widget/smart_add_views.dart';
+import 'package:budget_frontend/features/smart_add/services/smart_add_service.dart';
+import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ScanBillBottomSheet extends StatefulWidget {
   const ScanBillBottomSheet({super.key});
@@ -43,88 +49,227 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
   XFile? _selectedImage;
   bool _isLoading = false;
 
-  // Simulation state for API processing
+  // Processing state for API upload
   double _progressRatio = 0.25;
   String _progressText = 'Initializing api 25%';
-  Timer? _simulationTimer;
+  String? _errorMessage;
+  String? _createdTransactionId;
+  TransactionService? _txService;
 
-  // Review state after 100% completion
+  // Review state
   bool _isReviewReady = false;
-  final String _brandName = '& Brand Name';
+  bool _isSaving = false;
+  String _brandName = 'Bill Receipt';
   late final TextEditingController _amountController;
-  String _category = 'Other';
-  String _transactionType = 'Spend'; // 'Spend' or 'Income' loop
+  String _category = 'Food';
+  String _transactionType = 'Spend'; // 'Spend' or 'Income'
   DateTime _entryDate = DateTime.now();
 
   @override
   void initState() {
     super.initState();
-    _amountController = TextEditingController(text: '220');
+    _amountController = TextEditingController();
+    _checkLostData();
+  }
+
+  Future<void> _checkLostData() async {
+    if (kIsWeb || !Platform.isAndroid) return;
+    try {
+      final response = await _picker.retrieveLostData();
+      if (response.isEmpty) return;
+      final file = response.file;
+      if (file != null && mounted) {
+        await _processImageWithSmartAdd(file);
+      } else if (response.exception != null && mounted) {
+        setState(() {
+          _errorMessage =
+              response.exception!.message ?? 'Error retrieving captured photo';
+        });
+      }
+    } catch (e) {
+      debugPrint('Error retrieving lost camera data: $e');
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _txService = context.read<TransactionService>();
   }
 
   @override
   void dispose() {
-    _simulationTimer?.cancel();
+    if (_createdTransactionId != null) {
+      try {
+        final txId = _createdTransactionId!;
+        _txService?.deleteTransaction(txId);
+      } catch (_) {}
+    }
     _amountController.dispose();
     super.dispose();
   }
 
-  void _startProgressSimulation() {
-    _simulationTimer?.cancel();
-    setState(() {
-      _isReviewReady = false;
-      _progressRatio = 0.25;
-      _progressText = 'Initializing api 25%';
-    });
-
-    _simulationTimer = Timer.periodic(const Duration(milliseconds: 600), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-
-      setState(() {
-        if (_progressRatio < 0.50) {
-          _progressRatio = 0.50;
-          _progressText = 'Uploading bill 50%';
-        } else if (_progressRatio < 0.75) {
-          _progressRatio = 0.75;
-          _progressText = 'Analyzing items & totals 75%';
-        } else if (_progressRatio < 1.0) {
-          _progressRatio = 1.0;
-          _progressText = 'Finished 100%';
-          timer.cancel();
-
-          // Smoothly transition to the review card upon 100% completion
-          Future.delayed(const Duration(milliseconds: 450), () {
-            if (mounted) {
-              setState(() {
-                _isReviewReady = true;
-              });
-            }
-          });
-        } else {
-          timer.cancel();
-        }
-      });
-    });
-  }
-
   Future<void> _pickImage(ImageSource source) async {
-    setState(() => _isLoading = true);
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
     try {
       final image = await _picker.pickImage(source: source, imageQuality: 85);
       if (image != null && mounted) {
-        setState(() {
-          _selectedImage = image;
-        });
-        _startProgressSimulation();
+        await _processImageWithSmartAdd(image);
       }
     } catch (e) {
       debugPrint('Error picking image: $e');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _processImageWithSmartAdd(XFile image) async {
+    setState(() {
+      _selectedImage = image;
+      _errorMessage = null;
+      _isReviewReady = false;
+      _progressRatio = 0.25;
+      _progressText = 'Reading bill photo 25%';
+    });
+
+    try {
+      final bytes = await image.readAsBytes();
+      if (bytes.length > 3 * 1024 * 1024) {
+        throw const ApiException('Photo is too large. Keep it under about 3 MB.');
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _progressRatio = 0.50;
+        _progressText = 'Uploading & analyzing receipt 50%';
+      });
+
+      final ext = image.name.toLowerCase();
+      final mimeType = ext.endsWith('.png')
+          ? 'image/png'
+          : (ext.endsWith('.webp') ? 'image/webp' : 'image/jpeg');
+
+      final smartAddService = context.read<SmartAddService>();
+      final txService = context.read<TransactionService>();
+
+      // Record newest transaction before API call
+      final beforeTxs = await txService.getTransactions(limit: 1);
+      final beforeId = beforeTxs.isNotEmpty ? beforeTxs.first.id : null;
+
+      // Call API
+      await smartAddService.smartAddFile(
+        bytes: bytes,
+        mimeType: mimeType,
+        inputType: 'image',
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _progressRatio = 0.85;
+        _progressText = 'Extracting items & verifying total 85%';
+      });
+
+      // Fetch the newly parsed and saved transaction from backend
+      final afterTxs = await txService.getTransactions(limit: 1);
+      if (afterTxs.isEmpty || afterTxs.first.id == beforeId) {
+        throw const ApiException(
+          'No bill amount found in this photo. Please upload a clear receipt or bill.',
+        );
+      }
+
+      final newTx = afterTxs.first;
+      _createdTransactionId = newTx.id;
+      _amountController.text =
+          newTx.amount.toStringAsFixed(newTx.amount % 1 == 0 ? 0 : 2);
+      _brandName = newTx.description.isNotEmpty ? newTx.description : 'Bill Receipt';
+      _category = newTx.category;
+      _entryDate = newTx.date;
+      _transactionType = newTx.isIncome ? 'Income' : 'Spend';
+
+      setState(() {
+        _progressRatio = 1.0;
+        _progressText = 'Finished 100%';
+      });
+
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
+      setState(() {
+        _isReviewReady = true;
+      });
+    } catch (e) {
+      debugPrint('Error preparing scan review: $e');
+      if (!mounted) return;
+      final msg = sanitizeSmartAddError(
+        e,
+        noAmountFallback:
+            'Could not find any bill amount in this photo. Please upload a clear receipt or bill.',
+      );
+      setState(() {
+        _errorMessage = msg;
+        _progressRatio = 0.0;
+      });
+    }
+  }
+
+  Future<void> _saveReviewedEntry() async {
+    if (_isSaving) return;
+
+    final amountDouble = double.tryParse(_amountController.text.trim()) ?? 0.0;
+    if (amountDouble <= 0) {
+      AppToast.show(context, message: 'Please enter a valid amount');
+      return;
+    }
+
+    setState(() => _isSaving = true);
+
+    final paise = (amountDouble * 100).round();
+    final isIncome = _transactionType == 'Income';
+    final type = isIncome ? 'income' : 'expense';
+
+    final catModel = CategoryRegistry.find(_category, type);
+    final categoryKey = catModel?.key ?? (isIncome ? 'salary' : 'food');
+
+    final now = DateTime.now();
+    final today =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final entryDateStr =
+        '${_entryDate.year}-${_entryDate.month.toString().padLeft(2, '0')}-${_entryDate.day.toString().padLeft(2, '0')}';
+
+    try {
+      final txService = context.read<TransactionService>();
+
+      // Replace the transaction with user's verified values
+      if (_createdTransactionId != null) {
+        await txService.deleteTransaction(_createdTransactionId!);
+      }
+
+      await txService.createTransaction(
+        type: type,
+        amountPaise: paise,
+        category: categoryKey,
+        note: _brandName,
+        date: entryDateStr,
+        today: today,
+      );
+
+      _createdTransactionId = null;
+
+      if (!mounted) return;
+      context.read<WalletBloc>().add(const RefreshWalletSummary());
+      AppToast.show(context, message: 'Transaction added');
+      Navigator.of(context).pop('entry_added');
+    } catch (e) {
+      if (!mounted) return;
+      final err = e is ApiException ? e.message : 'Failed to save entry';
+      AppToast.show(context, message: err);
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
       }
     }
   }
@@ -137,10 +282,17 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
   Widget build(BuildContext context) {
     // 3. Review / Confirmation State: Uses common SmartAddReviewView
     if (_isReviewReady) {
+      final isSpend = _transactionType == 'Spend';
+      final availableCats = isSpend
+          ? CategoryRegistry.expenses.map((c) => c.label).toList()
+          : CategoryRegistry.incomes.map((c) => c.label).toList();
+
       return SmartAddReviewView(
         brandName: _brandName,
         amountController: _amountController,
         category: _category,
+        isSaving: _isSaving,
+        categories: availableCats.isNotEmpty ? availableCats : const ['Food', 'Shopping', 'Bills', 'Other'],
         onCategoryChanged: (val) => setState(() => _category = val),
         entryDate: _entryDate,
         onDateChanged: (val) => setState(() => _entryDate = val),
@@ -151,18 +303,21 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
           });
         },
         rawReadText:
-            'TAX INVOICE\nBrand Name Retail Ltd.\nDate: ${_formatDate(_entryDate)}\nItems: 1x Groceries & Supplies\nType: $_transactionType\nSubtotal: ₹${_amountController.text}\nTax: ₹0.00\nTotal: ₹${_amountController.text}',
-        onAddEntry: () {
-          AppToast.show(
-            context,
-            message: 'expenced saved',
-          );
-          Navigator.of(context).pop('entry_added');
-        },
-        onBack: () {
+            'TAX INVOICE\n$_brandName\nDate: ${_formatDate(_entryDate)}\nType: $_transactionType\nAmount: ₹${_amountController.text}',
+        onAddEntry: _saveReviewedEntry,
+        onBack: () async {
+          if (_isSaving) return;
+          if (_createdTransactionId != null) {
+            try {
+              final txService = context.read<TransactionService>();
+              await txService.deleteTransaction(_createdTransactionId!);
+            } catch (_) {}
+            _createdTransactionId = null;
+          }
           setState(() {
             _isReviewReady = false;
             _selectedImage = null;
+            _errorMessage = null;
             _progressRatio = 0.25;
             _progressText = 'Initializing api 25%';
           });
@@ -256,15 +411,17 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
             ),
             progressRatio: _progressRatio,
             progressText: _progressText,
+            errorMessage: _errorMessage,
             changeButtonLabel: 'Change bill photo',
             onChange: () {
-              _simulationTimer?.cancel();
               setState(() {
                 _selectedImage = null;
+                _errorMessage = null;
                 _progressRatio = 0.25;
                 _progressText = 'Initializing api 25%';
               });
             },
+            onAddByHand: () => Navigator.of(context).pop('manual'),
           ),
         ],
         8.verticalSpace,

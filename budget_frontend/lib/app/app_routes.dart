@@ -47,7 +47,19 @@ class AppRoutes {
       final initialFilterIndex = args is int ? args : 0;
       return HistoryScreen(initialFilterIndex: initialFilterIndex);
     },
-    savings: (_) => const SavingsScreen(),
-    budget: (_) => const WalletScreen(),
+    savings: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      final showBackButton = args is Map
+          ? (args['showBackButton'] ?? true)
+          : (args is bool ? args : true);
+      return SavingsScreen(showBackButton: showBackButton);
+    },
+    budget: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      final showBackButton = args is Map
+          ? (args['showBackButton'] ?? true)
+          : (args is bool ? args : true);
+      return WalletScreen(showBackButton: showBackButton);
+    },
   };
 }

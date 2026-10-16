@@ -9,42 +9,48 @@ import 'package:budget_frontend/core/widgets/app_card.dart';
 class DataCard extends StatelessWidget {
   final String name;
   final String count;
+  final VoidCallback? onTap;
 
   const DataCard({
     super.key,
     required this.name,
     required this.count,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: AppCard(
-        radius: AppBorderRadius.tile,
-        padding: EdgeInsets.symmetric(vertical: 12.h),
-        isGradient: false,
-        child: Column(
-          children: [
-            Text(
-              count,
-              style: AppTextStyle.title.copyWith(
-                fontSize: 30.sp,
-                height: 1,
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  name,
-                  style: AppTextStyle.toggleTitle.copyWith(
-                    color: AppColors.muted,
-                    fontSize: 15.sp,
-                  ),
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: AppCard(
+          radius: AppBorderRadius.tile,
+          padding: EdgeInsets.symmetric(vertical: 12.h),
+          isGradient: false,
+          child: Column(
+            children: [
+              Text(
+                count,
+                style: AppTextStyle.title.copyWith(
+                  fontSize: 30.sp,
+                  height: 1,
                 ),
-              ],
-            ),
-          ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    name,
+                    style: AppTextStyle.toggleTitle.copyWith(
+                      color: AppColors.muted,
+                      fontSize: 15.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

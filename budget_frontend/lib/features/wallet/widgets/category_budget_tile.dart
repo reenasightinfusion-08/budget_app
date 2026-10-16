@@ -44,8 +44,8 @@ class CategoryBudgetTile extends StatelessWidget {
               CategoryIconBadge(
                 icon: category.icon,
                 size: 44,
-                iconColor: AppColors.accent,
-                backgroundColor: AppColors.fill,
+                iconColor: category.color,
+                backgroundColor: category.color.withValues(alpha: 0.12),
               ),
               12.horizontalSpace,
               Expanded(
