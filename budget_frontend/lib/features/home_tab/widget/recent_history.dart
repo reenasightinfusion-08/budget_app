@@ -97,13 +97,6 @@ class _RecentHistoryState extends State<RecentHistory> {
                 itemBuilder: (context, index) {
                   return HistoryTransactionCard(
                     transaction: recent[index],
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const HistoryScreen(),
-                        ),
-                      );
-                    },
                   );
                 },
               )

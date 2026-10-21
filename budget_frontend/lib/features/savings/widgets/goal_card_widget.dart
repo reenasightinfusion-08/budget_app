@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
@@ -153,7 +154,7 @@ class GoalCardWidget extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
                 child: Row(
                   children: [
-                    Icon(Icons.check_circle_rounded, color: AppColors.success, size: 18.sp),
+                    Icon(AppIcons.checkCircle, color: AppColors.success, size: 18.sp),
                     8.horizontalSpace,
                     Text(
                       'Goal reached! 🎉',

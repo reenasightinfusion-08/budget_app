@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32"/>
     <application
-        android:label="budget_frontend"
+        android:label="Budgie"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

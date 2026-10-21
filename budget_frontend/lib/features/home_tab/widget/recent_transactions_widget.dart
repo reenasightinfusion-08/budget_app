@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
@@ -45,26 +46,33 @@ class TransactionItemWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: AppCard(
         color: AppColors.surface,
         radius: AppBorderRadius.card,
-        padding: EdgeInsets.fromLTRB(16.w, 12.h, 17.w, 20.h),
+        padding: isTablet
+            ? const EdgeInsets.fromLTRB(10, 10, 10, 12)
+            : EdgeInsets.fromLTRB(16.w, 12.h, 17.w, 20.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  data.title,
-                  style: AppTextStyle.metricTitle,
+                Flexible(
+                  child: Text(
+                    data.title,
+                    style: AppTextStyle.metricTitle,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
                 Container(
-                  width: 36.w,
-                  height: 36.h,
+                  width: isTablet ? 30 : 36.w,
+                  height: isTablet ? 30 : 36.h,
                   decoration: BoxDecoration(
                     color: data.color,
                     borderRadius: AppBorderRadius.track,
@@ -72,7 +80,7 @@ class TransactionItemWidget extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Icon(
                     data.icon,
-                    size: 20.sp,
+                    size: isTablet ? 17 : 20.sp,
                     color: data.iconColor,
                   ),
                 ),
@@ -83,13 +91,15 @@ class TransactionItemWidget extends StatelessWidget {
               "₹${data.amount}",
               style: AppTextStyle.cardAmount.copyWith(
                 color: data.textColor,
-                height: 1
+                height: 1,
               ),
             ),
             4.verticalSpace,
             Text(
               data.description,
               style: AppTextStyle.metricDescription,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ],
         ),
@@ -219,7 +229,7 @@ class RecentTransactionsWidget extends StatelessWidget {
                 data: TransactionItemData(
                   title: 'PER DAY',
                   amount: perDayText,
-                  icon: Icons.lock_clock,
+                  icon: AppIcons.clock,
                   iconColor: AppColors.catTravel,
                   color: AppColors.catTravel.withValues(alpha: 0.15),
                   description: '$daysLeft days left',
@@ -294,7 +304,7 @@ class RecentTransactionsWidget extends StatelessWidget {
 
                 // 3. Upward arrow icon
                 Icon(
-                  Icons.arrow_upward_rounded,
+                  AppIcons.arrowUp,
                   size: 20.sp,
                   color: AppColors.muted,
                 ),

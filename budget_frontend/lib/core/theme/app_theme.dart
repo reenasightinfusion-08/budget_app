@@ -6,6 +6,7 @@ import 'package:budget_frontend/core/constants/app_colors.dart';
 class AppTheme {
   static ThemeData get light => ThemeData(
         useMaterial3: true,
+        fontFamily: 'DMSans',
         scaffoldBackgroundColor: AppColors.background,
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.transparent,

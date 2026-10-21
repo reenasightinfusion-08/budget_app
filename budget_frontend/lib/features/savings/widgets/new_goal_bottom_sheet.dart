@@ -81,11 +81,11 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
   // Icons matching backend enum: ['shield', 'phone', 'plane', 'house', 'gift', 'star']
   static const List<(IconData, String)> goalIcons = [
     (AppIcons.shield, 'shield'),
-    (Icons.phone_iphone_rounded, 'phone'),
-    (Icons.flight_rounded, 'plane'),
+    (AppIcons.phone, 'phone'),
+    (AppIcons.plane, 'plane'),
     (AppIcons.home, 'house'),
     (AppIcons.gift, 'gift'),
-    (Icons.star_rounded, 'star'),
+    (AppIcons.star, 'star'),
   ];
 
   @override

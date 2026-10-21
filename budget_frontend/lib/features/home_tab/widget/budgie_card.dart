@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
@@ -124,13 +125,11 @@ class _BudgieCardState extends State<BudgieCard> {
                 child: AppCard(
                   color: AppColors.fill,
                   radius: AppBorderRadius.card,
+                  padding: EdgeInsets.all(8.r),
                   child: Center(
-                    child: Text(
-                 //  '🦜',
-                     // '🦚',
-                     '🦉',
-                   //   '🐥',
-                      style: TextStyle(fontSize: 50.sp),
+                    child: SvgPicture.asset(
+                      'assest/cartoon.svg',
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ),
@@ -146,14 +145,16 @@ class _BudgieCardState extends State<BudgieCard> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   5.verticalSpace,
-                  // 1. Row: "Budgie" text + AppCard with status color and statusTag
-                  Row(
+                  // 1. Wrap: "Budgie" text + AppCard with status color and statusTag
+                  Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 6,
+                    runSpacing: 4,
                     children: [
                       Text(
                         'Budgie',
                         style: AppTextStyle.cardTitle,
                       ),
-                      8.horizontalSpace,
                       AppCard(
                         color: tagBgColor,
                         radius: AppBorderRadius.pill,

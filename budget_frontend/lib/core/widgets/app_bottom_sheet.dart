@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 
 /// Common non-scrollable bottom sheet with rounded corners, drag handle,
 /// close button, and customizable title widget.
@@ -28,6 +29,21 @@ class AppBottomSheet extends StatelessWidget {
     VoidCallback? onClose,
     required Widget child,
   }) {
+    final isTablet = AppLayout.isTablet(context);
+
+    if (isTablet) {
+      return showDialog<T>(
+        context: context,
+        barrierDismissible: true,
+        barrierColor: AppColors.ink.withValues(alpha: 0.5),
+        builder: (dialogContext) => _TabletBottomSheetDialog(
+          title: title,
+          onClose: onClose,
+          child: child,
+        ),
+      );
+    }
+
     return showModalBottomSheet<T>(
       context: context,
       isScrollControlled: true,
@@ -35,7 +51,7 @@ class AppBottomSheet extends StatelessWidget {
       isDismissible: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
-     barrierColor: Color(0xFF101A2B).withValues(alpha: 0.5),
+      barrierColor: AppColors.ink.withValues(alpha: 0.5),
       builder: (sheetContext) => AppBottomSheet(
         title: title,
         onClose: onClose,
@@ -113,6 +129,102 @@ class AppBottomSheet extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TabletBottomSheetDialog extends StatelessWidget {
+  const _TabletBottomSheetDialog({
+    this.title,
+    this.onClose,
+    required this.child,
+  });
+
+  final Widget? title;
+  final VoidCallback? onClose;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    ScreenUtil.enableScale(
+      enableWH: () => false,
+      enableText: () => false,
+    );
+
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+
+    return AnimatedPadding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOut,
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 520,
+            maxHeight: MediaQuery.sizeOf(context).height * 0.85,
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.fill,
+                borderRadius: BorderRadius.circular(28),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.ink.withValues(alpha: 0.16),
+                    blurRadius: 32,
+                    offset: const Offset(0, 16),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: onClose ?? () => Navigator.of(context).pop(),
+                            child: CircleAvatar(
+                              radius: 20,
+                              backgroundColor: AppColors.surface,
+                              child: const Icon(
+                                AppIcons.close,
+                                color: AppColors.ink,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                          if (title != null) ...[
+                            Expanded(
+                              child: Center(
+                                child: title!,
+                              ),
+                            ),
+                            const SizedBox(width: 40),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Flexible(
+                        child: SingleChildScrollView(
+                          keyboardDismissBehavior:
+                              ScrollViewKeyboardDismissBehavior.onDrag,
+                          child: child,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),

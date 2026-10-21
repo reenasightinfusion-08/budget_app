@@ -47,7 +47,7 @@ class CategorySpendRow extends StatelessWidget {
                     AppProgressBar(
                       ratio: maxAmount > 0 ? (spend.amount / maxAmount).clamp(0.0, 1.0) : 0.0,
                       height: 7,
-                      color: spend.color,
+                      color: AppColors.popDeep,
                     ),
                   ],
                 ),

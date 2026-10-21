@@ -2,7 +2,6 @@ import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/features/home_tab/widget/voice_pdf_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
@@ -30,13 +29,21 @@ class AddWithBudgieCard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Add with Budgie',
-              style: AppTextStyle.cardTitle,
+            Flexible(
+              child: Text(
+                'Add with Budgie',
+                style: AppTextStyle.cardTitle,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            Text(
-              'Scan, speak or upload',
-              style: AppTextStyle.subHeader,
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                'Scan, speak or upload',
+                style: AppTextStyle.subHeader,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.end,
+              ),
             ),
           ],
         ),
@@ -62,8 +69,8 @@ class AddWithBudgieCard extends StatelessWidget {
                       radius: AppBorderRadius.md,
                       padding: EdgeInsets.all(6.r),
                       child: Center(
-                        child: SvgPicture.asset(
-                          'assest/scan_bill.svg',
+                        child: Image.asset(
+                          'assest/scan_bill.png',
                           fit: BoxFit.contain,
                         ),
                       ),
@@ -126,7 +133,7 @@ class AddWithBudgieCard extends StatelessWidget {
           children: [
             Expanded(
               child: VoicePdfCard(
-                imagePath: 'assest/voice.svg',
+                imagePath: 'assest/voice.png',
                 bgColor: AppColors.catBills.withValues(alpha: 0.12),
                 title: "Voice",
                 subtitle: "Say or type it",
@@ -137,7 +144,7 @@ class AddWithBudgieCard extends StatelessWidget {
             12.horizontalSpace,
             Expanded(
               child: VoicePdfCard(
-                imagePath: 'assest/pdf.svg',
+                imagePath: 'assest/pdf.png',
                 bgColor: AppColors.catTravel.withValues(alpha: 0.12),
                 title: "PDF",
                 subtitle: "Bills & statements",

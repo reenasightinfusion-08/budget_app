@@ -4,11 +4,13 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 
+import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/network/api_exception.dart';
 import 'package:budget_frontend/core/widgets/app_bottom_sheet.dart';
 import 'package:budget_frontend/core/widgets/app_toast.dart';
@@ -227,18 +229,13 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
 
     setState(() => _isSaving = true);
 
-    final paise = (amountDouble * 100).round();
-    final isIncome = _transactionType == 'Income';
-    final type = isIncome ? 'income' : 'expense';
-
-    final catModel = CategoryRegistry.find(_category, type);
-    final categoryKey = catModel?.key ?? (isIncome ? 'salary' : 'food');
-
-    final now = DateTime.now();
-    final today =
-        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    final entryDateStr =
-        '${_entryDate.year}-${_entryDate.month.toString().padLeft(2, '0')}-${_entryDate.day.toString().padLeft(2, '0')}';
+    final entry = TransactionService.prepareEntry(
+      amount: amountDouble,
+      transactionType: _transactionType,
+      category: _category,
+      note: _brandName,
+      entryDate: _entryDate,
+    );
 
     try {
       final txService = context.read<TransactionService>();
@@ -248,14 +245,7 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
         await txService.deleteTransaction(_createdTransactionId!);
       }
 
-      await txService.createTransaction(
-        type: type,
-        amountPaise: paise,
-        category: categoryKey,
-        note: _brandName,
-        date: entryDateStr,
-        today: today,
-      );
+      await txService.createTransactionEntry(entry);
 
       _createdTransactionId = null;
 
@@ -274,9 +264,7 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
     }
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}/${date.year}';
-  }
+  String _formatDate(DateTime date) => AppFormatters.dateSlash(date);
 
   @override
   Widget build(BuildContext context) {
@@ -333,7 +321,7 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
           // 1. Empty / Picker State: Uses common SmartAddPickerCard
           SmartAddPickerCard(
             icon: Icon(
-              Icons.camera_alt_outlined,
+              AppIcons.camera,
               color: Colors.white,
               size: 26.sp,
             ),
@@ -347,12 +335,12 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 22.w, vertical: 12.h),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF3B6EA5),
-                    borderRadius: BorderRadius.circular(24.r),
+                    color: AppColors.accent,
+                    borderRadius: AppBorderRadius.dialog,
                   ),
                   child: Text(
                     'Take photo',
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: 'DMSans', 
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -370,7 +358,7 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
                   padding: EdgeInsets.symmetric(horizontal: 22.w, vertical: 12.h),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(24.r),
+                    borderRadius: AppBorderRadius.dialog,
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.05),
@@ -381,7 +369,7 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
                   ),
                   child: Text(
                     'Choose image',
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: 'DMSans', 
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                       color: AppColors.ink,
@@ -398,7 +386,7 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
           // 2. Processing / Progress State: Uses common SmartAddProcessingView
           SmartAddProcessingView(
             previewChild: ClipRRect(
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: AppBorderRadius.xs,
               child: kIsWeb
                   ? Image.network(
                       _selectedImage!.path,

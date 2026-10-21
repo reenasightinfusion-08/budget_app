@@ -127,18 +127,18 @@ class GoalModel {
 
   static IconData iconKeyToIcon(String key) => switch (key.toLowerCase()) {
         'shield' => AppIcons.shield,
-        'phone' => Icons.phone_iphone_rounded,
-        'plane' => Icons.flight_rounded,
+        'phone' => AppIcons.phone,
+        'plane' => AppIcons.plane,
         'house' || 'home' => AppIcons.home,
         'gift' => AppIcons.gift,
-        'star' => Icons.star_rounded,
-        _ => Icons.star_rounded,
+        'star' => AppIcons.star,
+        _ => AppIcons.star,
       };
 
   static String iconToIconKey(IconData icon) {
     if (icon == AppIcons.shield) return 'shield';
-    if (icon == Icons.phone_iphone_rounded || icon == AppIcons.laptop) return 'phone';
-    if (icon == Icons.flight_rounded) return 'plane';
+    if (icon == AppIcons.phone || icon == AppIcons.laptop) return 'phone';
+    if (icon == AppIcons.plane) return 'plane';
     if (icon == AppIcons.home) return 'house';
     if (icon == AppIcons.gift) return 'gift';
     return 'star';
@@ -159,8 +159,20 @@ class GoalsResponseModel {
         .map(GoalModel.fromJson)
         .toList();
 
+    // LIFO ordering: last added goal shows on top
+    final hasCreatedAt = goals.any((g) => g.createdAt != null);
+    final lifoGoals = hasCreatedAt
+        ? (List<GoalModel>.from(goals)
+          ..sort((a, b) {
+            if (a.createdAt != null && b.createdAt != null) {
+              return b.createdAt!.compareTo(a.createdAt!);
+            }
+            return 0;
+          }))
+        : goals.reversed.toList();
+
     return GoalsResponseModel(
-      goals: goals,
+      goals: lifoGoals,
       totalSavedPaise:
           (json['totalSaved'] is num) ? (json['totalSaved'] as num).toInt() : 0,
       thisMonthPaise:

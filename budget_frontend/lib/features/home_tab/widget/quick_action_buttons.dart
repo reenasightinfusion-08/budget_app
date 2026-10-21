@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/features/home/widgets/spend_income_bottom_sheet.dart';
 
@@ -58,34 +59,41 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
+
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: AppCard(
         color: AppColors.surface,
         radius: AppBorderRadius.navBar,
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+        padding: isTablet
+            ? const EdgeInsets.symmetric(horizontal: 10, vertical: 10)
+            : EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 36.w,
-              height: 36.h,
+              width: isTablet ? 32 : 36.w,
+              height: isTablet ? 32 : 36.h,
               decoration: BoxDecoration(
                 color: iconBgColor,
-                borderRadius: AppBorderRadius.track
+                borderRadius: AppBorderRadius.track,
               ),
               alignment: Alignment.center,
               child: Icon(
                 icon,
-                size: 20.sp,
+                size: isTablet ? 18 : 20.sp,
                 color: iconColor,
               ),
             ),
-            12.horizontalSpace,
-            Text(
-              label,
-              style: AppTextStyle.subCardTitle,
+            isTablet ? const SizedBox(width: 8) : 12.horizontalSpace,
+            Flexible(
+              child: Text(
+                label,
+                style: AppTextStyle.subCardTitle,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:budget_frontend/app/app_routes.dart';
 import 'package:budget_frontend/core/theme/app_theme.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
@@ -46,12 +45,12 @@ class BudgetApp extends StatelessWidget {
             BlocProvider<CategoryBloc>(
               create: (context) => CategoryBloc(
                 categoryService: CategoryService(apiClient),
-              )..add(const LoadCategories()),
+              ),
             ),
             BlocProvider<GoalBloc>(
               create: (context) => GoalBloc(
                 goalService: GoalService(apiClient),
-              )..add(const LoadGoals()),
+              ),
             ),
             BlocProvider<SetupBloc>(
               create: (context) => SetupBloc(profileService: ProfileService(apiClient)),
@@ -68,7 +67,7 @@ class BudgetApp extends StatelessWidget {
             designSize: const Size(390, 844),
             minTextAdapt: true,
             builder: (context, child) => MaterialApp(
-              title: 'Budget',
+              title: 'Budgie',
               debugShowCheckedModeBanner: false,
               theme: AppTheme.light,
               initialRoute: AppRoutes.splash,

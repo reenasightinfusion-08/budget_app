@@ -4,10 +4,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
+import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/network/api_exception.dart';
 import 'package:budget_frontend/core/widgets/app_bottom_sheet.dart';
 import 'package:budget_frontend/core/widgets/app_toast.dart';
@@ -203,18 +205,14 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
 
     setState(() => _isSaving = true);
 
-    final paise = (amountDouble * 100).round();
-    final isIncome = _transactionType == 'Income';
-    final type = isIncome ? 'income' : 'expense';
-
-    final catModel = CategoryRegistry.find(_category, type);
-    final categoryKey = catModel?.key ?? (isIncome ? 'salary' : 'shopping');
-
-    final now = DateTime.now();
-    final today =
-        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-    final entryDateStr =
-        '${_entryDate.year}-${_entryDate.month.toString().padLeft(2, '0')}-${_entryDate.day.toString().padLeft(2, '0')}';
+    final entry = TransactionService.prepareEntry(
+      amount: amountDouble,
+      transactionType: _transactionType,
+      category: _category,
+      note: _itemName,
+      entryDate: _entryDate,
+      defaultExpenseKey: 'shopping',
+    );
 
     try {
       final txService = context.read<TransactionService>();
@@ -224,14 +222,7 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
         await txService.deleteTransaction(_createdTransactionId!);
       }
 
-      await txService.createTransaction(
-        type: type,
-        amountPaise: paise,
-        category: categoryKey,
-        note: _itemName,
-        date: entryDateStr,
-        today: today,
-      );
+      await txService.createTransactionEntry(entry);
 
       _createdTransactionId = null;
 
@@ -276,7 +267,7 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            backgroundColor: Color(0xFFD2513F),
+            backgroundColor: AppColors.error,
             content: Text(
               'Please restart the app to enable the native file picker on your phone.',
             ),
@@ -301,9 +292,7 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
     }
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}/${date.year}';
-  }
+  String _formatDate(DateTime date) => AppFormatters.dateSlash(date);
 
   @override
   Widget build(BuildContext context) {
@@ -360,7 +349,7 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
           // 1. Empty / Picker State: Matches screenshot 1
           SmartAddPickerCard(
             icon: Icon(
-              Icons.article_outlined,
+              AppIcons.article,
               color: Colors.white,
               size: 26.sp,
             ),
@@ -376,12 +365,12 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
                   padding:
                       EdgeInsets.symmetric(horizontal: 32.w, vertical: 12.h),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF3B6EA5),
-                    borderRadius: BorderRadius.circular(24.r),
+                    color: AppColors.accent,
+                    borderRadius: AppBorderRadius.dialog,
                   ),
                   child: Text(
                     'Choose PDF',
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: 'DMSans', 
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -404,19 +393,19 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
                   width: 42.r,
                   height: 42.r,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFD9534F).withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(14.r),
+                    color: AppColors.error.withValues(alpha: 0.15),
+                    borderRadius: AppBorderRadius.chip,
                   ),
                   child: Icon(
-                    Icons.picture_as_pdf_rounded,
-                    color: const Color(0xFFD9534F),
+                    AppIcons.pdf,
+                    color: AppColors.error,
                     size: 25.sp,
                   ),
                 ),
                 10.verticalSpace,
                 Text(
                   _selectedPdf!.name,
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: 'DMSans', 
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
                     color: AppColors.ink,
@@ -428,7 +417,7 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
                 4.verticalSpace,
                 Text(
                   '${(_selectedPdf!.sizeInBytes / 1024).toStringAsFixed(1)} KB',
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: 'DMSans', 
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w500,
                     color: AppColors.muted,

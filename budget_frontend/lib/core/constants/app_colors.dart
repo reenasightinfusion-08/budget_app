@@ -16,6 +16,7 @@ class AppColors {
   static const Color successSoft = Color(0xFFE3F4EA);
   static const Color warningSoft = Color(0xFFFDF1DA);
   static const Color error = Color(0xFFD2513F);
+  static const Color errorSoft = Color(0xFFFDE8E8);
   static const Color line = Color(0xFFE3E9F0);
   static const Color onAccentFaint = Color(0x59FFFFFF);
   static const Color onAccentError = Color(0xFFFFB4A8);

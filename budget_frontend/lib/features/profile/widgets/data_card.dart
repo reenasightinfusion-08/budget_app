@@ -37,17 +37,12 @@ class DataCard extends StatelessWidget {
                   height: 1,
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    name,
-                    style: AppTextStyle.toggleTitle.copyWith(
-                      color: AppColors.muted,
-                      fontSize: 15.sp,
-                    ),
-                  ),
-                ],
+              Text(
+                name,
+                style: AppTextStyle.toggleTitle.copyWith(
+                  color: AppColors.muted,
+                  fontSize: 15.sp,
+                ),
               ),
             ],
           ),

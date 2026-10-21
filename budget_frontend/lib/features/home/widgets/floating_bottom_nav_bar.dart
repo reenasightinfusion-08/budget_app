@@ -7,7 +7,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_gradients.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/features/home/widgets/nav_bar_item.dart';
 
 class NavItemData {
@@ -139,102 +141,105 @@ class FloatingBottomNavBarState extends State<FloatingBottomNavBar>
   }
 
   @override
-  Widget build(BuildContext context) => Container(
-    height: 64.h,
-    padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 6.h),
-    decoration: BoxDecoration(
-      color: AppColors.surface,
-      borderRadius: AppBorderRadius.navBar,
-      boxShadow: [
-        BoxShadow(
-          color: AppColors.ink.withValues(alpha: 0.08),
-          blurRadius: 24.r,
-          offset: Offset(0, 8.h),
-        ),
-        BoxShadow(
-          color: AppColors.cardShadow.withValues(alpha: 0.04),
-          blurRadius: 12.r,
-          offset: Offset(0, 2.h),
-        ),
-      ],
-    ),
-    child: LayoutBuilder(
-      builder: (context, constraints) {
-        final slotWidth = constraints.maxWidth / widget.items.length;
+  Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
+    final navHeight = isTablet ? 64.0 : math.max(64.0, 64.h);
 
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onHorizontalDragStart: onDragStart,
-          onHorizontalDragUpdate: (details) => onDragUpdate(details, slotWidth),
-          onHorizontalDragEnd: (details) => onDragEnd(details, slotWidth),
-          child: AnimatedBuilder(
-            animation: Listenable.merge([leftEdge, rightEdge]),
-            builder: (context, _) {
-              final left = leftEdge.value;
-              final right = math.max(rightEdge.value, left + 0.6);
-              final middle = center;
+    return Container(
+      height: navHeight,
+      padding: isTablet
+          ? const EdgeInsets.symmetric(horizontal: 6, vertical: 5)
+          : EdgeInsets.symmetric(
+              horizontal: 6.w,
+              vertical: math.min(5.0, 5.h),
+            ),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: AppBorderRadius.navBar,
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.ink.withValues(alpha: 0.08),
+            blurRadius: isTablet ? 24 : 24.r,
+            offset: Offset(0, isTablet ? 8 : 8.h),
+          ),
+          BoxShadow(
+            color: AppColors.cardShadow.withValues(alpha: 0.04),
+            blurRadius: isTablet ? 12 : 12.r,
+            offset: Offset(0, isTablet ? 2 : 2.h),
+          ),
+        ],
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final slotWidth = constraints.maxWidth / widget.items.length;
 
-              final stretch = (right - left - 1).abs().clamp(0.0, 1.0);
-              final lift = 5.h * stretch;
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onHorizontalDragStart: onDragStart,
+            onHorizontalDragUpdate: (details) => onDragUpdate(details, slotWidth),
+            onHorizontalDragEnd: (details) => onDragEnd(details, slotWidth),
+            child: AnimatedBuilder(
+              animation: Listenable.merge([leftEdge, rightEdge]),
+              builder: (context, _) {
+                final left = leftEdge.value;
+                final right = math.max(rightEdge.value, left + 0.6);
+                final middle = center;
 
-              return Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Positioned(
-                    left: left * slotWidth - lift,
-                    width: (right - left) * slotWidth + lift * 2,
-                    top: -lift,
-                    bottom: -lift,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            AppColors.surface.withValues(alpha: 0.95),
-                            AppColors.fill,
+                final stretch = (right - left - 1).abs().clamp(0.0, 1.0);
+                final lift = (isTablet ? 5.0 : 5.h) * stretch;
+
+                return Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Positioned(
+                      left: left * slotWidth - lift,
+                      width: (right - left) * slotWidth + lift * 2,
+                      top: -lift,
+                      bottom: -lift,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: AppGradients.navPill,
+                          borderRadius: AppBorderRadius.navItem,
+                          border: Border.all(
+                            color: AppColors.surface.withValues(
+                              alpha: 0.9 * stretch,
+                            ),
+                            width: 1.2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.accent.withValues(
+                                alpha: 0.22 * stretch,
+                              ),
+                              blurRadius: (isTablet ? 18.0 : 18.r) * stretch,
+                              offset: Offset(0, (isTablet ? 6.0 : 6.h) * stretch),
+                            ),
                           ],
                         ),
-                        borderRadius: AppBorderRadius.navItem,
-                        border: Border.all(
-                          color: AppColors.surface.withValues(
-                            alpha: 0.9 * stretch,
-                          ),
-                          width: 1.2,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.accent.withValues(
-                              alpha: 0.22 * stretch,
-                            ),
-                            blurRadius: 18.r * stretch,
-                            offset: Offset(0, 6.h * stretch),
-                          ),
-                        ],
                       ),
                     ),
-                  ),
-                  Row(
-                    children: [
-                      for (var index = 0; index < widget.items.length; index++)
-                        Expanded(
-                          child: NavBarItem(
-                            data: widget.items[index],
-                            proximity: (1 - (middle - index).abs()).clamp(
-                              0.0,
-                              1.0,
+                    Row(
+                      children: [
+                        for (var index = 0; index < widget.items.length; index++)
+                          Expanded(
+                            child: NavBarItem(
+                              data: widget.items[index],
+                              proximity: (1 - (middle - index).abs()).clamp(
+                                0.0,
+                                1.0,
+                              ),
+                              onTap: () => snapTo(index),
                             ),
-                            onTap: () => snapTo(index),
                           ),
-                        ),
-                    ],
-                  ),
-                ],
-              );
-            },
-          ),
-        );
-      },
-    ),
-  );
+                      ],
+                    ),
+                  ],
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
 }

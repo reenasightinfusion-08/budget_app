@@ -3,8 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 
-/// Centered card loader (70% width, 25% screen height) with surface background
+/// Centered card loader with a fixed, elegant width and height
 /// allowing the underlying screen to show through a translucent veil.
 class CommonLoader extends StatelessWidget {
   const CommonLoader({
@@ -14,6 +15,8 @@ class CommonLoader extends StatelessWidget {
     this.color = AppColors.popDeep,
     this.size = 40,
     this.strokeWidth = 3.5,
+    this.width = 240,
+    this.height = 170,
   });
 
   final Color backgroundColor;
@@ -21,12 +24,16 @@ class CommonLoader extends StatelessWidget {
   final Color color;
   final double size;
   final double strokeWidth;
+  final double width;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
-    final screenSize = MediaQuery.sizeOf(context);
-    final double boxWidth = screenSize.width * 0.70;
-    final double boxHeight = screenSize.height * 0.25;
+    final bool isTablet = AppLayout.isTablet(context);
+    final double boxWidth = isTablet ? width : width.w;
+    final double boxHeight = isTablet ? height : height.h;
+    final double effectiveSize = isTablet ? size : size.r;
+    final double effectiveStroke = isTablet ? strokeWidth : strokeWidth.w;
 
     return Container(
       width: double.infinity,
@@ -42,21 +49,21 @@ class CommonLoader extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.12),
-              blurRadius: 28.r,
-              offset: Offset(0, 10.h),
+              blurRadius: isTablet ? 24 : 28.r,
+              offset: Offset(0, isTablet ? 8 : 10.h),
             ),
             BoxShadow(
               color: AppColors.accent.withValues(alpha: 0.08),
-              blurRadius: 12.r,
-              offset: Offset(0, 4.h),
+              blurRadius: isTablet ? 10 : 12.r,
+              offset: Offset(0, isTablet ? 4 : 4.h),
             ),
           ],
         ),
         alignment: Alignment.center,
         child: SizedBox.square(
-          dimension: size.r,
+          dimension: effectiveSize,
           child: CircularProgressIndicator(
-            strokeWidth: strokeWidth.w,
+            strokeWidth: effectiveStroke,
             color: color,
           ),
         ),

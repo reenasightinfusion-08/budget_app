@@ -57,4 +57,20 @@ class AppIcons {
   static const IconData history = Icons.access_time_rounded;
   static const IconData language = Icons.language_rounded;
   static const IconData database = Icons.storage_rounded;
+
+  // General & Feedback
+  static const IconData error = Icons.error_outline_rounded;
+  static const IconData check = Icons.check_rounded;
+  static const IconData checkCircle = Icons.check_circle_rounded;
+  static const IconData arrowDown = Icons.keyboard_arrow_down_rounded;
+  static const IconData arrowUp = Icons.arrow_upward_rounded;
+  static const IconData arrowDropDown = Icons.arrow_drop_down_rounded;
+  static const IconData camera = Icons.camera_alt_outlined;
+  static const IconData article = Icons.article_outlined;
+  static const IconData pdf = Icons.picture_as_pdf_rounded;
+  static const IconData stop = Icons.stop_rounded;
+  static const IconData clock = Icons.lock_clock;
+  static const IconData phone = Icons.phone_iphone_rounded;
+  static const IconData plane = Icons.flight_rounded;
+  static const IconData star = Icons.star_rounded;
 }

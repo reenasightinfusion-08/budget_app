@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/network/api_exception.dart';
+import 'package:budget_frontend/core/widgets/app_date_picker_dialog.dart';
 import 'package:budget_frontend/core/widgets/app_progress_bar.dart';
 import 'package:budget_frontend/core/widgets/dashed_border_painter.dart';
+import 'package:budget_frontend/features/categories/models/category_registry.dart';
 
 class SmartAddPickerCard extends StatelessWidget {
   const SmartAddPickerCard({
@@ -17,7 +20,7 @@ class SmartAddPickerCard extends StatelessWidget {
     required this.subtitle,
     required this.actionButtons,
     required this.onAddByHand,
-    this.iconBgColor = const Color(0xFF3B6EA5),
+    this.iconBgColor = AppColors.accent,
   });
 
   final Widget icon;
@@ -44,7 +47,7 @@ class SmartAddPickerCard extends StatelessWidget {
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 26.h),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(24.r),
+              borderRadius: AppBorderRadius.dialog,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -65,7 +68,7 @@ class SmartAddPickerCard extends StatelessWidget {
                 // Title
                 Text(
                   title,
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: 'DMSans', 
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
                     color: AppColors.ink,
@@ -77,7 +80,7 @@ class SmartAddPickerCard extends StatelessWidget {
                 // Subtitle
                 Text(
                   subtitle,
-                  style: GoogleFonts.dmSans(
+                  style: TextStyle(fontFamily: 'DMSans', 
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w400,
                     color: AppColors.muted,
@@ -106,16 +109,16 @@ class SmartAddPickerCard extends StatelessWidget {
             padding: EdgeInsets.symmetric(vertical: 14.h),
             decoration: BoxDecoration(
               color: AppColors.surface,
-              borderRadius: BorderRadius.circular(24.r),
+              borderRadius: AppBorderRadius.dialog,
               border: Border.all(
-                color: const Color(0xFFE2E8F0),
+                color: AppColors.line,
                 width: 1.2,
               ),
             ),
             child: Center(
               child: Text(
                 'Add by hand instead',
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: 'DMSans', 
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
                   color: AppColors.ink,
@@ -162,8 +165,8 @@ class SmartAddProcessingView extends StatelessWidget {
           width: 130.w,
           height: 135.h,
           decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
-            borderRadius: BorderRadius.circular(22.r),
+            color: AppColors.fill,
+            borderRadius: AppBorderRadius.tile,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.04),
@@ -183,17 +186,17 @@ class SmartAddProcessingView extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
             decoration: BoxDecoration(
               color: AppColors.error.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(16.r),
+              borderRadius: AppBorderRadius.dialogInput,
               border: Border.all(color: AppColors.error.withValues(alpha: 0.25)),
             ),
             child: Row(
               children: [
-                Icon(Icons.error_outline_rounded, color: AppColors.error, size: 22.sp),
+                Icon(AppIcons.error, color: AppColors.error, size: 22.sp),
                 10.horizontalSpace,
                 Expanded(
                   child: Text(
                     errorMessage!,
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: 'DMSans', 
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w500,
                       color: AppColors.error,
@@ -212,14 +215,14 @@ class SmartAddProcessingView extends StatelessWidget {
                   onPressed: onChange,
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 12.h),
-                    backgroundColor: const Color(0xFFF1F5F9),
+                    backgroundColor: AppColors.fill,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14.r),
+                      borderRadius: AppBorderRadius.chip,
                     ),
                   ),
                   child: Text(
                     changeButtonLabel,
-                    style: GoogleFonts.dmSans(
+                    style: TextStyle(fontFamily: 'DMSans', 
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w600,
                       color: AppColors.ink,
@@ -233,15 +236,15 @@ class SmartAddProcessingView extends StatelessWidget {
                   child: TextButton(
                     onPressed: onAddByHand,
                     style: TextButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 12.h),
-                      backgroundColor: const Color(0xFF3B6EA5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14.r),
-                      ),
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    backgroundColor: AppColors.accent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: AppBorderRadius.chip,
                     ),
+                  ),
                     child: Text(
                       'Add by hand',
-                      style: GoogleFonts.dmSans(
+                      style: TextStyle(fontFamily: 'DMSans', 
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
@@ -259,7 +262,7 @@ class SmartAddProcessingView extends StatelessWidget {
             child: AppProgressBar(
               ratio: progressRatio,
               height: 6,
-              color: const Color(0xFF3B6EA5),
+              color: AppColors.accent,
             ),
           ),
           14.verticalSpace,
@@ -267,7 +270,7 @@ class SmartAddProcessingView extends StatelessWidget {
           // Progress Text
           Text(
             progressText,
-            style: GoogleFonts.dmSans(
+            style: TextStyle(fontFamily: 'DMSans', 
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
               color: AppColors.muted,
@@ -281,7 +284,7 @@ class SmartAddProcessingView extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: Text(
               noteText,
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: 'DMSans', 
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w400,
                 height: 1.4,
@@ -297,14 +300,668 @@ class SmartAddProcessingView extends StatelessWidget {
             onPressed: onChange,
             child: Text(
               changeButtonLabel,
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: 'DMSans', 
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w600,
-                color: const Color(0xFF3B6EA5),
+                color: AppColors.accent,
               ),
             ),
           ),
         ],
+      ],
+    );
+  }
+}
+
+/// Model for an entry in multi-item smart add review
+class SmartAddReviewItem {
+  final String id;
+  String title;
+  final TextEditingController amountController;
+  String category;
+  DateTime date;
+  String transactionType; // 'Spend' or 'Income'
+  bool isSelected;
+
+  SmartAddReviewItem({
+    this.id = '',
+    required this.title,
+    required this.amountController,
+    required this.category,
+    required this.date,
+    this.transactionType = 'Spend',
+    this.isSelected = true,
+  });
+}
+
+/// Multi-item Review / Confirmation UI: displays multiple cards when multiple
+/// entries/categories are detected (e.g. "lunch 250 and Uber 120").
+class SmartAddMultiReviewView extends StatefulWidget {
+  const SmartAddMultiReviewView({
+    super.key,
+    required this.items,
+    required this.rawReadText,
+    required this.onSave,
+    required this.onBack,
+    this.isSaving = false,
+    this.categories = const [
+      'Food',
+      'Travel',
+      'Shopping',
+      'Bills',
+      'Health',
+      'Income',
+      'Other',
+    ],
+  });
+
+  final List<SmartAddReviewItem> items;
+  final String rawReadText;
+  final VoidCallback onSave;
+  final VoidCallback onBack;
+  final bool isSaving;
+  final List<String> categories;
+
+  @override
+  State<SmartAddMultiReviewView> createState() => _SmartAddMultiReviewViewState();
+}
+
+class _SmartAddMultiReviewViewState extends State<SmartAddMultiReviewView> {
+  bool _isTextExpanded = false;
+
+  String _formatDate(DateTime date) => AppFormatters.dateSlash(date);
+
+  Future<void> _showCategoryPicker(
+      BuildContext context, SmartAddReviewItem item) async {
+    final isSpend = item.transactionType == 'Spend';
+    final type = isSpend ? 'expense' : 'income';
+
+    final allCategories = {
+      ...widget.categories,
+      item.category,
+    }.toList();
+
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.60,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.ink.withValues(alpha: 0.12),
+                blurRadius: 24.r,
+                offset: Offset(0, -6.h),
+              ),
+            ],
+          ),
+          padding: EdgeInsets.fromLTRB(
+            20.w,
+            12.h,
+            20.w,
+            16.h + MediaQuery.paddingOf(sheetContext).bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 38.w,
+                  height: 4.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.line,
+                    borderRadius: AppBorderRadius.pill,
+                  ),
+                ),
+              ),
+              14.verticalSpace,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Select category',
+                    style: TextStyle(
+                      fontFamily: 'DMSans',
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.ink,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.of(sheetContext).pop(),
+                    behavior: HitTestBehavior.opaque,
+                    child: CircleAvatar(
+                      radius: 16.r,
+                      backgroundColor: AppColors.fill,
+                      child: Icon(
+                        AppIcons.close,
+                        size: 16.sp,
+                        color: AppColors.ink,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              14.verticalSpace,
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: allCategories.length,
+                  separatorBuilder: (_, _) => 6.verticalSpace,
+                  itemBuilder: (context, index) {
+                    final cat = allCategories[index];
+                    final isSelected =
+                        cat.toLowerCase() == item.category.toLowerCase();
+                    final icon = CategoryRegistry.getIcon(cat, type);
+                    final color =
+                        CategoryRegistry.getColor(cat, type, !isSpend);
+
+                    return GestureDetector(
+                      onTap: () => Navigator.of(sheetContext).pop(cat),
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 14.w, vertical: 11.h),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.accent.withValues(alpha: 0.10)
+                              : AppColors.fill.withValues(alpha: 0.5),
+                          borderRadius: AppBorderRadius.tile,
+                          border: isSelected
+                              ? Border.all(
+                                  color: AppColors.accent, width: 1.4.w)
+                              : Border.all(color: Colors.transparent),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 36.r,
+                              height: 36.r,
+                              decoration: BoxDecoration(
+                                color: color.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              alignment: Alignment.center,
+                              child: Icon(
+                                icon,
+                                size: 18.sp,
+                                color: color,
+                              ),
+                            ),
+                            12.horizontalSpace,
+                            Expanded(
+                              child: Text(
+                                cat,
+                                style: TextStyle(
+                                  fontFamily: 'DMSans',
+                                  fontSize: 15.sp,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w700
+                                      : FontWeight.w500,
+                                  color: isSelected
+                                      ? AppColors.accent
+                                      : AppColors.ink,
+                                ),
+                              ),
+                            ),
+                            if (isSelected)
+                              Icon(
+                                AppIcons.check,
+                                color: AppColors.accent,
+                                size: 18.sp,
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (selected != null && mounted) {
+      setState(() {
+        item.category = selected;
+      });
+    }
+  }
+
+  Widget _buildItemCard(SmartAddReviewItem item) {
+    final isSpend = item.transactionType == 'Spend';
+
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 150),
+      opacity: item.isSelected ? 1.0 : 0.45,
+      child: Container(
+        padding: EdgeInsets.all(16.r),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: AppBorderRadius.md,
+          border: Border.all(
+            color: item.isSelected
+                ? AppColors.line.withValues(alpha: 0.9)
+                : AppColors.line.withValues(alpha: 0.4),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Row 1: Check icon (toggleable) + Brand name + Editable Amount box
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      item.isSelected = !item.isSelected;
+                    });
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    width: 26.r,
+                    height: 26.r,
+                    decoration: BoxDecoration(
+                      color: item.isSelected ? AppColors.accent : AppColors.fill,
+                      shape: BoxShape.circle,
+                      border: item.isSelected
+                          ? null
+                          : Border.all(color: AppColors.line),
+                    ),
+                    child: Icon(
+                      AppIcons.check,
+                      size: 16.sp,
+                      color: item.isSelected ? Colors.white : AppColors.muted,
+                    ),
+                  ),
+                ),
+                10.horizontalSpace,
+
+                // Title
+                Expanded(
+                  child: Text(
+                    item.title,
+                    style: TextStyle(
+                      fontFamily: 'DMSans',
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.ink,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+
+                // Amount container with ₹ symbol and editable TextField
+                Container(
+                  width: 105.w,
+                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                  decoration: BoxDecoration(
+                    color: AppColors.fill,
+                    borderRadius: AppBorderRadius.chip,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '₹',
+                        style: TextStyle(
+                          fontFamily: 'DMSans',
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.ink,
+                        ),
+                      ),
+                      6.horizontalSpace,
+                      Expanded(
+                        child: TextField(
+                          controller: item.amountController,
+                          keyboardType:
+                              const TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d*\.?\d*')),
+                          ],
+                          style: TextStyle(
+                            fontFamily: 'DMSans',
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.ink,
+                          ),
+                          decoration: const InputDecoration(
+                            isDense: true,
+                            contentPadding: EdgeInsets.zero,
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            14.verticalSpace,
+
+            // Row 2: Category Picker Pill + Date Pill + Spend/Income toggle badge
+            Row(
+              children: [
+                // Category Picker Pill
+                GestureDetector(
+                  onTap: () => _showCategoryPicker(context, item),
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                    decoration: BoxDecoration(
+                      color: AppColors.fill,
+                      borderRadius: AppBorderRadius.chip,
+                      border: Border.all(
+                        color: AppColors.line.withValues(alpha: 0.6),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          CategoryRegistry.getIcon(
+                            item.category,
+                            isSpend ? 'expense' : 'income',
+                          ),
+                          size: 16.sp,
+                          color: CategoryRegistry.getColor(
+                            item.category,
+                            isSpend ? 'expense' : 'income',
+                            !isSpend,
+                          ),
+                        ),
+                        6.horizontalSpace,
+                        Text(
+                          item.category,
+                          style: TextStyle(
+                            fontFamily: 'DMSans',
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.ink,
+                          ),
+                        ),
+                        4.horizontalSpace,
+                        Icon(
+                          AppIcons.arrowDown,
+                          size: 15.sp,
+                          color: AppColors.muted,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                8.horizontalSpace,
+
+                // Date Pill
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () async {
+                      final now = DateTime.now();
+                      final picked = await AppDatePickerDialog.show(
+                        context: context,
+                        initialDate: item.date,
+                        firstDate: DateTime(now.year - 5, 1, 1),
+                        lastDate: DateTime(now.year + 1, 12, 31),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          item.date = picked;
+                        });
+                      }
+                    },
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                      decoration: BoxDecoration(
+                        color: AppColors.fill,
+                        borderRadius: AppBorderRadius.chip,
+                        border: Border.all(
+                          color: AppColors.line.withValues(alpha: 0.6),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _formatDate(item.date),
+                            style: TextStyle(
+                              fontFamily: 'DMSans',
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.ink,
+                            ),
+                          ),
+                          6.horizontalSpace,
+                          Icon(
+                            AppIcons.calendar,
+                            size: 14.sp,
+                            color: AppColors.muted,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                8.horizontalSpace,
+
+                // Type badge: "Spend" / "Income" toggle loop
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      item.transactionType =
+                          item.transactionType == 'Spend' ? 'Income' : 'Spend';
+                    });
+                  },
+                  behavior: HitTestBehavior.opaque,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+                    decoration: BoxDecoration(
+                      color: isSpend ? AppColors.popSoft : AppColors.successSoft,
+                      borderRadius: AppBorderRadius.chip,
+                    ),
+                    child: Text(
+                      item.transactionType,
+                      style: TextStyle(
+                        fontFamily: 'DMSans',
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w700,
+                        color: isSpend ? AppColors.accent : AppColors.success,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedCount = widget.items.where((i) => i.isSelected).length;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Subtitle
+        Text(
+          'Budgie read this. Check it, then save.',
+          style: TextStyle(
+            fontFamily: 'DMSans',
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w400,
+            color: AppColors.muted,
+          ),
+        ),
+        16.verticalSpace,
+
+        // List of recognized entry cards
+        ...widget.items.map((item) => Padding(
+              padding: EdgeInsets.only(bottom: 12.h),
+              child: _buildItemCard(item),
+            )),
+
+        4.verticalSpace,
+
+        // Expandable: "▶ Text Budgie read"
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              _isTextExpanded = !_isTextExpanded;
+            });
+          },
+          behavior: HitTestBehavior.opaque,
+          child: Row(
+            children: [
+              Icon(
+                _isTextExpanded
+                    ? AppIcons.arrowDropDown
+                    : AppIcons.chevronRight,
+                size: 22.sp,
+                color: AppColors.muted,
+              ),
+              4.horizontalSpace,
+              Text(
+                'Text Budgie read',
+                style: TextStyle(
+                  fontFamily: 'DMSans',
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.muted,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        if (_isTextExpanded) ...[
+          8.verticalSpace,
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(12.r),
+            decoration: BoxDecoration(
+              color: AppColors.fill,
+              borderRadius: AppBorderRadius.xs,
+            ),
+            child: Text(
+              widget.rawReadText,
+              style: TextStyle(
+                fontFamily: 'DMSans',
+                fontSize: 12.sp,
+                height: 1.4,
+                color: AppColors.muted,
+              ),
+            ),
+          ),
+        ],
+        24.verticalSpace,
+
+        // Primary Button: "Add X entries •" -> closes bottom sheet
+        GestureDetector(
+          onTap: (widget.isSaving || selectedCount == 0) ? null : widget.onSave,
+          behavior: HitTestBehavior.opaque,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            height: 52.h,
+            decoration: BoxDecoration(
+              color: (widget.isSaving || selectedCount == 0)
+                  ? AppColors.accent.withValues(alpha: 0.5)
+                  : AppColors.accent,
+              borderRadius: AppBorderRadius.button,
+            ),
+            child: widget.isSaving
+                ? Center(
+                    child: SizedBox(
+                      width: 22.r,
+                      height: 22.r,
+                      child: const CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    ),
+                  )
+                : Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        selectedCount == 1
+                            ? 'Add 1 entry'
+                            : 'Add $selectedCount entries',
+                        style: TextStyle(
+                          fontFamily: 'DMSans',
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
+                      8.horizontalSpace,
+                      Container(
+                        width: 6.r,
+                        height: 6.r,
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
+                  ),
+          ),
+        ),
+        12.verticalSpace,
+
+        // Secondary Button: "Back" -> returns to previous state
+        GestureDetector(
+          onTap: widget.isSaving ? null : widget.onBack,
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            height: 52.h,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: AppBorderRadius.button,
+              border: Border.all(
+                color: AppColors.line,
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              'Back',
+              style: TextStyle(
+                fontFamily: 'DMSans',
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: widget.isSaving ? AppColors.muted : AppColors.ink,
+              ),
+            ),
+          ),
+        ),
+        8.verticalSpace,
       ],
     );
   }
@@ -358,8 +1015,175 @@ class SmartAddReviewView extends StatefulWidget {
 class _SmartAddReviewViewState extends State<SmartAddReviewView> {
   bool _isTextExpanded = false;
 
-  String _formatDate(DateTime date) {
-    return '${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}/${date.year}';
+  String _formatDate(DateTime date) => AppFormatters.dateSlash(date);
+
+  Future<void> _showCategoryPicker(BuildContext context) async {
+    final isSpend = widget.transactionType == 'Spend';
+    final type = isSpend ? 'expense' : 'income';
+
+    final allCategories = {
+      ...widget.categories,
+      widget.category,
+    }.toList();
+
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        return Container(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.60,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.ink.withValues(alpha: 0.12),
+                blurRadius: 24.r,
+                offset: Offset(0, -6.h),
+              ),
+            ],
+          ),
+          padding: EdgeInsets.fromLTRB(
+            20.w,
+            12.h,
+            20.w,
+            16.h + MediaQuery.paddingOf(sheetContext).bottom,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Top drag handle
+              Center(
+                child: Container(
+                  width: 38.w,
+                  height: 4.h,
+                  decoration: BoxDecoration(
+                    color: AppColors.line,
+                    borderRadius: AppBorderRadius.pill,
+                  ),
+                ),
+              ),
+              14.verticalSpace,
+
+              // Header Row: Title & Close Button
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Select category',
+                    style: TextStyle(
+                      fontFamily: 'DMSans',
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.ink,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => Navigator.of(sheetContext).pop(),
+                    behavior: HitTestBehavior.opaque,
+                    child: CircleAvatar(
+                      radius: 16.r,
+                      backgroundColor: AppColors.fill,
+                      child: Icon(
+                        AppIcons.close,
+                        size: 16.sp,
+                        color: AppColors.ink,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              14.verticalSpace,
+
+              // Category items list
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: allCategories.length,
+                  separatorBuilder: (_, _) => 6.verticalSpace,
+                  itemBuilder: (context, index) {
+                    final cat = allCategories[index];
+                    final isSelected =
+                        cat.toLowerCase() == widget.category.toLowerCase();
+                    final icon = CategoryRegistry.getIcon(cat, type);
+                    final color =
+                        CategoryRegistry.getColor(cat, type, !isSpend);
+
+                    return GestureDetector(
+                      onTap: () => Navigator.of(sheetContext).pop(cat),
+                      behavior: HitTestBehavior.opaque,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 14.w, vertical: 11.h),
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? AppColors.accent.withValues(alpha: 0.10)
+                              : AppColors.fill.withValues(alpha: 0.5),
+                          borderRadius: AppBorderRadius.tile,
+                          border: isSelected
+                              ? Border.all(
+                                  color: AppColors.accent, width: 1.4.w)
+                              : Border.all(color: Colors.transparent),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 36.r,
+                              height: 36.r,
+                              decoration: BoxDecoration(
+                                color: color.withValues(alpha: 0.15),
+                                shape: BoxShape.circle,
+                              ),
+                              alignment: Alignment.center,
+                              child: Icon(
+                                icon,
+                                size: 18.sp,
+                                color: color,
+                              ),
+                            ),
+                            12.horizontalSpace,
+                            Expanded(
+                              child: Text(
+                                cat,
+                                style: TextStyle(
+                                  fontFamily: 'DMSans',
+                                  fontSize: 15.sp,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w700
+                                      : FontWeight.w500,
+                                  color: isSelected
+                                      ? AppColors.accent
+                                      : AppColors.ink,
+                                ),
+                              ),
+                            ),
+                            if (isSelected)
+                              Icon(
+                                AppIcons.check,
+                                color: AppColors.accent,
+                                size: 18.sp,
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (selected != null && mounted) {
+      widget.onCategoryChanged(selected);
+    }
   }
 
   @override
@@ -373,7 +1197,7 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
         // Subtitle: "Budgie read this. Check it, then save."
         Text(
           'Budgie read this. Check it, then save.',
-          style: GoogleFonts.dmSans(
+          style: TextStyle(fontFamily: 'DMSans', 
             fontSize: 14.sp,
             fontWeight: FontWeight.w400,
             color: AppColors.muted,
@@ -386,7 +1210,7 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
           padding: EdgeInsets.all(16.r),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(20.r),
+            borderRadius: AppBorderRadius.md,
             border: Border.all(
               color: AppColors.line.withValues(alpha: 0.9),
             ),
@@ -408,11 +1232,11 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                     width: 26.r,
                     height: 26.r,
                     decoration: const BoxDecoration(
-                      color: Color(0xFF3B6EA5),
+                      color: AppColors.accent,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Icons.check,
+                      AppIcons.check,
                       size: 16.sp,
                       color: Colors.white,
                     ),
@@ -423,7 +1247,7 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                   Expanded(
                     child: Text(
                       widget.brandName,
-                      style: GoogleFonts.dmSans(
+                      style: TextStyle(fontFamily: 'DMSans', 
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
                         color: AppColors.ink,
@@ -438,15 +1262,15 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                     width: 105.w,
                     padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(14.r),
+                      color: AppColors.fill,
+                      borderRadius: AppBorderRadius.chip,
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           '₹',
-                          style: GoogleFonts.dmSans(
+                          style: TextStyle(fontFamily: 'DMSans', 
                             fontSize: 15.sp,
                             fontWeight: FontWeight.w600,
                             color: AppColors.ink,
@@ -460,7 +1284,7 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
                             ],
-                            style: GoogleFonts.dmSans(
+                            style: TextStyle(fontFamily: 'DMSans', 
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w700,
                               color: AppColors.ink,
@@ -479,42 +1303,54 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
               ),
               14.verticalSpace,
 
-              // Row 2: Category dropdown + Date pill + Spend/Income toggle badge
+              // Row 2: Category Picker Pill + Date Pill + Spend/Income toggle badge
               Row(
                 children: [
-                  // Category Dropdown
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF1F5F9),
-                      borderRadius: BorderRadius.circular(14.r),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: widget.category,
-                        isDense: true,
-                        icon: Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          size: 18.sp,
-                          color: AppColors.ink,
+                  // Category Picker Pill
+                  GestureDetector(
+                    onTap: () => _showCategoryPicker(context),
+                    behavior: HitTestBehavior.opaque,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                      decoration: BoxDecoration(
+                        color: AppColors.fill,
+                        borderRadius: AppBorderRadius.chip,
+                        border: Border.all(
+                          color: AppColors.line.withValues(alpha: 0.6),
                         ),
-                        style: GoogleFonts.dmSans(
-                          fontSize: 13.sp,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.ink,
-                        ),
-                        items: {
-                          ...widget.categories,
-                          widget.category,
-                        }
-                            .map((cat) => DropdownMenuItem(
-                                  value: cat,
-                                  child: Text(cat),
-                                ))
-                            .toList(),
-                        onChanged: (val) {
-                          if (val != null) widget.onCategoryChanged(val);
-                        },
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            CategoryRegistry.getIcon(
+                              widget.category,
+                              isSpend ? 'expense' : 'income',
+                            ),
+                            size: 16.sp,
+                            color: CategoryRegistry.getColor(
+                              widget.category,
+                              isSpend ? 'expense' : 'income',
+                              !isSpend,
+                            ),
+                          ),
+                          6.horizontalSpace,
+                          Text(
+                            widget.category,
+                            style: TextStyle(
+                              fontFamily: 'DMSans',
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.ink,
+                            ),
+                          ),
+                          4.horizontalSpace,
+                          Icon(
+                            AppIcons.arrowDown,
+                            size: 15.sp,
+                            color: AppColors.muted,
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -524,28 +1360,34 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                   Expanded(
                     child: GestureDetector(
                       onTap: () async {
-                        final picked = await showDatePicker(
+                        final now = DateTime.now();
+                        final picked = await AppDatePickerDialog.show(
                           context: context,
                           initialDate: widget.entryDate,
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime.now(),
+                          firstDate: DateTime(now.year - 5, 1, 1),
+                          lastDate: DateTime(now.year + 1, 12, 31),
                         );
                         if (picked != null) {
                           widget.onDateChanged(picked);
                         }
                       },
+                      behavior: HitTestBehavior.opaque,
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 10.h),
+                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(14.r),
+                          color: AppColors.fill,
+                          borderRadius: AppBorderRadius.chip,
+                          border: Border.all(
+                            color: AppColors.line.withValues(alpha: 0.6),
+                          ),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
                               _formatDate(widget.entryDate),
-                              style: GoogleFonts.dmSans(
+                              style: TextStyle(
+                                fontFamily: 'DMSans',
                                 fontSize: 13.sp,
                                 fontWeight: FontWeight.w600,
                                 color: AppColors.ink,
@@ -553,9 +1395,9 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                             ),
                             6.horizontalSpace,
                             Icon(
-                              Icons.calendar_today_outlined,
+                              AppIcons.calendar,
                               size: 14.sp,
-                              color: AppColors.ink,
+                              color: AppColors.muted,
                             ),
                           ],
                         ),
@@ -572,15 +1414,15 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                       duration: const Duration(milliseconds: 200),
                       padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
                       decoration: BoxDecoration(
-                        color: isSpend ? const Color(0xFFE8F0FA) : AppColors.successSoft,
-                        borderRadius: BorderRadius.circular(14.r),
+                        color: isSpend ? AppColors.popSoft : AppColors.successSoft,
+                        borderRadius: AppBorderRadius.chip,
                       ),
                       child: Text(
                         widget.transactionType,
-                        style: GoogleFonts.dmSans(
+                        style: TextStyle(fontFamily: 'DMSans', 
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w700,
-                          color: isSpend ? const Color(0xFF3B6EA5) : AppColors.success,
+                          color: isSpend ? AppColors.accent : AppColors.success,
                         ),
                       ),
                     ),
@@ -603,14 +1445,14 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
           child: Row(
             children: [
               Icon(
-                _isTextExpanded ? Icons.arrow_drop_down : Icons.arrow_right,
+                _isTextExpanded ? AppIcons.arrowDropDown : AppIcons.chevronRight,
                 size: 22.sp,
                 color: AppColors.muted,
               ),
               4.horizontalSpace,
               Text(
                 'Text Budgie read',
-                style: GoogleFonts.dmSans(
+                style: TextStyle(fontFamily: 'DMSans', 
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
                   color: AppColors.muted,
@@ -626,12 +1468,12 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
             width: double.infinity,
             padding: EdgeInsets.all(12.r),
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(12.r),
+              color: AppColors.fill,
+              borderRadius: AppBorderRadius.xs,
             ),
             child: Text(
               widget.rawReadText,
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: 'DMSans', 
                 fontSize: 12.sp,
                 height: 1.4,
                 color: AppColors.muted,
@@ -650,9 +1492,9 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
             height: 52.h,
             decoration: BoxDecoration(
               color: widget.isSaving
-                  ? const Color(0xFF3B6EA5).withValues(alpha: 0.7)
-                  : const Color(0xFF3B6EA5),
-              borderRadius: BorderRadius.circular(28.r),
+                  ? AppColors.accent.withValues(alpha: 0.7)
+                  : AppColors.accent,
+              borderRadius: AppBorderRadius.button,
             ),
             child: widget.isSaving
                 ? Center(
@@ -670,7 +1512,7 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                     children: [
                       Text(
                         'Add 1 entry',
-                        style: GoogleFonts.dmSans(
+                        style: TextStyle(fontFamily: 'DMSans', 
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
@@ -699,7 +1541,7 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
             height: 52.h,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(28.r),
+              borderRadius: AppBorderRadius.button,
               border: Border.all(
                 color: AppColors.line,
               ),
@@ -707,7 +1549,7 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
             alignment: Alignment.center,
             child: Text(
               'Back',
-              style: GoogleFonts.dmSans(
+              style: TextStyle(fontFamily: 'DMSans', 
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
                 color: widget.isSaving ? AppColors.muted : AppColors.ink,

@@ -13,11 +13,14 @@ class AppBorderRadius {
   // Additional design radii used across the app
   static BorderRadius get indicator => BorderRadius.circular(1.r);
   static BorderRadius get bar => BorderRadius.circular(4.r);
+  static BorderRadius get dayCell => BorderRadius.circular(8.r);
   static BorderRadius get track => BorderRadius.circular(10.r);
   static BorderRadius get xs => BorderRadius.circular(12.r);
   static BorderRadius get chip => BorderRadius.circular(14.r);
   static BorderRadius get dialogInput => BorderRadius.circular(16.r);
   static BorderRadius get dialog => BorderRadius.circular(24.r);
+  static BorderRadius get xl => BorderRadius.circular(28.r);
+  static BorderRadius get button => BorderRadius.circular(28.r);
   static BorderRadius get navItem => BorderRadius.circular(32.r);
   static BorderRadius get navBar => BorderRadius.circular(36.r);
 }

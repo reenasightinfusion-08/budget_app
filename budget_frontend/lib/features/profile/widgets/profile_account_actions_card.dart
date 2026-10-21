@@ -61,7 +61,7 @@ class ProfileAccountActionsCard extends StatelessWidget {
             title: 'Log out',
             subtitle: authState.user?.email ?? 'Signed in',
             iconColor: AppColors.error,
-            iconBackgroundColor: const Color(0xFFFDE8E8),
+            iconBackgroundColor: AppColors.errorSoft,
             onTap: () => _confirmLogout(context),
           ),
           const Divider(
@@ -75,7 +75,7 @@ class ProfileAccountActionsCard extends StatelessWidget {
             title: 'Delete account',
             subtitle: 'Permanently remove your account and data',
             iconColor: AppColors.error,
-            iconBackgroundColor: const Color(0xFFFDE8E8),
+            iconBackgroundColor: AppColors.errorSoft,
             onTap: () => _confirmDeleteAccount(context),
           ),
         ],

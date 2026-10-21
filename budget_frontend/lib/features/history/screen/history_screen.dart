@@ -28,6 +28,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   List<HistoryTransactionModel> _transactions = [];
   bool _isLoading = true;
+  bool _suppressNextWalletReload = false;
   String? _errorMessage;
   String _searchQuery = '';
   late int _selectedFilterIndex;
@@ -48,8 +49,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
     super.dispose();
   }
 
-  Future<void> _loadTransactions() async {
-    setState(() => _isLoading = true);
+  Future<void> _loadTransactions({bool showLoader = true}) async {
+    if (showLoader && _transactions.isEmpty) {
+      setState(() => _isLoading = true);
+    }
     try {
       String? type;
       if (_selectedFilterIndex == 1) type = 'expense';
@@ -70,13 +73,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _errorMessage = e.message;
+        if (_transactions.isEmpty) {
+          _errorMessage = e.message;
+        }
       });
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
-        _errorMessage = 'Failed to load transactions';
+        if (_transactions.isEmpty) {
+          _errorMessage = 'Failed to load transactions';
+        }
       });
     }
   }
@@ -85,13 +92,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
     _searchQuery = query;
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 350), () {
-      _loadTransactions();
+      _loadTransactions(showLoader: false);
     });
   }
 
   void _onFilterChanged(int index) {
     setState(() => _selectedFilterIndex = index);
-    _loadTransactions();
+    _loadTransactions(showLoader: false);
   }
 
   void _onDelete(HistoryTransactionModel tx) async {
@@ -101,6 +108,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     });
 
     try {
+      _suppressNextWalletReload = true;
       await context.read<TransactionService>().deleteTransaction(tx.id);
       if (!mounted) return;
       context.read<WalletBloc>().add(const RefreshWalletSummary());
@@ -109,6 +117,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         message: 'Transaction deleted',
       );
     } catch (e) {
+      _suppressNextWalletReload = false;
       if (!mounted) return;
       setState(() {
         _transactions = previousList;
@@ -125,7 +134,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
   Widget build(BuildContext context) {
     return BlocListener<WalletBloc, WalletState>(
       listener: (context, state) {
-        _loadTransactions();
+        if (_suppressNextWalletReload) {
+          _suppressNextWalletReload = false;
+          return;
+        }
+        _loadTransactions(showLoader: false);
       },
       child: Scaffold(
         body: SafeArea(

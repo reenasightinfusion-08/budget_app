@@ -22,4 +22,8 @@ class AppLayout {
 
   /// Bottom padding for tab content so it scrolls clear of the nav bar.
   static double navBarClearanceOf(BuildContext context) => navBarClearance.h;
+
+  /// Whether the current device is a tablet (shortest side >= 600dp).
+  static bool isTablet(BuildContext context) =>
+      MediaQuery.sizeOf(context).shortestSide >= 600;
 }

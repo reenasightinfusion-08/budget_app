@@ -39,8 +39,10 @@ class ProfileMenuCard extends StatelessWidget {
     final setupState = context.watch<SetupBloc>().state;
     final authState = context.watch<AuthBloc>().state;
 
-    final String userName =
-        setupState.profile?.name ?? authState.user?.displayName ?? 'User';
+    final String userName = UserModel.resolveName(
+      profileName: setupState.profile?.name,
+      user: authState.user,
+    );
 
     final int budgetAmount = walletState.monthlyBudget > 0
         ? walletState.monthlyBudget

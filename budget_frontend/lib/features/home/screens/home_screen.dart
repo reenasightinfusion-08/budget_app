@@ -67,11 +67,10 @@ class _HomeScreenState extends State<HomeScreen> {
           final setupProfile = context.read<SetupBloc>().state.profile;
           final username = (rawName != null && rawName.isNotEmpty)
               ? rawName
-              : (setupProfile?.name.isNotEmpty == true
-                  ? setupProfile!.name
-                  : (authUser?.displayName.isNotEmpty == true
-                      ? authUser!.displayName
-                      : 'User'));
+              : UserModel.resolveName(
+                  profileName: setupProfile?.name,
+                  user: authUser,
+                );
 
           final message = isLogin ? 'Welcome back! $username' : 'Welcome! $username';
 
@@ -80,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
               AppToast.show(
                 context,
                 message: message,
-                bottom: 95.h,
+                bottom: AppLayout.isTablet(context) ? 95 : 95.h,
               );
             }
           });
@@ -97,6 +96,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
+
     return BlocListener<AuthBloc, AuthState>(
       listenWhen: (previous, current) =>
           current.status == AuthStatus.unauthenticated ||
@@ -138,41 +139,84 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              Positioned(
-                right: 20.w,
-                bottom: AppLayout.fabBottom(context),
-                child: Container(
-                  width: 56.r,
-                  height: 56.r,
-                  decoration: BoxDecoration(
-                    borderRadius: AppBorderRadius.tile,
-                    gradient: AppGradients.card,
-                  ),
-                  child: FloatingActionButton(
-                    elevation: 0,
-                    highlightElevation: 0,
-                    focusElevation: 0,
-                    hoverElevation: 0,
-                    backgroundColor: Colors.transparent,
-                    shape: const CircleBorder(),
-                    onPressed: () => SpendIncomeBottomSheet.show(context),
-                    child: Icon(AppIcons.add, color: AppColors.fill, size: 30.sp),
+              if (isTablet) ...[
+                Positioned(
+                  right: 28,
+                  bottom: 102,
+                  child: Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      borderRadius: AppBorderRadius.tile,
+                      gradient: AppGradients.card,
+                    ),
+                    child: FloatingActionButton(
+                      elevation: 0,
+                      highlightElevation: 0,
+                      focusElevation: 0,
+                      hoverElevation: 0,
+                      backgroundColor: Colors.transparent,
+                      shape: const CircleBorder(),
+                      onPressed: () => SpendIncomeBottomSheet.show(context),
+                      child: const Icon(AppIcons.add, color: AppColors.fill, size: 30),
+                    ),
                   ),
                 ),
-              ),
-              Positioned(
-                left: 40.w,
-                right: 40.w,
-                bottom: AppLayout.navBarBottom(context),
-                child: FloatingBottomNavBar(
-                  selectedIndex: _selectedIndex,
-                  onTabSelected: (index) {
-                    setState(() {
-                      _selectedIndex = index;
-                    });
-                  },
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 24,
+                  child: Center(
+                    child: SizedBox(
+                      width: 480,
+                      child: FloatingBottomNavBar(
+                        selectedIndex: _selectedIndex,
+                        onTabSelected: (index) {
+                          setState(() {
+                            _selectedIndex = index;
+                          });
+                        },
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ] else ...[
+                Positioned(
+                  right: 20.w,
+                  bottom: AppLayout.fabBottom(context),
+                  child: Container(
+                    width: 56.r,
+                    height: 56.r,
+                    decoration: BoxDecoration(
+                      borderRadius: AppBorderRadius.tile,
+                      gradient: AppGradients.card,
+                    ),
+                    child: FloatingActionButton(
+                      elevation: 0,
+                      highlightElevation: 0,
+                      focusElevation: 0,
+                      hoverElevation: 0,
+                      backgroundColor: Colors.transparent,
+                      shape: const CircleBorder(),
+                      onPressed: () => SpendIncomeBottomSheet.show(context),
+                      child: Icon(AppIcons.add, color: AppColors.fill, size: 30.sp),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 40.w,
+                  right: 40.w,
+                  bottom: AppLayout.navBarBottom(context),
+                  child: FloatingBottomNavBar(
+                    selectedIndex: _selectedIndex,
+                    onTabSelected: (index) {
+                      setState(() {
+                        _selectedIndex = index;
+                      });
+                    },
+                  ),
+                ),
+              ],
             ],
           ),
         ),

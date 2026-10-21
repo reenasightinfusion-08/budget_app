@@ -18,22 +18,7 @@ class AvailableToSpendCard extends StatelessWidget {
   String _getCurrentMonthLastDate() {
     final now = DateTime.now();
     final lastDay = DateTime(now.year, now.month + 1, 0).day;
-    const months = [
-      'Jan',
-      'Feb',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec'
-    ];
-    final monthName = months[now.month - 1];
-    return '$monthName $lastDay ';
+    return '${AppFormatters.monthShort(now.month)} $lastDay ';
   }
 
   @override

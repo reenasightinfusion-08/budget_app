@@ -7,19 +7,20 @@ import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_config.dart';
 import 'package:budget_frontend/core/constants/app_gradients.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/network/api_exception.dart';
 import 'package:budget_frontend/core/widgets/app_bottom_sheet.dart';
 import 'package:budget_frontend/core/widgets/app_button.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
+import 'package:budget_frontend/core/widgets/app_date_picker_dialog.dart';
 import 'package:budget_frontend/core/widgets/app_text_field.dart';
 import 'package:budget_frontend/core/widgets/app_toast.dart';
 import 'package:budget_frontend/features/categories/bloc/category_bloc.dart';
 import 'package:budget_frontend/features/history/services/transaction_service.dart';
 import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 import 'package:budget_frontend/features/wallet/models/budget_category_model.dart';
-import 'package:date_picker_plus/date_picker_plus.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SpendIncomeBottomSheet extends StatefulWidget {
@@ -62,13 +63,6 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
   String? _amountError;
   bool _isSaving = false;
 
-  String _formatDateForApi(DateTime d) {
-    final y = d.year.toString().padLeft(4, '0');
-    final m = d.month.toString().padLeft(2, '0');
-    final day = d.day.toString().padLeft(2, '0');
-    return '$y-$m-$day';
-  }
-
   Future<void> _submitTransaction(int selectedIndex) async {
     if (_isSaving) return;
     final amountText = _amountController.text.trim();
@@ -104,8 +98,8 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
               : 'food');
     }
     final note = _noteController.text.trim();
-    final date = _formatDateForApi(_selectedDate);
-    final today = _formatDateForApi(DateTime.now());
+    final date = AppFormatters.dateForApi(_selectedDate);
+    final today = AppFormatters.dateForApi(DateTime.now());
 
     try {
       final transactionService = context.read<TransactionService>();
@@ -154,13 +148,11 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
   Future<void> _pickDate() async {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
-    final picked = await showDatePickerDialog(
+    final picked = await AppDatePickerDialog.show(
       context: context,
-      minDate: DateTime(now.year - 5, 1, 1),
-      maxDate: today,
-      selectedDate: _selectedDate,
-      displayedDate: _selectedDate,
-      dialogBackground: AppColors.surface,
+      initialDate: _selectedDate,
+      firstDate: DateTime(now.year - 5, 1, 1),
+      lastDate: today,
     );
 
     if (picked != null) {
@@ -209,18 +201,18 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
             // 1. Card container with gradient, rupee 0, and question
-            AppCard(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 20.w),
-              isGradient: true,
-              radius: AppBorderRadius.card,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () => FocusScope.of(context).requestFocus(_amountFocusNode),
-                    child: Row(
+            GestureDetector(
+              onTap: () => FocusScope.of(context).requestFocus(_amountFocusNode),
+              child: AppCard(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 20.w),
+                isGradient: true,
+                radius: AppBorderRadius.card,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -255,17 +247,17 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
                         ),
                       ],
                     ),
-                  ),
-                  6.verticalSpace,
-                  Text(
-                    selectedIndex == 0
-                        ? 'How much did you spend?'
-                        : 'How much come in?',
-                    style: AppTextStyle.subtitle.copyWith(
-                      fontWeight: FontWeight.w500,
+                    6.verticalSpace,
+                    Text(
+                      selectedIndex == 0
+                          ? 'How much did you spend?'
+                          : 'How much come in?',
+                      style: AppTextStyle.subtitle.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             16.verticalSpace,
@@ -297,7 +289,7 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
                 return SingleChildScrollView(
                   key: ValueKey<int>(selectedIndex),
                   scrollDirection: Axis.horizontal,
-                  clipBehavior: Clip.none,
+                  clipBehavior: AppLayout.isTablet(context) ? Clip.hardEdge : Clip.none,
                   child: Row(
                     children: [
                       if (selectedIndex == 0) ...[

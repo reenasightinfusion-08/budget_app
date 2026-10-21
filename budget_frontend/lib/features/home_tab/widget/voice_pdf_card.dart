@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
 
 class VoicePdfCard extends StatelessWidget {
@@ -32,13 +33,15 @@ class VoicePdfCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
+
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: AppCard(
         color: AppColors.surface,
         radius: AppBorderRadius.card,
-        padding: EdgeInsets.all(10.r),
+        padding: isTablet ? const EdgeInsets.all(8) : EdgeInsets.all(10.r),
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -58,8 +61,8 @@ class VoicePdfCard extends StatelessWidget {
                               fit: BoxFit.contain,
                             ),
                           )
-                        : ClipRRect(
-                            borderRadius: AppBorderRadius.md,
+                        : Padding(
+                            padding: EdgeInsets.all(6.r),
                             child: Image.asset(
                               imagePath!,
                               fit: BoxFit.contain,
@@ -68,7 +71,7 @@ class VoicePdfCard extends StatelessWidget {
                     : (icon != null
                         ? Icon(
                             icon,
-                            size: 40.sp,
+                            size: isTablet ? 32 : 40.sp,
                             color: iconColor,
                           )
                         : const SizedBox.shrink()),
@@ -81,6 +84,8 @@ class VoicePdfCard extends StatelessWidget {
           Text(
             title,
             style: AppTextStyle.subCardTitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           4.verticalSpace,
 
@@ -88,6 +93,8 @@ class VoicePdfCard extends StatelessWidget {
           Text(
             subtitle,
             style: AppTextStyle.description,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           8.verticalSpace,
 
@@ -95,27 +102,32 @@ class VoicePdfCard extends StatelessWidget {
           GestureDetector(
             onTap: onTap,
             behavior: HitTestBehavior.opaque,
-            child: AppCard(
-              color: AppColors.popDeep,
-              radius: AppBorderRadius.pill,
-              padding: EdgeInsets.symmetric(
-                horizontal: 14.w,
-                vertical: 6.h,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    buttonText,
-                    style: AppTextStyle.buttonAction,
-                  ),
-                  4.horizontalSpace,
-                  Icon(
-                    AppIcons.chevronRight,
-                    size: 20.sp,
-                    color: AppColors.surface,
-                  ),
-                ],
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: AppCard(
+                color: AppColors.popDeep,
+                radius: AppBorderRadius.pill,
+                padding: isTablet
+                    ? const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
+                    : EdgeInsets.symmetric(
+                        horizontal: 14.w,
+                        vertical: 6.h,
+                      ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      buttonText,
+                      style: AppTextStyle.buttonAction,
+                    ),
+                    isTablet ? const SizedBox(width: 2) : 4.horizontalSpace,
+                    Icon(
+                      AppIcons.chevronRight,
+                      size: isTablet ? 16 : 20.sp,
+                      color: AppColors.surface,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

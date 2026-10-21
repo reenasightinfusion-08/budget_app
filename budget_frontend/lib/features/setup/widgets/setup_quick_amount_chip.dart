@@ -20,33 +20,24 @@ class SetupQuickAmountChip extends StatelessWidget {
   final VoidCallback onPressed;
 
   @override
-  Widget build(BuildContext context) => Material(
-        color: Colors.transparent,
-        child: Ink(
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+          onPressed();
+        },
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          height: 42.h,
+          alignment: Alignment.center,
           decoration: BoxDecoration(
             gradient: isSelected ? AppGradients.accent : null,
             borderRadius: AppBorderRadius.pill,
             border: isSelected ? null : Border.all(color: AppColors.line, width: 1.5.w),
           ),
-          child: InkWell(
-            onTap: () {
-              FocusManager.instance.primaryFocus?.unfocus();
-              onPressed();
-            },
-            borderRadius: AppBorderRadius.pill,
-            child: SizedBox(
-              height: 42.h,
-              child: Center(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    label,
-                    style: AppTextStyle.chip.copyWith(
-                      color: isSelected ? AppColors.onAccent : AppColors.ink,
-                    ),
-                  ),
-                ),
-              ),
+          child: Text(
+            label,
+            style: AppTextStyle.chip.copyWith(
+              color: isSelected ? AppColors.onAccent : AppColors.ink,
             ),
           ),
         ),

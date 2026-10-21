@@ -41,8 +41,7 @@ class ThisWeekCard extends StatelessWidget {
     final summary = walletState.summary;
 
     final now = DateTime.now();
-    final todayStr =
-        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final todayStr = AppFormatters.dateForApi(now);
 
     final weekStartDate = (summary != null && summary.weekStart.isNotEmpty)
         ? (DateTime.tryParse(summary.weekStart) ??
@@ -59,8 +58,7 @@ class ThisWeekCard extends StatelessWidget {
     final generatedItems = List.generate(7, (i) {
       final dayDate = DateTime(
           weekStartDate.year, weekStartDate.month, weekStartDate.day + i);
-      final dateStr =
-          '${dayDate.year}-${dayDate.month.toString().padLeft(2, '0')}-${dayDate.day.toString().padLeft(2, '0')}';
+      final dateStr = AppFormatters.dateForApi(dayDate);
       final spent = dailyMap[dateStr] ?? 0;
       weekTotal += spent;
 
@@ -130,16 +128,16 @@ class ThisWeekCard extends StatelessWidget {
               BoxBorder? barBorder;
 
               if (isCurrent) {
-                barColor = const Color(0xFFB5D1F8);
+                barColor = AppColors.pop;
                 barBorder = Border.all(
-                  color: const Color(0xFF3E6EA6),
+                  color: AppColors.accent,
                   width: 1.5.w,
                 );
               } else if (isFilled && hasSpend) {
-                barColor = const Color(0xFF3E6EA6);
+                barColor = AppColors.accent;
                 barBorder = null;
               } else {
-                barColor = const Color(0xFFE5ECF4);
+                barColor = AppColors.fill;
                 barBorder = null;
               }
 
@@ -160,7 +158,7 @@ class ThisWeekCard extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: barColor,
                               border: barBorder,
-                              borderRadius: BorderRadius.circular(10.r),
+                              borderRadius: AppBorderRadius.track,
                             ),
                           ),
                         ),

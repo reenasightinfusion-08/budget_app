@@ -39,7 +39,22 @@ class UserModel {
   final bool hasExampleData;
   final Map<String, int> categoryLimits;
 
-  String get displayName => name.isNotEmpty ? name : email.split('@').first;
+  String get displayName => name.isNotEmpty ? name : (email.isNotEmpty ? email.split('@').first : 'User');
+
+  /// Resolves the user's display name from profile, auth state, or fallback to 'User'.
+  static String resolveName({
+    String? profileName,
+    UserModel? user,
+    String fallback = 'User',
+  }) {
+    if (profileName != null && profileName.trim().isNotEmpty) {
+      return profileName.trim();
+    }
+    if (user != null && user.displayName.isNotEmpty) {
+      return user.displayName;
+    }
+    return fallback;
+  }
 
   UserModel copyWith({
     String? email,

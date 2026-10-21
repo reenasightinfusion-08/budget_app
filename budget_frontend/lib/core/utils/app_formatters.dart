@@ -26,5 +26,17 @@ class AppFormatters {
 
   static String monthShort(int month) => monthName(month).substring(0, 3);
 
+  /// Formats a [DateTime] for backend API requests (YYYY-MM-DD).
+  static String dateForApi(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
+  /// Formats a [DateTime] month for backend API requests (YYYY-MM).
+  static String monthForApi(DateTime d) =>
+      '${d.year}-${d.month.toString().padLeft(2, '0')}';
+
+  /// Formats a [DateTime] for display (MM/DD/YYYY).
+  static String dateSlash(DateTime date) =>
+      '${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}/${date.year}';
+
   static int parseDigits(String text) => int.tryParse(text.replaceAll(RegExp(r'\D'), '')) ?? 0;
 }

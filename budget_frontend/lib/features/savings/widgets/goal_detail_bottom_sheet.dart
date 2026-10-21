@@ -12,7 +12,6 @@ import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/amount_input_dialog.dart';
 import 'package:budget_frontend/core/widgets/app_bottom_sheet.dart';
 import 'package:budget_frontend/core/widgets/app_button.dart';
-import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/core/widgets/app_toast.dart';
 import 'package:budget_frontend/features/savings/bloc/goal_bloc.dart';
 import 'package:budget_frontend/features/savings/models/goal_model.dart';
@@ -246,68 +245,11 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
         // 4. Quick amount chips (+₹500, +₹1,000, +₹2,000)
         Row(
           children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    enteredAmount += 500;
-                    amountError = null;
-                  });
-                },
-                child: AppCard(
-                  height: 52.h,
-                  radius: AppBorderRadius.tile,
-                  child: Center(
-                    child: Text(
-                      '+₹500',
-                      style: AppTextStyle.chip.copyWith(fontSize: 15.sp),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            _buildQuickChip('+₹500', 500),
             10.horizontalSpace,
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    enteredAmount += 1000;
-                    amountError = null;
-                  });
-                },
-                child: AppCard(
-                  height: 52.h,
-                  radius: AppBorderRadius.tile,
-                  child: Center(
-                    child: Text(
-                      '+₹1,000',
-                      style: AppTextStyle.chip.copyWith(fontSize: 15.sp),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            _buildQuickChip('+₹1,000', 1000),
             10.horizontalSpace,
-            Expanded(
-              child: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    enteredAmount += 2000;
-                    amountError = null;
-                  });
-                },
-                child: AppCard(
-                  height: 52.h,
-                  radius: AppBorderRadius.tile,
-                  child: Center(
-                    child: Text(
-                      '+₹2,000',
-                      style: AppTextStyle.chip.copyWith(fontSize: 15.sp),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            _buildQuickChip('+₹2,000', 2000),
           ],
         ),
         20.verticalSpace,
@@ -390,6 +332,39 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
         ),
         8.verticalSpace,
       ],
+    );
+  }
+
+  Widget _buildQuickChip(String label, int amount) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            enteredAmount += amount;
+            amountError = null;
+          });
+        },
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          height: 52.h,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: AppBorderRadius.tile,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.ink.withValues(alpha: 0.04),
+                blurRadius: 16.r,
+                offset: Offset(0, 4.h),
+              ),
+            ],
+          ),
+          child: Text(
+            label,
+            style: AppTextStyle.chip.copyWith(fontSize: 15.sp),
+          ),
+        ),
+      ),
     );
   }
 }

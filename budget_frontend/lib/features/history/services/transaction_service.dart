@@ -1,11 +1,77 @@
+import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/network/api_client.dart';
+import 'package:budget_frontend/features/categories/models/category_registry.dart';
 import 'package:budget_frontend/features/history/models/history_transaction_model.dart';
 import 'package:budget_frontend/features/history/models/month_summary_model.dart';
+
+class TransactionEntry {
+  final String type; // 'income' or 'expense'
+  final int amountPaise;
+  final String categoryKey;
+  final String note;
+  final String date;
+  final String today;
+
+  const TransactionEntry({
+    required this.type,
+    required this.amountPaise,
+    required this.categoryKey,
+    required this.note,
+    required this.date,
+    required this.today,
+  });
+
+  Map<String, dynamic> toMap() => {
+    'type': type,
+    'amount': amountPaise,
+    'category': categoryKey,
+    'note': note,
+    'date': date,
+  };
+}
 
 class TransactionService {
   TransactionService(this.client);
 
   final ApiClient client;
+
+  /// Normalizes user-input transaction data into a verified [TransactionEntry].
+  static TransactionEntry prepareEntry({
+    required double amount,
+    required String transactionType,
+    required String category,
+    required String note,
+    required DateTime entryDate,
+    String? defaultExpenseKey,
+  }) {
+    final paise = (amount * 100).round();
+    final isIncome = transactionType.trim().toLowerCase() == 'income';
+    final type = isIncome ? 'income' : 'expense';
+    final catModel = CategoryRegistry.find(category, type);
+    final categoryKey =
+        catModel?.key ?? (isIncome ? 'salary' : (defaultExpenseKey ?? 'food'));
+    final now = DateTime.now();
+
+    return TransactionEntry(
+      type: type,
+      amountPaise: paise,
+      categoryKey: categoryKey,
+      note: note,
+      date: AppFormatters.dateForApi(entryDate),
+      today: AppFormatters.dateForApi(now),
+    );
+  }
+
+  /// Creates a single transaction from a prepared [TransactionEntry].
+  Future<void> createTransactionEntry(TransactionEntry entry) =>
+      createTransaction(
+        type: entry.type,
+        amountPaise: entry.amountPaise,
+        category: entry.categoryKey,
+        note: entry.note,
+        date: entry.date,
+        today: entry.today,
+      );
 
   /// Creates a single transaction (manual spend or income).
   ///
@@ -102,10 +168,8 @@ class TransactionService {
     String? today,
   }) async {
     final now = DateTime.now();
-    final effectiveMonth = month ??
-        '${now.year}-${now.month.toString().padLeft(2, '0')}';
-    final effectiveToday = today ??
-        '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final effectiveMonth = month ?? AppFormatters.monthForApi(now);
+    final effectiveToday = today ?? AppFormatters.dateForApi(now);
 
     final data = await client.get(
       '/transactions/summary?month=$effectiveMonth&today=$effectiveToday',

@@ -54,7 +54,7 @@ class ProfileConfirmationDialog extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(8.r),
             decoration: const BoxDecoration(
-              color: Color(0xFFFDE8E8),
+              color: AppColors.errorSoft,
               shape: BoxShape.circle,
             ),
             child: Icon(

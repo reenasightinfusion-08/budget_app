@@ -7,6 +7,7 @@ import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
 
@@ -28,22 +29,7 @@ class HomeHeader extends StatelessWidget {
 
   String _getFormattedDate() {
     final now = DateTime.now();
-    const months = [
-      'Jan',
-      'Feb',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec'
-    ];
-    final monthName = months[now.month - 1];
-    return '$monthName ${now.year}';
+    return '${AppFormatters.monthShort(now.month)} ${now.year}';
   }
 
   @override
@@ -51,9 +37,10 @@ class HomeHeader extends StatelessWidget {
     final setupState = context.watch<SetupBloc>().state;
     final authState = context.watch<AuthBloc>().state;
 
-    final String userName = setupState.profile?.name ??
-        authState.user?.displayName ??
-        'User';
+    final String userName = UserModel.resolveName(
+      profileName: setupState.profile?.name,
+      user: authState.user,
+    );
     final String firstLetter =
         userName.isNotEmpty ? userName[0].toUpperCase() : 'U';
 
@@ -64,13 +51,12 @@ class HomeHeader extends StatelessWidget {
           child: CircleAvatar(
             radius: 23.r,
             backgroundColor: AppColors.pop,
-            foregroundColor: AppColors.ink,
             child: Text(
               firstLetter,
               style: AppTextStyle.profileTitle.copyWith(
                 color: AppColors.onPop,
-                fontSize: 20.sp,
-                fontWeight: FontWeight.w500,
+                fontSize: 21.sp,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ),

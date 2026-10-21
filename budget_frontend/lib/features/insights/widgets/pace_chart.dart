@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_gradients.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/features/insights/widgets/chart_painting.dart';
 
@@ -110,14 +111,8 @@ class PaceChartPainter extends CustomPainter {
       ..close();
 
     final areaPaint = Paint()
-      ..shader = LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          AppColors.pop.withValues(alpha: 0.55),
-          AppColors.pop.withValues(alpha: 0.08),
-        ],
-      ).createShader(Rect.fromLTRB(ChartPainting.leftMargin, topMargin, size.width, size.height));
+      ..shader = AppGradients.paceChartArea
+          .createShader(Rect.fromLTRB(ChartPainting.leftMargin, topMargin, size.width, size.height));
     canvas.drawPath(areaPath, areaPaint);
 
     final linePaint = Paint()

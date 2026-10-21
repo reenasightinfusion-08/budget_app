@@ -44,29 +44,38 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     Emitter<WalletState> emit,
   ) async {
     emit(state.copyWith(isLoading: true, clearError: true));
-    UserModel? user;
-    MonthSummaryModel? summary;
-    List<CategoryModel>? liveCategories;
-
-    try {
-      user = await profileService.getProfile();
-    } catch (e) {
+    final profileFuture = profileService.getProfile().then<UserModel?>((u) => u).catchError((e) {
       debugPrint('LoadWallet profile error: $e');
-    }
+      return null;
+    });
 
-    try {
-      summary = await transactionService.getTransactionSummary();
-    } catch (e) {
+    final summaryFuture =
+        transactionService.getTransactionSummary().then<MonthSummaryModel?>((s) => s).catchError((e) {
       debugPrint('LoadWallet summary error: $e');
-    }
+      return null;
+    });
 
-    if (categoryService != null) {
-      try {
-        liveCategories = await categoryService!.getCategories();
-        _cachedCategories = liveCategories;
-      } catch (e) {
-        debugPrint('LoadWallet categories error: $e');
-      }
+    final existingCategories =
+        _cachedCategories ?? (CategoryRegistry.all.isNotEmpty ? CategoryRegistry.all : null);
+    final categoriesFuture = categoryService != null && existingCategories == null
+        ? categoryService!.getCategories().then<List<CategoryModel>?>((c) => c).catchError((e) {
+            debugPrint('LoadWallet categories error: $e');
+            return null;
+          })
+        : Future<List<CategoryModel>?>.value(existingCategories);
+
+    final results = await Future.wait([
+      profileFuture,
+      summaryFuture,
+      categoriesFuture,
+    ]);
+
+    final user = results[0] as UserModel?;
+    final summary = results[1] as MonthSummaryModel?;
+    final liveCategories = results[2] as List<CategoryModel>?;
+
+    if (liveCategories != null) {
+      _cachedCategories = liveCategories;
     }
 
     if (user != null || summary != null || liveCategories != null) {

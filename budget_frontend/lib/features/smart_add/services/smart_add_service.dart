@@ -1,3 +1,4 @@
+import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'dart:convert';
 
 import 'package:budget_frontend/core/network/api_client.dart';
@@ -10,13 +11,6 @@ class SmartAddService {
 
   final ApiClient client;
 
-  String _formatToday(DateTime now) {
-    final y = now.year.toString().padLeft(4, '0');
-    final m = now.month.toString().padLeft(2, '0');
-    final d = now.day.toString().padLeft(2, '0');
-    return '$y-$m-$d';
-  }
-
   /// Reads typed text or voice transcription via `POST /api/smart-add`.
   ///
   /// [inputType] must be 'text' or 'voice'.
@@ -25,7 +19,7 @@ class SmartAddService {
     String inputType = 'text',
   }) async {
     final now = DateTime.now();
-    final today = _formatToday(now);
+    final today = AppFormatters.dateForApi(now);
     final tzOffsetMinutes = now.timeZoneOffset.inMinutes;
 
     final res = await client.postFull('/smart-add', {
@@ -49,7 +43,7 @@ class SmartAddService {
     required String inputType,
   }) async {
     final now = DateTime.now();
-    final today = _formatToday(now);
+    final today = AppFormatters.dateForApi(now);
     final tzOffsetMinutes = now.timeZoneOffset.inMinutes;
 
     final base64String = base64Encode(bytes);

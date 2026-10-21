@@ -9,6 +9,7 @@ import 'package:budget_frontend/features/auth/services/auth_service.dart';
 
 export 'package:budget_frontend/features/auth/bloc/auth_event.dart';
 export 'package:budget_frontend/features/auth/bloc/auth_state.dart';
+export 'package:budget_frontend/features/auth/models/user_model.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({required this.authService}) : super(const AuthState()) {
