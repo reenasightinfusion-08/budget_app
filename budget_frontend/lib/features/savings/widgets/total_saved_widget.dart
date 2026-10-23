@@ -31,6 +31,7 @@ class TotalSavedWidget extends StatelessWidget {
         : 0.0;
 
     return AppCard(
+      width: double.infinity,
       isGradient: true,
       radius: AppBorderRadius.card,
       padding: EdgeInsets.all(20.r),

@@ -39,7 +39,7 @@ class SplashScreenState extends State<SplashScreen> {
           current.status == AuthStatus.authenticated ||
           current.status == AuthStatus.unauthenticated,
       listener: (context, state) async {
-        await Future.delayed(const Duration(seconds: 30));
+        await Future.delayed(const Duration(seconds: 3));
         if (!context.mounted) return;
         final nextRoute =
             state.status == AuthStatus.authenticated ? AppRoutes.afterAuth(state.user) : AppRoutes.login;

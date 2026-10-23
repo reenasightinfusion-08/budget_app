@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/app/app_routes.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
+import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/features/history/services/transaction_service.dart';
 import 'package:budget_frontend/features/profile/widgets/data_card.dart';
 import 'package:budget_frontend/features/savings/bloc/goal_bloc.dart';
@@ -49,40 +51,60 @@ class _ProfileStatsRowState extends State<ProfileStatsRow> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
     final goalState = context.watch<GoalBloc>().state;
     final goalsCount = goalState.goals.length;
+
+    final statsRow = Row(
+      children: [
+        DataCard(
+          count: '$_entriesCount',
+          name: "Entries",
+          onTap: () {
+            Navigator.of(context).pushNamed(AppRoutes.history);
+          },
+        ),
+        10.horizontalSpace,
+        DataCard(
+          count: '$goalsCount',
+          name: "Goals",
+          onTap: () {
+            Navigator.of(context).pushNamed(
+              AppRoutes.savings,
+              arguments: {'showBackButton': true},
+            );
+          },
+        ),
+        10.horizontalSpace,
+        DataCard(
+          count: '$_monthsCount',
+          name: "Months",
+        ),
+      ],
+    );
 
     return BlocListener<WalletBloc, WalletState>(
       listener: (context, state) {
         _loadStats();
       },
-      child: Row(
-        children: [
-          DataCard(
-            count: '$_entriesCount',
-            name: "Entries",
-            onTap: () {
-              Navigator.of(context).pushNamed(AppRoutes.history);
-            },
-          ),
-          10.horizontalSpace,
-          DataCard(
-            count: '$goalsCount',
-            name: "Goals",
-            onTap: () {
-              Navigator.of(context).pushNamed(
-                AppRoutes.savings,
-                arguments: {'showBackButton': true},
-              );
-            },
-          ),
-          10.horizontalSpace,
-          DataCard(
-            count: '$_monthsCount',
-            name: "Months",
-          ),
-        ],
-      ),
+      child: isTablet
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(left: 4, bottom: 12),
+                  child: Text(
+                    'Activity Overview',
+                    style: AppTextStyle.cardTitle.copyWith(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                statsRow,
+              ],
+            )
+          : statsRow,
     );
   }
 }

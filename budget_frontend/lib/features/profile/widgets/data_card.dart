@@ -29,6 +29,7 @@ class DataCard extends StatelessWidget {
           padding: EdgeInsets.symmetric(vertical: 12.h),
           isGradient: false,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 count,

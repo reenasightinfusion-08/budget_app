@@ -66,9 +66,39 @@ class _WalletScreenState extends State<WalletScreen> {
     );
   }
 
+  Widget _buildCategoryTile(
+    BuildContext context,
+    BudgetCategoryModel category,
+    bool showDivider,
+  ) {
+    return CategoryBudgetTile(
+      category: category,
+      showDivider: showDivider,
+      onEditLimit: (limit) {
+        context.read<WalletBloc>().add(
+              UpdateCategoryLimit(
+                categoryId: category.id,
+                newLimit: limit,
+              ),
+            );
+        AppToast.show(
+          context,
+          message: '${category.label} limit updated',
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
     final authUser = context.watch<AuthBloc>().state.user;
+
+    ScreenUtil.enableScale(
+      enableWH: () => !isTablet,
+      enableText: () => !isTablet,
+    );
+
     return BlocBuilder<WalletBloc, WalletState>(
       builder: (context, state) {
         final totalBudget = state.monthlyBudget > 0
@@ -79,6 +109,10 @@ class _WalletScreenState extends State<WalletScreen> {
         final categories = state.categories;
         final easyFix = state.easyFix;
 
+        final mid = (categories.length + 1) ~/ 2;
+        final leftCategories = categories.take(mid).toList();
+        final rightCategories = categories.skip(mid).toList();
+
         final content = SafeArea(
           child: RefreshIndicator(
             color: AppColors.accent,
@@ -87,74 +121,102 @@ class _WalletScreenState extends State<WalletScreen> {
             },
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(
-                20.w,
-                16.h,
-                20.w,
-                widget.showBackButton ? 20.h : AppLayout.navBarClearanceOf(context),
-              ),
+              padding: isTablet
+                  ? const EdgeInsets.fromLTRB(32, 24, 32, 120)
+                  : EdgeInsets.fromLTRB(
+                      20.w,
+                      16.h,
+                      20.w,
+                      widget.showBackButton ? 20.h : AppLayout.navBarClearanceOf(context),
+                    ),
               child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                WalletHeader(
-                  onChangeBudget: () => _changeBudget(context, totalBudget),
-                  showBackButton: widget.showBackButton,
-                ),
-                16.verticalSpace,
-                BudgetStatusTrip(
-                  onTrackCount: state.countWithStatus(BudgetStatus.onTrack),
-                  carefulCount: state.countWithStatus(BudgetStatus.careful),
-                  overCount: state.countWithStatus(BudgetStatus.over),
-                ),
-                16.verticalSpace,
-                if (easyFix != null) ...[
-                  EasyFixBanner(
-                    amount: easyFix.amount,
-                    fromCategory: easyFix.from.label,
-                    toCategory: easyFix.to.label,
-                    onMove: () => _applyEasyFix(context, easyFix),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  WalletHeader(
+                    onChangeBudget: () => _changeBudget(context, totalBudget),
+                    showBackButton: widget.showBackButton,
                   ),
-                  14.verticalSpace,
-                ],
-                PlanSummaryText(
-                  plannedTotal: state.plannedTotal,
-                  totalBudget: totalBudget,
-                ),
-                12.verticalSpace,
-                AppCard(
-                  width: double.infinity,
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                  border: Border.all(color: AppColors.line),
-                  blur: 16,
-                  offsetY: 4,
-                  child: Column(
-                    children: [
-                      for (final (index, category) in categories.indexed)
-                        CategoryBudgetTile(
-                          category: category,
-                          showDivider: index < categories.length - 1,
-                          onEditLimit: (limit) {
-                            context.read<WalletBloc>().add(
-                                  UpdateCategoryLimit(
-                                    categoryId: category.id,
-                                    newLimit: limit,
+                  isTablet ? const SizedBox(height: 20) : 16.verticalSpace,
+                  BudgetStatusTrip(
+                    onTrackCount: state.countWithStatus(BudgetStatus.onTrack),
+                    carefulCount: state.countWithStatus(BudgetStatus.careful),
+                    overCount: state.countWithStatus(BudgetStatus.over),
+                  ),
+                  isTablet ? const SizedBox(height: 20) : 16.verticalSpace,
+                  if (easyFix != null) ...[
+                    EasyFixBanner(
+                      amount: easyFix.amount,
+                      fromCategory: easyFix.from.label,
+                      toCategory: easyFix.to.label,
+                      onMove: () => _applyEasyFix(context, easyFix),
+                    ),
+                    isTablet ? const SizedBox(height: 16) : 14.verticalSpace,
+                  ],
+                  PlanSummaryText(
+                    plannedTotal: state.plannedTotal,
+                    totalBudget: totalBudget,
+                  ),
+                  isTablet ? const SizedBox(height: 16) : 12.verticalSpace,
+                  AppCard(
+                    width: double.infinity,
+                    padding: isTablet
+                        ? const EdgeInsets.symmetric(horizontal: 24, vertical: 16)
+                        : EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                    border: Border.all(color: AppColors.line),
+                    blur: 16,
+                    offsetY: 4,
+                    child: isTablet && categories.length > 1
+                        ? IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      for (final (index, category) in leftCategories.indexed)
+                                        _buildCategoryTile(
+                                          context,
+                                          category,
+                                          index < leftCategories.length - 1,
+                                        ),
+                                    ],
                                   ),
-                                );
-                            AppToast.show(
-                              context,
-                              message: '${category.label} limit updated',
-                            );
-                          },
-                        ),
-                    ],
+                                ),
+                                const SizedBox(width: 24),
+                                Container(width: 1, color: AppColors.line),
+                                const SizedBox(width: 24),
+                                Expanded(
+                                  child: Column(
+                                    children: [
+                                      for (final (index, category) in rightCategories.indexed)
+                                        _buildCategoryTile(
+                                          context,
+                                          category,
+                                          index < rightCategories.length - 1,
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : Column(
+                            children: [
+                              for (final (index, category) in categories.indexed)
+                                _buildCategoryTile(
+                                  context,
+                                  category,
+                                  index < categories.length - 1,
+                                ),
+                            ],
+                          ),
                   ),
-                ),
-                24.verticalSpace,
-              ],
+                  isTablet ? const SizedBox(height: 32) : 24.verticalSpace,
+                ],
+              ),
             ),
           ),
-        ),
-      );
+        );
 
         if (widget.showBackButton) {
           return Scaffold(

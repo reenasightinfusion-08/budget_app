@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/core/widgets/app_link_button.dart';
@@ -49,9 +50,11 @@ class _RecentHistoryState extends State<RecentHistory> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
+    final count = isTablet ? 2 : 5;
     final walletState = context.watch<WalletBloc>().state;
     final walletRecent = walletState.summary?.recent ?? [];
-    final recent = (_recentTransactions ?? walletRecent).take(5).toList();
+    final recent = (_recentTransactions ?? walletRecent).take(count).toList();
 
     return BlocListener<WalletBloc, WalletState>(
       listener: (context, state) {

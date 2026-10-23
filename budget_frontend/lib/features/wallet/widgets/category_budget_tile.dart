@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_gradients.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/widgets/amount_input_dialog.dart';
 import 'package:budget_frontend/core/widgets/app_progress_bar.dart';
@@ -34,11 +35,16 @@ class CategoryBudgetTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(vertical: 13.h),
+          padding: EdgeInsets.symmetric(
+            vertical: isTablet ? 12 : 13.h,
+            horizontal: isTablet ? 6 : 0,
+          ),
           child: Row(
             children: [
               CategoryIconBadge(

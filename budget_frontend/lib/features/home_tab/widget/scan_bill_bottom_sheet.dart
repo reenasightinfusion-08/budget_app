@@ -159,9 +159,9 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
       final smartAddService = context.read<SmartAddService>();
       final txService = context.read<TransactionService>();
 
-      // Record newest transaction before API call
-      final beforeTxs = await txService.getTransactions(limit: 1);
-      final beforeId = beforeTxs.isNotEmpty ? beforeTxs.first.id : null;
+      // Record existing transactions before API call to detect the newly added one
+      final beforeTxs = await txService.getTransactions(limit: 50);
+      final beforeIds = beforeTxs.map((t) => t.id).toSet();
 
       // Call API
       await smartAddService.smartAddFile(
@@ -176,15 +176,37 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
         _progressText = 'Extracting items & verifying total 85%';
       });
 
-      // Fetch the newly parsed and saved transaction from backend
-      final afterTxs = await txService.getTransactions(limit: 1);
-      if (afterTxs.isEmpty || afterTxs.first.id == beforeId) {
+      // Fetch transactions after API call
+      final afterTxs = await txService.getTransactions(limit: 50);
+
+      // Find the newly added transaction by diffing IDs
+      final newCandidates =
+          afterTxs.where((t) => !beforeIds.contains(t.id)).toList();
+      final newTx = newCandidates.isNotEmpty
+          ? (newCandidates
+            ..sort((a, b) {
+              if (a.createdAt != null && b.createdAt != null) {
+                return b.createdAt!.compareTo(a.createdAt!);
+              }
+              return 0;
+            }))
+              .first
+          : (afterTxs.isNotEmpty
+              ? (List.of(afterTxs)
+                ..sort((a, b) {
+                  if (a.createdAt != null && b.createdAt != null) {
+                    return b.createdAt!.compareTo(a.createdAt!);
+                  }
+                  return b.date.compareTo(a.date);
+                }))
+                  .first
+              : null);
+
+      if (newTx == null) {
         throw const ApiException(
           'No bill amount found in this photo. Please upload a clear receipt or bill.',
         );
       }
-
-      final newTx = afterTxs.first;
       _createdTransactionId = newTx.id;
       _amountController.text =
           newTx.amount.toStringAsFixed(newTx.amount % 1 == 0 ? 0 : 2);

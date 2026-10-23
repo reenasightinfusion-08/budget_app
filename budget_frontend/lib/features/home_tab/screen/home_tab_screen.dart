@@ -50,7 +50,7 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           padding: isTablet
-              ? const EdgeInsets.fromLTRB(30, 16, 30, 120)
+              ? const EdgeInsets.fromLTRB(30, 20, 30, 120)
               : EdgeInsets.fromLTRB(20.w, 16.h, 20.w, AppLayout.navBarClearanceOf(context)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

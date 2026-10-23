@@ -29,6 +29,12 @@ class AppGradients {
     colors: [Color(0xFF5F85B7), Color(0xFF2C5FA0)],
     transform: CssAngleGradientTransform(140),
   );
+  static const LinearGradient profile = LinearGradient(
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+    colors: [Color(0xFFEBF0F6), Color(0xFF2C5FA0)],
+    transform: CssAngleGradientTransform(140),
+  );
 
   static const LinearGradient header = LinearGradient(
     begin: Alignment.centerLeft,

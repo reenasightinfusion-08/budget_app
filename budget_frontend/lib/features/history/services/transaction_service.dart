@@ -131,6 +131,7 @@ class TransactionService {
     if (q != null && q.trim().isNotEmpty) queryParams['q'] = q.trim();
     if (before != null && before.isNotEmpty) queryParams['before'] = before;
     if (limit != null) queryParams['limit'] = limit.toString();
+    queryParams['_t'] = DateTime.now().millisecondsSinceEpoch.toString();
 
     final queryString = queryParams.isNotEmpty
         ? '?${Uri(queryParameters: queryParams).query}'

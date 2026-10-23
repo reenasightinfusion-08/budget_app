@@ -90,14 +90,23 @@ class _AppMonthYearPickerDialogState extends State<AppMonthYearPickerDialog> {
     final maxMonthDate = DateTime(widget.maxDate.year, widget.maxDate.month);
 
     return Dialog(
-      backgroundColor: AppColors.surface,
+      backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 28.w),
-      shape: RoundedRectangleBorder(
-        borderRadius: AppBorderRadius.dialog,
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 16.h),
+      insetPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+      child: Container(
+        width: 325.w,
+        padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 18.h),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: AppBorderRadius.xl,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.sheetShadow.withValues(alpha: 0.12),
+              blurRadius: 24,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
