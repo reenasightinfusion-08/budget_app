@@ -63,11 +63,27 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
   @override
   void initState() {
     super.initState();
-    _selectedDate = DateTime(
+    final normalizedLast = DateTime(
+      widget.lastDate.year,
+      widget.lastDate.month,
+      widget.lastDate.day,
+    );
+    final normalizedFirst = DateTime(
+      widget.firstDate.year,
+      widget.firstDate.month,
+      widget.firstDate.day,
+    );
+    var normalizedInitial = DateTime(
       widget.initialDate.year,
       widget.initialDate.month,
       widget.initialDate.day,
     );
+    if (normalizedInitial.isAfter(normalizedLast)) {
+      normalizedInitial = normalizedLast;
+    } else if (normalizedInitial.isBefore(normalizedFirst)) {
+      normalizedInitial = normalizedFirst;
+    }
+    _selectedDate = normalizedInitial;
     _displayedMonth = DateTime(_selectedDate.year, _selectedDate.month, 1);
   }
 
@@ -560,8 +576,18 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
 
                   final isSelected = _isSameDay(cellDate, _selectedDate);
                   final isTodayDate = _isSameDay(cellDate, today);
-                  final isDisabled = cellDate.isAfter(widget.lastDate) ||
-                      cellDate.isBefore(widget.firstDate);
+                  final lastDateDay = DateTime(
+                    widget.lastDate.year,
+                    widget.lastDate.month,
+                    widget.lastDate.day,
+                  );
+                  final firstDateDay = DateTime(
+                    widget.firstDate.year,
+                    widget.firstDate.month,
+                    widget.firstDate.day,
+                  );
+                  final isDisabled = cellDate.isAfter(lastDateDay) ||
+                      cellDate.isBefore(firstDateDay);
 
                   Color textColor;
                   if (isDisabled) {

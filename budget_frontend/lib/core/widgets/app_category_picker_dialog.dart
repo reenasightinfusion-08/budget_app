@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_layout.dart';
@@ -56,12 +55,12 @@ class AppCategoryPickerDialog extends StatelessWidget {
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: EdgeInsets.symmetric(
-        horizontal: isTablet ? 40 : 20.w,
+        horizontal: isTablet ? 40 : 24.w,
         vertical: 24.h,
       ),
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: isTablet ? 420 : 360,
+          maxWidth: isTablet ? 380 : 330,
           maxHeight: MediaQuery.sizeOf(context).height * 0.70,
         ),
         child: Container(
@@ -76,7 +75,7 @@ class AppCategoryPickerDialog extends StatelessWidget {
               ),
             ],
           ),
-          padding: EdgeInsets.fromLTRB(18.w, 18.h, 18.w, 18.h),
+          padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 14.h),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -89,7 +88,7 @@ class AppCategoryPickerDialog extends StatelessWidget {
                     title,
                     style: TextStyle(
                       fontFamily: 'DMSans',
-                      fontSize: 18.sp,
+                      fontSize: 17.sp,
                       fontWeight: FontWeight.w700,
                       color: AppColors.ink,
                     ),
@@ -98,18 +97,18 @@ class AppCategoryPickerDialog extends StatelessWidget {
                     onTap: () => Navigator.of(context).pop(),
                     behavior: HitTestBehavior.opaque,
                     child: CircleAvatar(
-                      radius: 16.r,
+                      radius: 14.r,
                       backgroundColor: AppColors.fill,
                       child: Icon(
                         AppIcons.close,
-                        size: 16.sp,
+                        size: 14.sp,
                         color: AppColors.ink,
                       ),
                     ),
                   ),
                 ],
               ),
-              14.verticalSpace,
+              12.verticalSpace,
 
               // 2-column Grid of Categories
               Flexible(
@@ -119,9 +118,9 @@ class AppCategoryPickerDialog extends StatelessWidget {
                   itemCount: allCategories.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    crossAxisSpacing: 10.w,
-                    mainAxisSpacing: 10.h,
-                    childAspectRatio: isTablet ? 2.3 : 2.15,
+                    crossAxisSpacing: 8.w,
+                    mainAxisSpacing: 8.h,
+                    childAspectRatio: isTablet ? 3.1 : 2.85,
                   ),
                   itemBuilder: (context, index) {
                     final cat = allCategories[index];
@@ -136,14 +135,14 @@ class AppCategoryPickerDialog extends StatelessWidget {
                       behavior: HitTestBehavior.opaque,
                       child: Container(
                         padding: EdgeInsets.symmetric(
-                          horizontal: 10.w,
-                          vertical: 8.h,
+                          horizontal: 8.w,
+                          vertical: 6.h,
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
                               ? AppColors.accent.withValues(alpha: 0.10)
                               : AppColors.fill.withValues(alpha: 0.5),
-                          borderRadius: AppBorderRadius.tile,
+                          borderRadius: BorderRadius.circular(14.r),
                           border: isSelected
                               ? Border.all(
                                   color: AppColors.accent,
@@ -157,8 +156,8 @@ class AppCategoryPickerDialog extends StatelessWidget {
                         child: Row(
                           children: [
                             Container(
-                              width: 32.r,
-                              height: 32.r,
+                              width: 28.r,
+                              height: 28.r,
                               decoration: BoxDecoration(
                                 color: color.withValues(alpha: 0.15),
                                 shape: BoxShape.circle,
@@ -166,11 +165,11 @@ class AppCategoryPickerDialog extends StatelessWidget {
                               alignment: Alignment.center,
                               child: Icon(
                                 icon,
-                                size: 16.sp,
+                                size: 15.sp,
                                 color: color,
                               ),
                             ),
-                            8.horizontalSpace,
+                            6.horizontalSpace,
                             Expanded(
                               child: Text(
                                 cat,
@@ -178,7 +177,7 @@ class AppCategoryPickerDialog extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontFamily: 'DMSans',
-                                  fontSize: 13.sp,
+                                  fontSize: 12.5.sp,
                                   height: 1.15,
                                   fontWeight: isSelected
                                       ? FontWeight.w700
@@ -194,7 +193,7 @@ class AppCategoryPickerDialog extends StatelessWidget {
                               Icon(
                                 AppIcons.check,
                                 color: AppColors.accent,
-                                size: 16.sp,
+                                size: 15.sp,
                               ),
                             ],
                           ],

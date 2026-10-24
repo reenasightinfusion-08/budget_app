@@ -568,11 +568,13 @@ class _SmartAddMultiReviewViewState extends State<SmartAddMultiReviewView> {
                   child: GestureDetector(
                     onTap: () async {
                       final now = DateTime.now();
+                      final today = DateTime(now.year, now.month, now.day);
                       final picked = await AppDatePickerDialog.show(
                         context: context,
-                        initialDate: item.date,
+                        initialDate:
+                            item.date.isAfter(today) ? today : item.date,
                         firstDate: DateTime(now.year - 5, 1, 1),
-                        lastDate: DateTime(now.year + 1, 12, 31),
+                        lastDate: today,
                       );
                       if (picked != null) {
                         setState(() {
@@ -1055,11 +1057,14 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                     child: GestureDetector(
                       onTap: () async {
                         final now = DateTime.now();
+                        final today = DateTime(now.year, now.month, now.day);
                         final picked = await AppDatePickerDialog.show(
                           context: context,
-                          initialDate: widget.entryDate,
+                          initialDate: widget.entryDate.isAfter(today)
+                              ? today
+                              : widget.entryDate,
                           firstDate: DateTime(now.year - 5, 1, 1),
-                          lastDate: DateTime(now.year + 1, 12, 31),
+                          lastDate: today,
                         );
                         if (picked != null) {
                           widget.onDateChanged(picked);
