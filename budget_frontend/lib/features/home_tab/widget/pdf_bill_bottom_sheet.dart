@@ -167,16 +167,7 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
               return 0;
             }))
               .first
-          : (afterTxs.isNotEmpty
-              ? (List.of(afterTxs)
-                ..sort((a, b) {
-                  if (a.createdAt != null && b.createdAt != null) {
-                    return b.createdAt!.compareTo(a.createdAt!);
-                  }
-                  return b.date.compareTo(a.date);
-                }))
-                  .first
-              : null);
+          : null;
 
       if (newTx == null) {
         throw const ApiException(
@@ -239,14 +230,17 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
     try {
       final txService = context.read<TransactionService>();
 
-      // Replace the transaction with user's verified values
-      if (_createdTransactionId != null) {
-        await txService.deleteTransaction(_createdTransactionId!);
-      }
-
+      // Create the verified transaction first to prevent data loss
       await txService.createTransactionEntry(entry);
 
+      // Clean up the draft/candidate transaction created by OCR
+      final oldTxId = _createdTransactionId;
       _createdTransactionId = null;
+      if (oldTxId != null) {
+        try {
+          await txService.deleteTransaction(oldTxId);
+        } catch (_) {}
+      }
 
       if (!mounted) return;
       context.read<WalletBloc>().add(const RefreshWalletSummary());

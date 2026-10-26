@@ -10,18 +10,24 @@ import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/profile/widgets/data_raw.dart';
 import 'package:budget_frontend/features/profile/widgets/profile_confirmation_dialog.dart';
+import 'package:budget_frontend/features/savings/bloc/goal_bloc.dart';
 import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
+import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 
 class ProfileAccountActionsCard extends StatelessWidget {
   const ProfileAccountActionsCard({super.key});
 
   void _performLogout(BuildContext context) {
     context.read<SetupBloc>().add(const SetupReset());
+    context.read<WalletBloc>().add(const ResetWallet());
+    context.read<GoalBloc>().add(const ResetGoals());
     context.read<AuthBloc>().add(const AuthLogoutRequested());
   }
 
   void _performDeleteAccount(BuildContext context) {
     context.read<SetupBloc>().add(const SetupReset());
+    context.read<WalletBloc>().add(const ResetWallet());
+    context.read<GoalBloc>().add(const ResetGoals());
     context.read<AuthBloc>().add(const AuthDeleteAccountRequested());
   }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/features/history/models/history_transaction_model.dart';
 import 'package:budget_frontend/features/history/widgets/history_transaction_card.dart';
@@ -26,14 +27,15 @@ class HistoryGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
+
     if (transactions.isEmpty) {
       return Padding(
-        padding: EdgeInsets.symmetric(vertical: 40.h),
+        padding: isTablet
+            ? const EdgeInsets.symmetric(vertical: 40)
+            : EdgeInsets.symmetric(vertical: 40.h),
         child: Center(
-          child: Text(
-            'No transactions found.',
-            style: AppTextStyle.emptyState,
-          ),
+          child: Text('No transactions found.', style: AppTextStyle.emptyState),
         ),
       );
     }
@@ -45,9 +47,9 @@ class HistoryGridView extends StatelessWidget {
       itemCount: transactions.length,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
-        mainAxisSpacing: 12.h,
-        crossAxisSpacing: 12.w,
-        mainAxisExtent: 78.h,
+        mainAxisSpacing: isTablet ? 14 : 12.h,
+        crossAxisSpacing: isTablet ? 14 : 12.w,
+        mainAxisExtent: isTablet ? 78 : 78.h,
       ),
       itemBuilder: (context, index) {
         final tx = transactions[index];

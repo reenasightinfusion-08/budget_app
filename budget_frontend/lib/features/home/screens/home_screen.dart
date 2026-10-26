@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -106,6 +107,8 @@ class _HomeScreenState extends State<HomeScreen> {
               previous.errorMessage != current.errorMessage),
       listener: (context, state) {
         if (state.status == AuthStatus.unauthenticated) {
+          context.read<WalletBloc>().add(const ResetWallet());
+          context.read<GoalBloc>().add(const ResetGoals());
           Navigator.of(
             context,
           ).pushNamedAndRemoveUntil(AppRoutes.signup, (route) => false);
@@ -141,7 +144,10 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               if (isTablet) ...[
                 Positioned(
-                  right: 28,
+                  right: math.max(
+                    28.0,
+                    (MediaQuery.sizeOf(context).width - 480) / 2,
+                  ),
                   bottom: 102,
                   child: Container(
                     width: 56,

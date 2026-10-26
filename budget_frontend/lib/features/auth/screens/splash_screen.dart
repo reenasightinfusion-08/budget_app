@@ -28,12 +28,6 @@ class SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     final bool isTablet = AppLayout.isTablet(context);
 
-    // Keep 100% original scaling on mobile, disable non-proportional inflation on tablet
-    ScreenUtil.enableScale(
-      enableWH: () => !isTablet,
-      enableText: () => !isTablet,
-    );
-
     return BlocListener<AuthBloc, AuthState>(
       listenWhen: (previous, current) =>
           current.status == AuthStatus.authenticated ||

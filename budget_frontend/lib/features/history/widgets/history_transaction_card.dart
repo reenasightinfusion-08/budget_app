@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
@@ -24,30 +25,34 @@ class HistoryTransactionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
+
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: AppCard(
         color: AppColors.surface,
         radius: AppBorderRadius.card,
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        padding: isTablet
+            ? const EdgeInsets.symmetric(horizontal: 16, vertical: 12)
+            : EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
       child: Row(
         children: [
           // Circle icon badge
           Container(
-            width: 48.r,
-            height: 48.r,
+            width: isTablet ? 48 : 48.r,
+            height: isTablet ? 48 : 48.r,
             decoration: BoxDecoration(
               color: transaction.bgColor,
               shape: BoxShape.circle,
             ),
             child: Icon(
               transaction.icon,
-              size: 22.sp,
+              size: isTablet ? 22 : 22.sp,
               color: transaction.effectiveIconColor,
             ),
           ),
-          14.horizontalSpace,
+          isTablet ? const SizedBox(width: 14) : 14.horizontalSpace,
 
           // Description & Subtitle ("Food · Oct 11")
           Expanded(
@@ -58,17 +63,17 @@ class HistoryTransactionCard extends StatelessWidget {
                 Text(
                   transaction.description,
                   style: AppTextStyle.subCardTitle.copyWith(
-                    fontSize: 16.sp,
+                    fontSize: isTablet ? 16 : 16.sp,
                     fontWeight: FontWeight.w700,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                3.verticalSpace,
+                isTablet ? const SizedBox(height: 3) : 3.verticalSpace,
                 Text(
                   transaction.subtitle,
                   style: AppTextStyle.description.copyWith(
-                    fontSize: 12.5.sp,
+                    fontSize: isTablet ? 12.5 : 12.5.sp,
                     color: AppColors.muted,
                   ),
                   maxLines: 1,
@@ -77,13 +82,13 @@ class HistoryTransactionCard extends StatelessWidget {
               ],
             ),
           ),
-          10.horizontalSpace,
+          isTablet ? const SizedBox(width: 10) : 10.horizontalSpace,
 
           // Signed Amount ("-₹1,600")
           Text(
             transaction.signedFormattedAmount,
             style: AppTextStyle.subCardTitle.copyWith(
-              fontSize: 16.sp,
+              fontSize: isTablet ? 16 : 16.sp,
               fontWeight: FontWeight.w700,
               color: transaction.isIncome ? AppColors.success : AppColors.ink,
             ),
@@ -91,15 +96,15 @@ class HistoryTransactionCard extends StatelessWidget {
 
           // Delete icon button (only shown when onDelete callback is provided)
           if (onDelete != null) ...[
-            12.horizontalSpace,
+            isTablet ? const SizedBox(width: 12) : 12.horizontalSpace,
             GestureDetector(
               onTap: onDelete,
               behavior: HitTestBehavior.opaque,
               child: Padding(
-                padding: EdgeInsets.all(4.r),
+                padding: isTablet ? const EdgeInsets.all(4) : EdgeInsets.all(4.r),
                 child: Icon(
                   AppIcons.delete,
-                  size: 20.sp,
+                  size: isTablet ? 20 : 20.sp,
                   color: AppColors.faint,
                 ),
               ),
@@ -131,9 +136,12 @@ class HistoryDateGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final signedTotal = totalAmount >= 0
-        ? '-${AppFormatters.rupees(totalAmount.round().abs())}'
-        : '+${AppFormatters.rupees(totalAmount.round().abs())}';
+    final rounded = totalAmount.round();
+    final signedTotal = rounded > 0
+        ? '-${AppFormatters.rupees(rounded.abs())}'
+        : (rounded < 0
+            ? '+${AppFormatters.rupees(rounded.abs())}'
+            : AppFormatters.rupees(0));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

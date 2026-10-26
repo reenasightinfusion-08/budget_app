@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
@@ -28,17 +29,18 @@ class GoalProgressCircle extends StatelessWidget {
     final bool isCompleted = progress >= 1.0;
     final Color progressColor =
         isCompleted ? AppColors.success : AppColors.accent;
+    final bool isTablet = AppLayout.isTablet(context);
 
     return SizedBox(
-      width: size.r,
-      height: size.r,
+      width: isTablet ? size : size.r,
+      height: isTablet ? size : size.r,
       child: Stack(
         alignment: Alignment.center,
         children: [
           Positioned.fill(
             child: CircularProgressIndicator(
               value: progress.clamp(0.0, 1.0),
-              strokeWidth: 4.w,
+              strokeWidth: isTablet ? 4 : 4.w,
               strokeCap: StrokeCap.round,
               backgroundColor: isCompleted
                   ? AppColors.success.withValues(alpha: 0.15)
@@ -48,7 +50,7 @@ class GoalProgressCircle extends StatelessWidget {
           ),
           Icon(
             icon,
-            size: 20.sp,
+            size: isTablet ? 20 : 20.sp,
             color: AppColors.ink,
           ),
         ],
@@ -70,13 +72,15 @@ class GoalCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
+
     return GestureDetector(
       onTap: onTap ?? () => GoalDetailBottomSheet.show(context, goal: goal),
       behavior: HitTestBehavior.opaque,
       child: AppCard(
         isGradient: false,
         radius: AppBorderRadius.card,
-        padding: EdgeInsets.all(16.r),
+        padding: isTablet ? const EdgeInsets.all(16) : EdgeInsets.all(16.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -86,7 +90,7 @@ class GoalCardWidget extends StatelessWidget {
                   icon: goal.iconData,
                   progress: goal.progressRatio,
                 ),
-                12.horizontalSpace,
+                isTablet ? const SizedBox(width: 12) : 12.horizontalSpace,
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,12 +126,14 @@ class GoalCardWidget extends StatelessWidget {
               ],
             ),
             if (!goal.isReached && goal.monthlyNeededRupees > 0) ...[
-              14.verticalSpace,
+              isTablet ? const SizedBox(height: 14) : 14.verticalSpace,
               AppCard(
                 width: double.infinity,
                 color: AppColors.fill,
                 radius: AppBorderRadius.chip,
-                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+                padding: isTablet
+                    ? const EdgeInsets.symmetric(horizontal: 14, vertical: 10)
+                    : EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
                 child: RichText(
                   text: TextSpan(
                     style: AppTextStyle.fieldLabel,
@@ -146,16 +152,19 @@ class GoalCardWidget extends StatelessWidget {
                 ),
               ),
             ] else if (goal.isReached) ...[
-              14.verticalSpace,
+              isTablet ? const SizedBox(height: 14) : 14.verticalSpace,
               AppCard(
                 width: double.infinity,
                 color: AppColors.successSoft,
                 radius: AppBorderRadius.chip,
-                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+                padding: isTablet
+                    ? const EdgeInsets.symmetric(horizontal: 14, vertical: 10)
+                    : EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
                 child: Row(
                   children: [
-                    Icon(AppIcons.checkCircle, color: AppColors.success, size: 18.sp),
-                    8.horizontalSpace,
+                    Icon(AppIcons.checkCircle,
+                        color: AppColors.success, size: isTablet ? 18 : 18.sp),
+                    isTablet ? const SizedBox(width: 8) : 8.horizontalSpace,
                     Text(
                       'Goal reached! 🎉',
                       style: AppTextStyle.fieldLabel.copyWith(

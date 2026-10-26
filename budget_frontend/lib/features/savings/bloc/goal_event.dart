@@ -42,3 +42,7 @@ final class DeleteGoalEvent extends GoalEvent {
   const DeleteGoalEvent(this.goalId);
   final String goalId;
 }
+
+final class ResetGoals extends GoalEvent {
+  const ResetGoals();
+}

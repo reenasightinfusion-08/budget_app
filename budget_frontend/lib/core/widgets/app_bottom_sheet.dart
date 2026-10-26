@@ -149,11 +149,6 @@ class _TabletBottomSheetDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.enableScale(
-      enableWH: () => false,
-      enableText: () => false,
-    );
-
     final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
     return AnimatedPadding(

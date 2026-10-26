@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 
@@ -88,15 +89,26 @@ class _AppMonthYearPickerDialogState extends State<AppMonthYearPickerDialog> {
 
     final minMonthDate = DateTime(widget.minDate.year, widget.minDate.month);
     final maxMonthDate = DateTime(widget.maxDate.year, widget.maxDate.month);
+    final isTablet = AppLayout.isTablet(context);
 
     return Dialog(
       backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-      child: Container(
-        width: 325.w,
-        padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 18.h),
-        decoration: BoxDecoration(
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 40 : 24.w,
+        vertical: isTablet ? 40 : 24.h,
+      ),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: isTablet ? 360 : 330),
+        child: Container(
+          width: isTablet ? 360 : 325.w,
+          padding: EdgeInsets.fromLTRB(
+            isTablet ? 20 : 20.w,
+            isTablet ? 20 : 20.h,
+            isTablet ? 20 : 20.w,
+            isTablet ? 18 : 18.h,
+          ),
+          decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: AppBorderRadius.xl,
           boxShadow: [
@@ -240,6 +252,7 @@ class _AppMonthYearPickerDialogState extends State<AppMonthYearPickerDialog> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

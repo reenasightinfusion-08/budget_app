@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/widgets/app_text_field.dart';
 
@@ -83,6 +84,8 @@ class _HistoryHeaderState extends State<HistoryHeader> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -103,7 +106,7 @@ class _HistoryHeaderState extends State<HistoryHeader> {
                   ? IconButton(
                       icon: Icon(
                         AppIcons.close,
-                        size: 18.sp,
+                        size: isTablet ? 18 : 18.sp,
                         color: AppColors.muted,
                       ),
                       onPressed: () {
@@ -116,11 +119,11 @@ class _HistoryHeaderState extends State<HistoryHeader> {
             );
           },
         ),
-        15.verticalSpace,
+        isTablet ? const SizedBox(height: 16) : 15.verticalSpace,
         Row(
           children: [
             for (int i = 0; i < _filters.length; i++) ...[
-              if (i > 0) 10.horizontalSpace,
+              if (i > 0) isTablet ? const SizedBox(width: 10) : 10.horizontalSpace,
               Expanded(
                 child: GestureDetector(
                   onTap: () {
@@ -131,7 +134,9 @@ class _HistoryHeaderState extends State<HistoryHeader> {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     curve: Curves.easeInOut,
-                    padding: EdgeInsets.symmetric(vertical: 11.h),
+                    padding: isTablet
+                        ? const EdgeInsets.symmetric(vertical: 12)
+                        : EdgeInsets.symmetric(vertical: 11.h),
                     decoration: BoxDecoration(
                       color: _selectedFilterIndex == i
                           ? AppColors.popDeep
@@ -144,7 +149,7 @@ class _HistoryHeaderState extends State<HistoryHeader> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: AppTextStyle.chip.copyWith(
-                        fontSize: 13.5.sp,
+                        fontSize: isTablet ? 14 : 13.5.sp,
                         fontWeight: _selectedFilterIndex == i
                             ? FontWeight.w700
                             : FontWeight.w600,
@@ -159,8 +164,7 @@ class _HistoryHeaderState extends State<HistoryHeader> {
             ],
           ],
         ),
-        15.verticalSpace,
-
+        isTablet ? const SizedBox(height: 16) : 15.verticalSpace,
       ],
     );
   }

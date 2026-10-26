@@ -53,3 +53,8 @@ class RefreshWalletSummary extends WalletEvent {
   final String? today;
 }
 
+/// Dispatched to reset wallet state on logout or account change.
+class ResetWallet extends WalletEvent {
+  const ResetWallet();
+}
+

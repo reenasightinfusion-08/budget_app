@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 
@@ -56,36 +57,46 @@ class AmountInputDialogState extends State<AmountInputDialog> {
 
   void save() {
     final text = controller.text;
-    Navigator.of(context).pop(text.contains(RegExp(r'\d')) ? AppFormatters.parseDigits(text) : null);
+    Navigator.of(context).pop(
+      text.contains(RegExp(r'\d')) ? AppFormatters.parseDigits(text) : null,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
     final inputStyle = AppTextStyle.input.copyWith(
-      fontSize: widget.fontSize.sp,
+      fontSize: isTablet ? widget.fontSize : widget.fontSize.sp,
       fontWeight: FontWeight.w600,
     );
 
     return AlertDialog(
       backgroundColor: AppColors.surface,
       surfaceTintColor: Colors.transparent,
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 40 : 24.w,
+        vertical: isTablet ? 40 : 24.h,
+      ),
       shape: RoundedRectangleBorder(borderRadius: AppBorderRadius.dialog),
       title: Text(widget.title, style: AppTextStyle.dialogTitle),
-      content: TextField(
-        controller: controller,
-        keyboardType: TextInputType.number,
-        autofocus: true,
-        style: inputStyle,
-        decoration: InputDecoration(
-          prefixText: '₹ ',
-          prefixStyle: inputStyle.copyWith(color: AppColors.muted),
-          filled: true,
-          fillColor: AppColors.fill,
-          border: OutlineInputBorder(
-            borderRadius: AppBorderRadius.dialogInput,
-            borderSide: BorderSide.none,
+      content: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: isTablet ? 380 : 330),
+        child: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          autofocus: true,
+          style: inputStyle,
+          decoration: InputDecoration(
+            prefixText: '₹ ',
+            prefixStyle: inputStyle.copyWith(color: AppColors.muted),
+            filled: true,
+            fillColor: AppColors.fill,
+            border: OutlineInputBorder(
+              borderRadius: AppBorderRadius.dialogInput,
+              borderSide: BorderSide.none,
+            ),
+            hintText: widget.hint,
           ),
-          hintText: widget.hint,
         ),
       ),
       actions: [
@@ -107,10 +118,7 @@ class AmountInputDialogState extends State<AmountInputDialog> {
             shape: RoundedRectangleBorder(borderRadius: AppBorderRadius.pill),
           ),
           onPressed: save,
-          child: Text(
-            'Save',
-            style: AppTextStyle.buttonAction,
-          ),
+          child: Text('Save', style: AppTextStyle.buttonAction),
         ),
       ],
     );

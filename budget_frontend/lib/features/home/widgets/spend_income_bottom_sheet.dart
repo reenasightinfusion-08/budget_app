@@ -189,6 +189,7 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final notifier = widget.selectedTabIndex ?? ValueNotifier<int>(0);
+    final isTablet = AppLayout.isTablet(context);
 
     return ValueListenableBuilder<int>(
       valueListenable: notifier,
@@ -205,7 +206,9 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
               onTap: () => FocusScope.of(context).requestFocus(_amountFocusNode),
               child: AppCard(
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 20.w),
+                padding: isTablet
+                    ? const EdgeInsets.symmetric(vertical: 24, horizontal: 24)
+                    : EdgeInsets.symmetric(vertical: 24.h, horizontal: 20.w),
                 isGradient: true,
                 radius: AppBorderRadius.card,
                 child: Column(
@@ -219,13 +222,13 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
                         Text(
                           '₹',
                           style: AppTextStyle.amountSymbol.copyWith(
-                            fontSize: 35.sp,
+                            fontSize: isTablet ? 28 : 35.sp,
                             fontWeight: FontWeight.w400,
                           ),
                         ),
                         IntrinsicWidth(
                           child: TextField(
-                            cursorHeight: 55.sp,
+                            cursorHeight: isTablet ? 42 : 55.sp,
                             controller: _amountController,
                             focusNode: _amountFocusNode,
                             keyboardType: TextInputType.number,
@@ -236,12 +239,12 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
                             decoration: InputDecoration.collapsed(
                               hintText: '0',
                               hintStyle: AppTextStyle.amount.copyWith(
-                                fontSize: 55.sp,
+                                fontSize: isTablet ? 42 : 55.sp,
                                 color: AppColors.onAccent.withValues(alpha: 0.4),
                               ),
                             ),
                             style: AppTextStyle.amount.copyWith(
-                              fontSize: 55.sp,
+                              fontSize: isTablet ? 42 : 55.sp,
                             ),
                           ),
                         ),

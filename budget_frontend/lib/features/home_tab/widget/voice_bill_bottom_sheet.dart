@@ -141,8 +141,12 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
         await _speech.listen(
           onResult: (SpeechRecognitionResult result) {
             if (mounted) {
+              final words = result.recognizedWords;
               setState(() {
-                _textController.text = result.recognizedWords;
+                _textController.value = TextEditingValue(
+                  text: words,
+                  selection: TextSelection.collapsed(offset: words.length),
+                );
                 _inlineError = null;
               });
             }

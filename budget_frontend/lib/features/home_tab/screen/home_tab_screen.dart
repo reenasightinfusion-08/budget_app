@@ -35,14 +35,6 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
   Widget build(BuildContext context) {
     final isTablet = AppLayout.isTablet(context);
 
-    // Keep 100% original ScreenUtil scaling for mobile.
-    // For tablet, disable non-proportional scaling so card contents
-    // retain their true 1:1 designed proportions without blowing up paddings.
-    ScreenUtil.enableScale(
-      enableWH: () => !isTablet,
-      enableText: () => !isTablet,
-    );
-
     return SafeArea(
       child: RefreshIndicator(
         color: AppColors.accent,
@@ -51,12 +43,23 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: isTablet
               ? const EdgeInsets.fromLTRB(30, 20, 30, 120)
-              : EdgeInsets.fromLTRB(20.w, 16.h, 20.w, AppLayout.navBarClearanceOf(context)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const HomeHeader(),
-              isTablet ? const SizedBox(height: 16) : 15.verticalSpace,
+              : EdgeInsets.fromLTRB(
+                  20.w,
+                  16.h,
+                  20.w,
+                  AppLayout.navBarClearanceOf(context),
+                ),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: isTablet ? AppLayout.maxContentWidth : double.infinity,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const HomeHeader(),
+                  isTablet ? const SizedBox(height: 16) : 15.verticalSpace,
               if (isTablet)
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -85,7 +88,9 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          RecentTransactionsWidget(onSelectTab: widget.onSelectTab),
+                          RecentTransactionsWidget(
+                            onSelectTab: widget.onSelectTab,
+                          ),
                           const SizedBox(height: 16),
                           const ThisWeekCard(),
                           const SizedBox(height: 16),
@@ -120,7 +125,8 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
           ),
         ),
       ),
-    );
+    ),
+  ),
+);
   }
 }
-

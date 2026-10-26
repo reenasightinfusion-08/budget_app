@@ -81,11 +81,6 @@ class _SavingsScreenState extends State<SavingsScreen> {
   Widget build(BuildContext context) {
     final isTablet = AppLayout.isTablet(context);
 
-    ScreenUtil.enableScale(
-      enableWH: () => !isTablet,
-      enableText: () => !isTablet,
-    );
-
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
@@ -105,12 +100,20 @@ class _SavingsScreenState extends State<SavingsScreen> {
                         20.w,
                         16.h,
                         20.w,
-                        widget.showBackButton ? 20.h : AppLayout.navBarClearanceOf(context),
+                        widget.showBackButton
+                            ? 20.h
+                            : AppLayout.navBarClearanceOf(context),
                       ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Header remains unchanged
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: isTablet ? AppLayout.maxContentWidth : double.infinity,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Header remains unchanged
                     Row(
                       children: [
                         if (widget.showBackButton) ...[
@@ -154,9 +157,7 @@ class _SavingsScreenState extends State<SavingsScreen> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
-                                Expanded(
-                                  child: GoalCardWidget(goal: goals[i]),
-                                ),
+                                Expanded(child: GoalCardWidget(goal: goals[i])),
                                 const SizedBox(width: 14),
                                 if (i + 1 < goals.length)
                                   Expanded(
@@ -170,10 +171,15 @@ class _SavingsScreenState extends State<SavingsScreen> {
                         ],
                       const SizedBox(height: 20),
 
-                      // 3. Saving Button given maximum width across the screen
-                      const SizedBox(
-                        width: double.infinity,
-                        child: SavingButtonWidget(),
+                      // 3. Saving Button centered with a comfortable max width
+                      Center(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 440),
+                          child: const SizedBox(
+                            width: double.infinity,
+                            child: SavingButtonWidget(),
+                          ),
+                        ),
                       ),
                     ] else ...[
                       // Mobile layout untouched
@@ -197,7 +203,9 @@ class _SavingsScreenState extends State<SavingsScreen> {
                     ],
                   ],
                 ),
-              );
+              ),
+            ),
+          );
             },
           ),
         ),

@@ -94,11 +94,6 @@ class _WalletScreenState extends State<WalletScreen> {
     final isTablet = AppLayout.isTablet(context);
     final authUser = context.watch<AuthBloc>().state.user;
 
-    ScreenUtil.enableScale(
-      enableWH: () => !isTablet,
-      enableText: () => !isTablet,
-    );
-
     return BlocBuilder<WalletBloc, WalletState>(
       builder: (context, state) {
         final totalBudget = state.monthlyBudget > 0
@@ -129,14 +124,20 @@ class _WalletScreenState extends State<WalletScreen> {
                       20.w,
                       widget.showBackButton ? 20.h : AppLayout.navBarClearanceOf(context),
                     ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  WalletHeader(
-                    onChangeBudget: () => _changeBudget(context, totalBudget),
-                    showBackButton: widget.showBackButton,
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: isTablet ? AppLayout.maxContentWidth : double.infinity,
                   ),
-                  isTablet ? const SizedBox(height: 20) : 16.verticalSpace,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      WalletHeader(
+                        onChangeBudget: () => _changeBudget(context, totalBudget),
+                        showBackButton: widget.showBackButton,
+                      ),
+                      isTablet ? const SizedBox(height: 20) : 16.verticalSpace,
                   BudgetStatusTrip(
                     onTrackCount: state.countWithStatus(BudgetStatus.onTrack),
                     carefulCount: state.countWithStatus(BudgetStatus.careful),
@@ -216,7 +217,9 @@ class _WalletScreenState extends State<WalletScreen> {
               ),
             ),
           ),
-        );
+        ),
+      ),
+    );
 
         if (widget.showBackButton) {
           return Scaffold(

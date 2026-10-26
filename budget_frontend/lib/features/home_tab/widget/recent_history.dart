@@ -15,10 +15,7 @@ import 'package:budget_frontend/features/history/widgets/history_transaction_car
 import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 
 class RecentHistory extends StatefulWidget {
-  const RecentHistory({
-    super.key,
-    this.onSeeAll,
-  });
+  const RecentHistory({super.key, this.onSeeAll});
 
   final VoidCallback? onSeeAll;
 
@@ -37,7 +34,9 @@ class _RecentHistoryState extends State<RecentHistory> {
 
   Future<void> _fetchRecent() async {
     try {
-      final txs = await context.read<TransactionService>().getTransactions(limit: 5);
+      final txs = await context.read<TransactionService>().getTransactions(
+        limit: 5,
+      );
       if (mounted) {
         setState(() {
           _recentTransactions = txs.take(5).toList();
@@ -51,7 +50,7 @@ class _RecentHistoryState extends State<RecentHistory> {
   @override
   Widget build(BuildContext context) {
     final isTablet = AppLayout.isTablet(context);
-    final count = isTablet ? 2 : 5;
+    final count = isTablet ? 4 : 5;
     final walletState = context.watch<WalletBloc>().state;
     final walletRecent = walletState.summary?.recent ?? [];
     final recent = (_recentTransactions ?? walletRecent).take(count).toList();
@@ -63,7 +62,9 @@ class _RecentHistoryState extends State<RecentHistory> {
       child: AppCard(
         color: AppColors.surface,
         radius: AppBorderRadius.card,
-        padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
+        padding: isTablet
+            ? const EdgeInsets.symmetric(horizontal: 18, vertical: 14)
+            : EdgeInsets.symmetric(horizontal: 18.w, vertical: 14.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -71,13 +72,11 @@ class _RecentHistoryState extends State<RecentHistory> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  'Recent',
-                  style: AppTextStyle.cardTitle,
-                ),
+                Text('Recent', style: AppTextStyle.cardTitle),
                 AppLinkButton(
                   label: 'See all',
-                  onPressed: widget.onSeeAll ??
+                  onPressed:
+                      widget.onSeeAll ??
                       () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -88,7 +87,7 @@ class _RecentHistoryState extends State<RecentHistory> {
                 ),
               ],
             ),
-            14.verticalSpace,
+            isTablet ? const SizedBox(height: 14) : 14.verticalSpace,
 
             // 2nd: List of recent transactions (max 5) OR empty state
             if (recent.isNotEmpty)
@@ -96,11 +95,10 @@ class _RecentHistoryState extends State<RecentHistory> {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: recent.length,
-                separatorBuilder: (context, index) => 10.verticalSpace,
+                separatorBuilder: (context, index) =>
+                    isTablet ? const SizedBox(height: 10) : 10.verticalSpace,
                 itemBuilder: (context, index) {
-                  return HistoryTransactionCard(
-                    transaction: recent[index],
-                  );
+                  return HistoryTransactionCard(transaction: recent[index]);
                 },
               )
             else ...[
@@ -110,7 +108,9 @@ class _RecentHistoryState extends State<RecentHistory> {
                   Expanded(
                     child: Text(
                       'Nothing yet. Tap + to log your first spend or income.',
-                      style: AppTextStyle.emptyState.copyWith(color: AppColors.faint),
+                      style: AppTextStyle.emptyState.copyWith(
+                        color: AppColors.faint,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ),

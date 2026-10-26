@@ -15,6 +15,7 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
     on<CreateGoalEvent>(_onCreateGoal);
     on<AddGoalContributionEvent>(_onAddContribution);
     on<DeleteGoalEvent>(_onDeleteGoal);
+    on<ResetGoals>((event, emit) => emit(const GoalState()));
   }
 
   final GoalService goalService;
@@ -63,14 +64,12 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
       add(const LoadGoals());
     } on ApiException catch (e) {
       emit(state.copyWith(isSubmitting: false, errorMessage: e.message));
-      rethrow;
     } catch (e) {
       debugPrint('CreateGoal error: $e');
       emit(state.copyWith(
         isSubmitting: false,
         errorMessage: 'Failed to create goal',
       ));
-      rethrow;
     }
   }
 
@@ -91,14 +90,12 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
       add(const LoadGoals());
     } on ApiException catch (e) {
       emit(state.copyWith(isSubmitting: false, errorMessage: e.message));
-      rethrow;
     } catch (e) {
       debugPrint('AddGoalContribution error: $e');
       emit(state.copyWith(
         isSubmitting: false,
         errorMessage: 'Failed to update goal amount',
       ));
-      rethrow;
     }
   }
 
@@ -118,7 +115,6 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
         isSubmitting: false,
         errorMessage: 'Failed to delete goal',
       ));
-      rethrow;
     }
   }
 }

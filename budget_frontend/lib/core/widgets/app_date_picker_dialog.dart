@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 
@@ -93,12 +94,40 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
 
   String _twoDigits(int n) => n.toString().padLeft(2, '0');
 
+  void _updateDisplayedMonthAndSyncSelected(int year, int month) {
+    final daysInNewMonth = DateTime(year, month + 1, 0).day;
+    final clampedDay = _selectedDate.day.clamp(1, daysInNewMonth);
+    var candidate = DateTime(year, month, clampedDay);
+    final lastDay = DateTime(
+      widget.lastDate.year,
+      widget.lastDate.month,
+      widget.lastDate.day,
+    );
+    final firstDay = DateTime(
+      widget.firstDate.year,
+      widget.firstDate.month,
+      widget.firstDate.day,
+    );
+    if (candidate.isAfter(lastDay)) candidate = lastDay;
+    if (candidate.isBefore(firstDay)) candidate = firstDay;
+
+    setState(() {
+      _displayedMonth = DateTime(year, month, 1);
+      _selectedDate = candidate;
+      _currentView = _PickerView.date;
+    });
+  }
+
   double _calculateContentHeight() {
-    final availableWidth = 285.w;
-    final cellWidth = (availableWidth - (6 * 3.w)) / 7;
+    final isTab = AppLayout.isTablet(context);
+    final availableWidth = isTab ? 285.0 : 285.w;
+    final cellWidth = (availableWidth - (6 * (isTab ? 3.0 : 3.w))) / 7;
     final cellHeight = cellWidth / 1.15;
     // Matches the height of: Weekday Row (18.h) + Spacing (8.h) + 6 Grid Rows + Bottom Spacing (6.h)
-    return 18.h + 8.h + (6 * cellHeight + 5 * 3.h) + 6.h;
+    return (isTab ? 18.0 : 18.h) +
+        (isTab ? 8.0 : 8.h) +
+        (6 * cellHeight + 5 * (isTab ? 3.0 : 3.h)) +
+        (isTab ? 6.0 : 6.h);
   }
 
   Widget _buildCalendarBadge() {
@@ -194,20 +223,15 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
             child: InkWell(
               onTap: isDisabled
                   ? null
-                  : () {
-                      setState(() {
-                        _displayedMonth = DateTime(_displayedMonth.year, m, 1);
-                        _currentView = _PickerView.date;
-                      });
-                    },
+                  : () => _updateDisplayedMonthAndSyncSelected(_displayedMonth.year, m),
               borderRadius: AppBorderRadius.chip,
               child: Container(
                 decoration: BoxDecoration(
                   color: isSelected
                       ? widget.accentColor
                       : (isDisabled
-                          ? AppColors.fill.withValues(alpha: 0.4)
-                          : AppColors.fill),
+                            ? AppColors.fill.withValues(alpha: 0.4)
+                            : AppColors.fill),
                   borderRadius: AppBorderRadius.chip,
                   boxShadow: isSelected
                       ? [
@@ -228,8 +252,8 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
                     color: isSelected
                         ? AppColors.onAccent
                         : (isDisabled
-                            ? AppColors.faint.withValues(alpha: 0.4)
-                            : AppColors.ink),
+                              ? AppColors.faint.withValues(alpha: 0.4)
+                              : AppColors.ink),
                   ),
                 ),
               ),
@@ -267,12 +291,7 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
           return Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () {
-                setState(() {
-                  _displayedMonth = DateTime(year, _displayedMonth.month, 1);
-                  _currentView = _PickerView.date;
-                });
-              },
+              onTap: () => _updateDisplayedMonthAndSyncSelected(year, _displayedMonth.month),
               borderRadius: AppBorderRadius.chip,
               child: Container(
                 decoration: BoxDecoration(
@@ -327,24 +346,36 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
     final weeksCount = (totalDaysCovered / 7).ceil();
     final totalGridCells = weeksCount * 7;
 
+    final isTablet = AppLayout.isTablet(context);
+
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
-      child: Container(
-        width: 325.w,
-        padding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 18.h),
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: AppBorderRadius.xl,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.sheetShadow.withValues(alpha: 0.12),
-              blurRadius: 24,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Column(
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 40 : 24.w,
+        vertical: isTablet ? 40 : 24.h,
+      ),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: isTablet ? 360 : 330),
+        child: Container(
+          width: isTablet ? 360 : 325.w,
+          padding: EdgeInsets.fromLTRB(
+            isTablet ? 20 : 20.w,
+            isTablet ? 20 : 20.h,
+            isTablet ? 20 : 20.w,
+            isTablet ? 18 : 18.h,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: AppBorderRadius.xl,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.sheetShadow.withValues(alpha: 0.12),
+                blurRadius: 24,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -376,8 +407,8 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
                                 setState(() {
                                   _currentView =
                                       _currentView == _PickerView.month
-                                          ? _PickerView.date
-                                          : _PickerView.month;
+                                      ? _PickerView.date
+                                      : _PickerView.month;
                                 });
                               },
                               borderRadius: AppBorderRadius.track,
@@ -411,9 +442,9 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
                                             fontWeight: FontWeight.w600,
                                             color:
                                                 _currentView ==
-                                                        _PickerView.month
-                                                    ? widget.accentColor
-                                                    : AppColors.ink,
+                                                    _PickerView.month
+                                                ? widget.accentColor
+                                                : AppColors.ink,
                                           ),
                                     ),
                                     4.horizontalSpace,
@@ -421,10 +452,9 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
                                       _currentView == _PickerView.month
                                           ? Icons.arrow_drop_up
                                           : Icons.arrow_drop_down,
-                                      color:
-                                          _currentView == _PickerView.month
-                                              ? widget.accentColor
-                                              : AppColors.ink,
+                                      color: _currentView == _PickerView.month
+                                          ? widget.accentColor
+                                          : AppColors.ink,
                                       size: 18.sp,
                                     ),
                                   ],
@@ -442,8 +472,8 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
                                 setState(() {
                                   _currentView =
                                       _currentView == _PickerView.year
-                                          ? _PickerView.date
-                                          : _PickerView.year;
+                                      ? _PickerView.date
+                                      : _PickerView.year;
                                 });
                               },
                               borderRadius: AppBorderRadius.track,
@@ -475,8 +505,8 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
                                             fontWeight: FontWeight.w600,
                                             color:
                                                 _currentView == _PickerView.year
-                                                    ? widget.accentColor
-                                                    : AppColors.ink,
+                                                ? widget.accentColor
+                                                : AppColors.ink,
                                           ),
                                     ),
                                     4.horizontalSpace,
@@ -484,10 +514,9 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
                                       _currentView == _PickerView.year
                                           ? Icons.arrow_drop_up
                                           : Icons.arrow_drop_down,
-                                      color:
-                                          _currentView == _PickerView.year
-                                              ? widget.accentColor
-                                              : AppColors.ink,
+                                      color: _currentView == _PickerView.year
+                                          ? widget.accentColor
+                                          : AppColors.ink,
                                       size: 18.sp,
                                     ),
                                   ],
@@ -586,7 +615,8 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
                     widget.firstDate.month,
                     widget.firstDate.day,
                   );
-                  final isDisabled = cellDate.isAfter(lastDateDay) ||
+                  final isDisabled =
+                      cellDate.isAfter(lastDateDay) ||
                       cellDate.isBefore(firstDateDay);
 
                   Color textColor;
@@ -614,8 +644,9 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
                               borderRadius: AppBorderRadius.dayCell,
                               boxShadow: [
                                 BoxShadow(
-                                  color:
-                                      widget.accentColor.withValues(alpha: 0.3),
+                                  color: widget.accentColor.withValues(
+                                    alpha: 0.3,
+                                  ),
                                   blurRadius: 4,
                                   offset: const Offset(0, 2),
                                 ),
@@ -734,6 +765,7 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

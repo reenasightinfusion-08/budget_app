@@ -15,6 +15,7 @@ import 'package:budget_frontend/core/widgets/app_toast.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 import 'package:budget_frontend/features/profile/widgets/data_raw.dart';
 import 'package:budget_frontend/features/profile/widgets/profile_confirmation_dialog.dart';
+import 'package:budget_frontend/features/savings/bloc/goal_bloc.dart';
 import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
 import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 
@@ -31,6 +32,8 @@ class ProfileMenuCard extends StatelessWidget {
       confirmLabel: 'Clear all',
       onConfirm: () {
         context.read<AuthBloc>().add(const AuthClearDataRequested());
+        context.read<WalletBloc>().add(const RefreshWalletSummary());
+        context.read<GoalBloc>().add(const LoadGoals());
       },
     );
   }
@@ -118,7 +121,7 @@ class ProfileMenuCard extends StatelessWidget {
     final clearItem = DataRaw(
       icon: AppIcons.delete,
       title: 'Clear all entries',
-      subtitle: 'Removes entries and goals from this device',
+      subtitle: 'Deletes all entries and goals from your account',
       iconColor: AppColors.error,
       onTap: () => _confirmClearData(context),
     );

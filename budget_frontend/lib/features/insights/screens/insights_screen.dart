@@ -28,11 +28,6 @@ class InsightsScreen extends StatelessWidget {
         ? InsightsData.fromSummaryAndBudget(summary, budget)
         : InsightsData.empty(budget);
 
-    ScreenUtil.enableScale(
-      enableWH: () => !isTablet,
-      enableText: () => !isTablet,
-    );
-
     final spentThisMonthCard = InsightCard(
       title: 'Spent this month',
       trailing: Text(
@@ -64,34 +59,42 @@ class InsightsScreen extends StatelessWidget {
           padding: isTablet
               ? const EdgeInsets.fromLTRB(30, 20, 30, 120)
               : EdgeInsets.fromLTRB(20.w, 16.h, 20.w, AppLayout.navBarClearanceOf(context)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const InsightsHeader(),
-              isTablet ? const SizedBox(height: 16) : 16.verticalSpace,
-              SimpleWordsCard(data: data),
-              isTablet ? const SizedBox(height: 16) : 16.verticalSpace,
-              if (isTablet) ...[
-                IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(child: spentThisMonthCard),
-                      const SizedBox(width: 16),
-                      Expanded(child: last6MonthsCard),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ] else ...[
-                spentThisMonthCard,
-                16.verticalSpace,
-                last6MonthsCard,
-                16.verticalSpace,
-              ],
-              CategoryBreakdownCard(data: data),
-              isTablet ? const SizedBox(height: 24) : 24.verticalSpace,
-            ],
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: isTablet ? AppLayout.maxContentWidth : double.infinity,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const InsightsHeader(),
+                  isTablet ? const SizedBox(height: 16) : 16.verticalSpace,
+                  SimpleWordsCard(data: data),
+                  isTablet ? const SizedBox(height: 16) : 16.verticalSpace,
+                  if (isTablet) ...[
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(child: spentThisMonthCard),
+                          const SizedBox(width: 16),
+                          Expanded(child: last6MonthsCard),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ] else ...[
+                    spentThisMonthCard,
+                    16.verticalSpace,
+                    last6MonthsCard,
+                    16.verticalSpace,
+                  ],
+                  CategoryBreakdownCard(data: data),
+                  isTablet ? const SizedBox(height: 24) : 24.verticalSpace,
+                ],
+              ),
+            ),
           ),
         ),
       ),

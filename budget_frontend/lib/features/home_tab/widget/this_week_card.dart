@@ -28,10 +28,7 @@ class DaySpendingData {
 }
 
 class ThisWeekCard extends StatelessWidget {
-  const ThisWeekCard({
-    super.key,
-    this.title = 'This week',
-  });
+  const ThisWeekCard({super.key, this.title = 'This week'});
 
   final String title;
 
@@ -45,8 +42,8 @@ class ThisWeekCard extends StatelessWidget {
 
     final weekStartDate = (summary != null && summary.weekStart.isNotEmpty)
         ? (DateTime.tryParse(summary.weekStart) ??
-            now.subtract(Duration(days: now.weekday - 1)))
-        : now.subtract(Duration(days: now.weekday - 1));
+              DateTime(now.year, now.month, now.day - (now.weekday - 1)))
+        : DateTime(now.year, now.month, now.day - (now.weekday - 1));
 
     final dailyMap = summary != null
         ? {for (final d in summary.daily) d.date: d.spentRupees}
@@ -57,9 +54,22 @@ class ThisWeekCard extends StatelessWidget {
 
     final generatedItems = List.generate(7, (i) {
       final dayDate = DateTime(
-          weekStartDate.year, weekStartDate.month, weekStartDate.day + i);
+        weekStartDate.year,
+        weekStartDate.month,
+        weekStartDate.day + i,
+      );
       final dateStr = AppFormatters.dateForApi(dayDate);
-      final spent = dailyMap[dateStr] ?? 0;
+      int spent = dailyMap[dateStr] ?? 0;
+      if (spent == 0 && summary != null && summary.recent.isNotEmpty) {
+        final recentSpend = summary.recent
+            .where((t) =>
+                t.date.year == dayDate.year &&
+                t.date.month == dayDate.month &&
+                t.date.day == dayDate.day &&
+                t.isSpend)
+            .fold<int>(0, (sum, t) => sum + t.amount.round());
+        if (recentSpend > 0) spent = recentSpend;
+      }
       weekTotal += spent;
 
       DayBarState state;
@@ -96,14 +106,8 @@ class ThisWeekCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                title,
-                style: AppTextStyle.cardTitle,
-              ),
-              Text(
-                displayTotal,
-                style: AppTextStyle.cardTitle,
-              ),
+              Text(title, style: AppTextStyle.cardTitle),
+              Text(displayTotal, style: AppTextStyle.cardTitle),
             ],
           ),
           20.verticalSpace,
@@ -129,10 +133,7 @@ class ThisWeekCard extends StatelessWidget {
 
               if (isCurrent) {
                 barColor = AppColors.pop;
-                barBorder = Border.all(
-                  color: AppColors.accent,
-                  width: 1.5.w,
-                );
+                barBorder = Border.all(color: AppColors.accent, width: 1.5.w);
               } else if (isFilled && hasSpend) {
                 barColor = AppColors.accent;
                 barBorder = null;

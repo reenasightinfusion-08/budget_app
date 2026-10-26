@@ -6,6 +6,7 @@ import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_config.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
@@ -35,43 +36,45 @@ class AvailableToSpendCard extends StatelessWidget {
     final double progress = walletState.spendProgress;
     final bool isOverBudget = walletState.remainingBudget < 0;
 
+    final isTablet = AppLayout.isTablet(context);
+
     return AppCard(
       isGradient: true,
       radius: AppBorderRadius.card,
-      padding: EdgeInsets.all(20.r),
+      padding: isTablet ? const EdgeInsets.all(24) : EdgeInsets.all(20.r),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CircleAvatar(
             backgroundColor: AppColors.glassFill,
             foregroundColor: AppColors.onAccent,
-            radius: 25.r,
+            radius: isTablet ? 24 : 25.r,
             child: Icon(
               AppIcons.wallet,
-              size: 25.sp,
+              size: isTablet ? 22 : 25.sp,
             ),
           ),
-          14.verticalSpace,
+          isTablet ? const SizedBox(height: 12) : 14.verticalSpace,
           Text(
             'Available to spend',
             style: AppTextStyle.title.copyWith(
-              fontSize: 22.sp,
+              fontSize: isTablet ? 20 : 22.sp,
               fontWeight: FontWeight.w600,
               color: AppColors.onAccent,
             ),
           ),
-          8.verticalSpace,
+          isTablet ? const SizedBox(height: 6) : 8.verticalSpace,
           RichText(
             text: TextSpan(
               style: AppTextStyle.subtitle.copyWith(
-                fontSize: 16.sp,
+                fontSize: isTablet ? 15 : 16.sp,
                 color: AppColors.onAccentMuted,
               ),
               children: [
                 TextSpan(
                   text: '${AppFormatters.rupees(isOverBudget ? -walletState.remainingBudget : availableToSpend)} ',
                   style: AppTextStyle.title.copyWith(
-                    fontSize: 16.sp,
+                    fontSize: isTablet ? 15 : 16.sp,
                     fontWeight: FontWeight.w700,
                     color: AppColors.onAccent,
                   ),
@@ -82,9 +85,9 @@ class AvailableToSpendCard extends StatelessWidget {
               ],
             ),
           ),
-          16.verticalSpace,
+          isTablet ? const SizedBox(height: 14) : 16.verticalSpace,
           Container(
-            height: 8.h,
+            height: isTablet ? 8 : 8.h,
             width: double.infinity,
             decoration: BoxDecoration(
               color: Colors.white.withValues(alpha: 0.25),
@@ -101,7 +104,7 @@ class AvailableToSpendCard extends StatelessWidget {
               ),
             ),
           ),
-          12.verticalSpace,
+          isTablet ? const SizedBox(height: 12) : 12.verticalSpace,
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -109,7 +112,7 @@ class AvailableToSpendCard extends StatelessWidget {
                 text: TextSpan(
                   style: AppTextStyle.chip.copyWith(
                     color: AppColors.onAccentMuted,
-                    fontSize: 13.sp,
+                    fontSize: isTablet ? 13 : 13.sp,
                     fontWeight: FontWeight.w600,
                   ),
                   text: '${AppFormatters.rupees(totalSpent)} / ${AppFormatters.rupees(monthlyBudget)}',
@@ -119,7 +122,7 @@ class AvailableToSpendCard extends StatelessWidget {
                 _getCurrentMonthLastDate(),
                 style: AppTextStyle.chip.copyWith(
                   color: AppColors.onAccentMuted,
-                  fontSize: 13.sp,
+                  fontSize: isTablet ? 13 : 13.sp,
                   fontWeight: FontWeight.w600,
                 ),
               ),

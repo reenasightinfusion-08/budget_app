@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -66,13 +68,27 @@ class BudgetApp extends StatelessWidget {
           child: ScreenUtilInit(
             designSize: const Size(390, 844),
             minTextAdapt: true,
-            builder: (context, child) => MaterialApp(
-              title: 'Budgie',
-              debugShowCheckedModeBanner: false,
-              theme: AppTheme.light,
-              initialRoute: AppRoutes.splash,
-              routes: AppRoutes.routes,
-            ),
+            fontSizeResolver: (fontSize, instance) {
+              final shortestSide = min(instance.screenWidth, instance.screenHeight);
+              if (shortestSide >= 600) {
+                return fontSize.toDouble();
+              }
+              return FontSizeResolvers.width(fontSize, instance);
+            },
+            builder: (context, child) {
+              final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
+              ScreenUtil.enableScale(
+                enableWH: () => !isTablet,
+                enableText: () => !isTablet,
+              );
+              return MaterialApp(
+                title: 'Budgie',
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.light,
+                initialRoute: AppRoutes.splash,
+                routes: AppRoutes.routes,
+              );
+            },
           ),
         ),
       );

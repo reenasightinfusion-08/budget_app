@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
 
@@ -20,13 +21,17 @@ class DataCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
+
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: AppCard(
           radius: AppBorderRadius.tile,
-          padding: EdgeInsets.symmetric(vertical: 12.h),
+          padding: isTablet
+              ? const EdgeInsets.symmetric(vertical: 14)
+              : EdgeInsets.symmetric(vertical: 12.h),
           isGradient: false,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -34,15 +39,16 @@ class DataCard extends StatelessWidget {
               Text(
                 count,
                 style: AppTextStyle.title.copyWith(
-                  fontSize: 30.sp,
+                  fontSize: isTablet ? 24 : 30.sp,
                   height: 1,
                 ),
               ),
+              const SizedBox(height: 4),
               Text(
                 name,
                 style: AppTextStyle.toggleTitle.copyWith(
                   color: AppColors.muted,
-                  fontSize: 15.sp,
+                  fontSize: isTablet ? 13 : 15.sp,
                 ),
               ),
             ],

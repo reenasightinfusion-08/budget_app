@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 
 class ProfileConfirmationDialog extends StatelessWidget {
@@ -43,41 +44,50 @@ class ProfileConfirmationDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
+
     return AlertDialog(
       backgroundColor: AppColors.surface,
       surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(
-        borderRadius: AppBorderRadius.lg,
+      insetPadding: EdgeInsets.symmetric(
+        horizontal: isTablet ? 40 : 24.w,
+        vertical: isTablet ? 40 : 24.h,
       ),
+      shape: RoundedRectangleBorder(borderRadius: AppBorderRadius.lg),
       title: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(8.r),
+            padding: EdgeInsets.all(isTablet ? 8 : 8.r),
             decoration: const BoxDecoration(
               color: AppColors.errorSoft,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              icon,
-              color: AppColors.error,
-              size: 20.sp,
-            ),
+            child: Icon(icon, color: AppColors.error, size: isTablet ? 20 : 20.sp),
           ),
-          12.horizontalSpace,
-          Text(
-            title,
-            style: AppTextStyle.title.copyWith(fontSize: 18.sp),
+          SizedBox(width: isTablet ? 12 : 12.w),
+          Expanded(
+            child: Text(
+              title,
+              style: AppTextStyle.title.copyWith(
+                fontSize: isTablet ? 18 : 18.sp,
+              ),
+            ),
           ),
         ],
       ),
-      content: Text(
-        message,
-        style: AppTextStyle.body.copyWith(
-          color: AppColors.muted,
-          fontSize: 14.sp,
+      content: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: isTablet ? 380 : 330),
+        child: Text(
+          message,
+          style: AppTextStyle.body.copyWith(
+            color: AppColors.muted,
+            fontSize: isTablet ? 14 : 14.sp,
+          ),
         ),
       ),
-      actionsPadding: EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
+      actionsPadding: isTablet
+          ? const EdgeInsets.fromLTRB(20, 0, 20, 18)
+          : EdgeInsets.fromLTRB(16.w, 0, 16.w, 16.h),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
@@ -94,10 +104,10 @@ class ProfileConfirmationDialog extends StatelessWidget {
             backgroundColor: AppColors.error,
             foregroundColor: Colors.white,
             elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: AppBorderRadius.md,
-            ),
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            shape: RoundedRectangleBorder(borderRadius: AppBorderRadius.md),
+            padding: isTablet
+                ? const EdgeInsets.symmetric(horizontal: 18, vertical: 10)
+                : EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
           ),
           onPressed: () {
             Navigator.of(context).pop();

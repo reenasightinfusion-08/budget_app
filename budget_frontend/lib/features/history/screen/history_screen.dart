@@ -13,6 +13,7 @@ import 'package:budget_frontend/features/history/models/history_transaction_mode
 import 'package:budget_frontend/features/history/services/transaction_service.dart';
 import 'package:budget_frontend/features/history/widgets/history_grid_view.dart';
 import 'package:budget_frontend/features/history/widgets/history_header.dart';
+import 'package:budget_frontend/features/profile/widgets/profile_confirmation_dialog.dart';
 import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -25,7 +26,6 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-
   List<HistoryTransactionModel> _transactions = [];
   bool _isLoading = true;
   bool _suppressNextWalletReload = false;
@@ -59,9 +59,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
       if (_selectedFilterIndex == 2) type = 'income';
 
       final txs = await context.read<TransactionService>().getTransactions(
-            type: type,
-            q: _searchQuery.trim().isNotEmpty ? _searchQuery.trim() : null,
-          );
+        type: type,
+        q: _searchQuery.trim().isNotEmpty ? _searchQuery.trim() : null,
+      );
 
       if (!mounted) return;
       setState(() {
@@ -101,7 +101,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
     _loadTransactions(showLoader: false);
   }
 
-  void _onDelete(HistoryTransactionModel tx) async {
+  void _onDelete(HistoryTransactionModel tx) {
+    ProfileConfirmationDialog.show(
+      context: context,
+      title: 'Delete transaction',
+      message:
+          'Are you sure you want to delete "${tx.description}" (${tx.signedFormattedAmount})?',
+      icon: AppIcons.delete,
+      confirmLabel: 'Delete',
+      onConfirm: () => _performDelete(tx),
+    );
+  }
+
+  void _performDelete(HistoryTransactionModel tx) async {
     final previousList = List<HistoryTransactionModel>.from(_transactions);
     setState(() {
       _transactions.removeWhere((item) => item.id == tx.id);
@@ -112,10 +124,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       await context.read<TransactionService>().deleteTransaction(tx.id);
       if (!mounted) return;
       context.read<WalletBloc>().add(const RefreshWalletSummary());
-      AppToast.show(
-        context,
-        message: 'Transaction deleted',
-      );
+      AppToast.show(context, message: 'Transaction deleted');
     } catch (e) {
       _suppressNextWalletReload = false;
       if (!mounted) return;
@@ -132,6 +141,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
+
     return BlocListener<WalletBloc, WalletState>(
       listener: (context, state) {
         if (_suppressNextWalletReload) {
@@ -147,88 +158,98 @@ class _HistoryScreenState extends State<HistoryScreen> {
             onRefresh: _loadTransactions,
             child: SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.fromLTRB(
-              20.w,
-              16.h,
-              20.w,
-              AppLayout.navBarClearanceOf(context),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top navigation row
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
-                      child: CircleAvatar(
-                        radius: 23.r,
-                        backgroundColor: AppColors.surface,
-                        child: Icon(
-                          AppIcons.chevronLeft,
-                          color: AppColors.ink,
-                          size: 25.sp,
+              padding: isTablet
+                  ? const EdgeInsets.fromLTRB(32, 24, 32, 120)
+                  : EdgeInsets.fromLTRB(
+                      20.w,
+                      16.h,
+                      20.w,
+                      AppLayout.navBarClearanceOf(context),
+                    ),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: isTablet ? AppLayout.maxContentWidth : double.infinity,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Top navigation row
+                      Row(
+                        children: [
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: CircleAvatar(
+                          radius: isTablet ? 22 : 23.r,
+                          backgroundColor: AppColors.surface,
+                          child: Icon(
+                            AppIcons.chevronLeft,
+                            color: AppColors.ink,
+                            size: isTablet ? 22 : 25.sp,
+                          ),
                         ),
                       ),
-                    ),
-                    15.horizontalSpace,
-                    Text(
-                      'History',
-                      style: AppTextStyle.screenTitle,
-                    ),
-                  ],
-                ),
-                16.verticalSpace,
-
-                // Search field & filter buttons
-                HistoryHeader(
-                  selectedFilterIndex: _selectedFilterIndex,
-                  onFilterIndexChanged: _onFilterChanged,
-                  onChanged: _onSearchChanged,
-                  onClear: () {
-                    _searchQuery = '';
-                    _loadTransactions();
-                  },
-                ),
-                16.verticalSpace,
-
-                // GridView.builder displaying transaction items or Loading/Error
-                if (_isLoading)
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 40.h),
-                    child: const Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.accent),
-                      ),
-                    ),
-                  )
-                else if (_errorMessage != null)
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 40.h),
-                    child: Center(
-                      child: Column(
-                        children: [
-                          Text(_errorMessage!, style: AppTextStyle.error),
-                          8.verticalSpace,
-                          TextButton(
-                            onPressed: _loadTransactions,
-                            child: const Text('Try again'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                else
-                  HistoryGridView(
-                    transactions: _transactions,
-                    onDelete: _onDelete,
+                      SizedBox(width: isTablet ? 15 : 15.w),
+                      Text('History', style: AppTextStyle.screenTitle),
+                    ],
                   ),
-              ],
+                  isTablet ? const SizedBox(height: 16) : 16.verticalSpace,
+
+                  // Search field & filter buttons
+                  HistoryHeader(
+                    selectedFilterIndex: _selectedFilterIndex,
+                    onFilterIndexChanged: _onFilterChanged,
+                    onChanged: _onSearchChanged,
+                    onClear: () {
+                      _searchQuery = '';
+                      _loadTransactions();
+                    },
+                  ),
+                  16.verticalSpace,
+
+                  // GridView.builder displaying transaction items or Loading/Error
+                  if (_isLoading)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 40.h),
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.accent,
+                          ),
+                        ),
+                      ),
+                    )
+                  else if (_errorMessage != null)
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 40.h),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Text(_errorMessage!, style: AppTextStyle.error),
+                            8.verticalSpace,
+                            TextButton(
+                              onPressed: _loadTransactions,
+                              child: const Text('Try again'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    HistoryGridView(
+                      transactions: _transactions,
+                      onDelete: _onDelete,
+                      crossAxisCount: isTablet ? 2 : 1,
+                    ),
+                ],
+              ),
             ),
           ),
         ),
       ),
     ),
-  );
-}
+  ),
+);
+  }
 }

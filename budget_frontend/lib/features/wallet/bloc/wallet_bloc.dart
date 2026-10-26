@@ -32,6 +32,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     on<UpdateMonthlyBudget>(_onUpdateMonthlyBudget);
     on<UpdateCategoryLimit>(_onUpdateCategoryLimit);
     on<ApplyWalletEasyFix>(_onApplyWalletEasyFix);
+    on<ResetWallet>(_onResetWallet);
   }
 
   final ProfileService profileService;
@@ -161,16 +162,31 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     ));
   }
 
+  void _onResetWallet(
+    ResetWallet event,
+    Emitter<WalletState> emit,
+  ) {
+    emit(WalletState(
+      monthlyBudget: AppConfig.defaultMonthlyBudget,
+      categories: BudgetCategoryModel.generateInitial(AppConfig.defaultMonthlyBudget),
+    ));
+  }
+
   Future<void> _onUpdateMonthlyBudget(
     UpdateMonthlyBudget event,
     Emitter<WalletState> emit,
   ) async {
     if (event.monthlyBudget <= 0) return;
 
+    // Preserve custom category limits if any exist
+    final currentLimitsPaise = {
+      for (final c in state.categories) c.id: c.limit * 100,
+    };
+
     // Optimistic UI update
     final updatedCategories = BudgetCategoryModel.generateInitial(
       event.monthlyBudget,
-      null,
+      currentLimitsPaise.isNotEmpty ? currentLimitsPaise : null,
       _cachedCategories,
     );
     if (state.summary != null) {
@@ -197,16 +213,20 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     Emitter<WalletState> emit,
   ) async {
     final updated = state.categories.map((c) {
-      if (c.id == event.categoryId) {
-        c.limit = event.newLimit;
-      }
-      return c;
+      return BudgetCategoryModel(
+        id: c.id,
+        label: c.label,
+        icon: c.icon,
+        color: c.color,
+        spent: c.spent,
+        limit: c.id == event.categoryId ? event.newLimit : c.limit,
+      );
     }).toList();
     emit(state.copyWith(categories: updated));
 
     // Save all category limits to API in paise
     final limitsPaise = {
-      for (final c in state.categories) c.id: c.limit * 100,
+      for (final c in updated) c.id: c.limit * 100,
     };
     try {
       await profileService.updateCategoryLimits(limitsPaise);
@@ -219,12 +239,41 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     ApplyWalletEasyFix event,
     Emitter<WalletState> emit,
   ) async {
-    event.fix.from.limit -= event.fix.amount;
-    event.fix.to.limit += event.fix.amount;
-    emit(state.copyWith(categories: List.of(state.categories)));
+    final updated = state.categories.map((c) {
+      if (c.id == event.fix.from.id) {
+        return BudgetCategoryModel(
+          id: c.id,
+          label: c.label,
+          icon: c.icon,
+          color: c.color,
+          spent: c.spent,
+          limit: c.limit - event.fix.amount,
+        );
+      }
+      if (c.id == event.fix.to.id) {
+        return BudgetCategoryModel(
+          id: c.id,
+          label: c.label,
+          icon: c.icon,
+          color: c.color,
+          spent: c.spent,
+          limit: c.limit + event.fix.amount,
+        );
+      }
+      return BudgetCategoryModel(
+        id: c.id,
+        label: c.label,
+        icon: c.icon,
+        color: c.color,
+        spent: c.spent,
+        limit: c.limit,
+      );
+    }).toList();
+
+    emit(state.copyWith(categories: updated));
 
     final limitsPaise = {
-      for (final c in state.categories) c.id: c.limit * 100,
+      for (final c in updated) c.id: c.limit * 100,
     };
     try {
       await profileService.updateCategoryLimits(limitsPaise);

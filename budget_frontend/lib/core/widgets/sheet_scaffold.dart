@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:budget_frontend/core/constants/app_colors.dart';
@@ -38,14 +37,6 @@ class SheetScaffold extends StatelessWidget {
     final bool authLoading = context.watch<AuthBloc>().state.isLoading;
     final bool effectiveLoading = isLoading ?? authLoading;
     final bool isTablet = AppLayout.isTablet(context);
-
-    // Keep 100% original ScreenUtil scaling for mobile.
-    // For tablet, disable non-proportional scaling so button heights,
-    // input heights, and typography retain their true 1:1 designed proportions.
-    ScreenUtil.enableScale(
-      enableWH: () => !isTablet,
-      enableText: () => !isTablet,
-    );
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -108,10 +99,54 @@ class _TabletSplitLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String leftTitle = title == 'Welcome back' ? 'Welcome back\nto Budgie' : title;
-    final String leftSubtitle = title == 'Welcome back' ? 'A calmer way to watch your money.' : subtitle;
-    final String detailTitle = title == 'Welcome back' ? 'Log in' : title;
-    final String detailSubtitle = title == 'Welcome back' ? 'Pick up right where your budget left off.' : subtitle;
+    final String leftTitle;
+    final String leftSubtitle;
+    final String detailTitle;
+    final String detailSubtitle;
+
+    switch (title) {
+      case 'Welcome back':
+        leftTitle = 'Welcome back\nto Budgie';
+        leftSubtitle = 'A calmer way to watch your money.';
+        detailTitle = 'Log in';
+        detailSubtitle = 'Pick up right where your budget left off.';
+        break;
+      case 'Create your account':
+        leftTitle = 'Start fresh\nwith Budgie';
+        leftSubtitle = 'Track spending, plan budgets, and reach your goals.';
+        detailTitle = 'Create account';
+        detailSubtitle = 'Set up your login to get started.';
+        break;
+      case 'Hi, I’m Budgie':
+        leftTitle = 'Meet Budgie,\nyour money guide';
+        leftSubtitle = 'Always watching your pace so you never overspend.';
+        detailTitle = 'Quick setup';
+        detailSubtitle = 'Two quick answers and I’ll start counting for you.';
+        break;
+      case 'Forgot password?':
+        leftTitle = 'Don’t worry,\nwe’ve got you';
+        leftSubtitle = 'We’ll get you back into your account in no time.';
+        detailTitle = 'Forgot password';
+        detailSubtitle = 'Enter your email and we’ll send you a 6-digit code.';
+        break;
+      case 'Verify your email':
+        leftTitle = 'Check your\ninbox';
+        leftSubtitle = 'One last step to confirm your email and secure your account.';
+        detailTitle = 'Verify email';
+        detailSubtitle = subtitle;
+        break;
+      case 'Set a new password':
+        leftTitle = 'Secure your\naccount';
+        leftSubtitle = 'Choose a fresh password you haven’t used before.';
+        detailTitle = 'New password';
+        detailSubtitle = 'Enter the reset code and pick a new password.';
+        break;
+      default:
+        leftTitle = 'Budgie';
+        leftSubtitle = 'A calmer way to watch your money.';
+        detailTitle = title;
+        detailSubtitle = subtitle;
+    }
 
     return Row(
       children: [
