@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:budget_frontend/core/ads/native_ad_widget.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
@@ -91,6 +93,8 @@ class InsightsScreen extends StatelessWidget {
                     16.verticalSpace,
                   ],
                   CategoryBreakdownCard(data: data),
+                  isTablet ? const SizedBox(height: 16) : 16.verticalSpace,
+                  const NativeAdWidget(templateType: TemplateType.medium),
                   isTablet ? const SizedBox(height: 24) : 24.verticalSpace,
                 ],
               ),

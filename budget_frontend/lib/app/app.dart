@@ -18,50 +18,102 @@ import 'package:budget_frontend/features/setup/services/profile_service.dart';
 import 'package:budget_frontend/features/smart_add/services/smart_add_service.dart';
 import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 
-class BudgetApp extends StatelessWidget {
+import 'package:budget_frontend/core/ads/ad_service.dart';
+
+const _kAppOpenExemptRoutes = {
+  AppRoutes.splash,
+  AppRoutes.login,
+  AppRoutes.signup,
+  AppRoutes.forgotPassword,
+  AppRoutes.resetPassword,
+  AppRoutes.verifyEmail,
+  AppRoutes.setup,
+};
+
+class _RouteNameObserver extends NavigatorObserver {
+  _RouteNameObserver({required this.onChanged});
+
+  final ValueChanged<String?> onChanged;
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPush(route, previousRoute);
+    onChanged(route.settings.name);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPop(route, previousRoute);
+    onChanged(previousRoute?.settings.name);
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+    onChanged(newRoute?.settings.name);
+  }
+}
+
+class BudgetApp extends StatefulWidget {
   const BudgetApp({super.key, required this.apiClient});
 
   final ApiClient apiClient;
 
   @override
+  State<BudgetApp> createState() => _BudgetAppState();
+}
+
+class _BudgetAppState extends State<BudgetApp> {
+  String? _currentRoute;
+  late final NavigatorObserver _routeObserver = _RouteNameObserver(
+    onChanged: (name) => _currentRoute = name,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    AdService.appOpenGuard = () => !_kAppOpenExemptRoutes.contains(_currentRoute);
+  }
+
+  @override
   Widget build(BuildContext context) => MultiRepositoryProvider(
         providers: [
           RepositoryProvider<TransactionService>(
-            create: (context) => TransactionService(apiClient),
+            create: (context) => TransactionService(widget.apiClient),
           ),
           RepositoryProvider<CategoryService>(
-            create: (context) => CategoryService(apiClient),
+            create: (context) => CategoryService(widget.apiClient),
           ),
           RepositoryProvider<GoalService>(
-            create: (context) => GoalService(apiClient),
+            create: (context) => GoalService(widget.apiClient),
           ),
           RepositoryProvider<SmartAddService>(
-            create: (context) => SmartAddService(apiClient),
+            create: (context) => SmartAddService(widget.apiClient),
           ),
         ],
         child: MultiBlocProvider(
           providers: [
             BlocProvider<AuthBloc>(
-              create: (context) => AuthBloc(authService: ApiAuthService(apiClient)),
+              create: (context) => AuthBloc(authService: ApiAuthService(widget.apiClient)),
             ),
             BlocProvider<CategoryBloc>(
               create: (context) => CategoryBloc(
-                categoryService: CategoryService(apiClient),
+                categoryService: CategoryService(widget.apiClient),
               ),
             ),
             BlocProvider<GoalBloc>(
               create: (context) => GoalBloc(
-                goalService: GoalService(apiClient),
+                goalService: GoalService(widget.apiClient),
               ),
             ),
             BlocProvider<SetupBloc>(
-              create: (context) => SetupBloc(profileService: ProfileService(apiClient)),
+              create: (context) => SetupBloc(profileService: ProfileService(widget.apiClient)),
             ),
             BlocProvider<WalletBloc>(
               create: (context) => WalletBloc(
-                profileService: ProfileService(apiClient),
-                transactionService: TransactionService(apiClient),
-                categoryService: CategoryService(apiClient),
+                profileService: ProfileService(widget.apiClient),
+                transactionService: TransactionService(widget.apiClient),
+                categoryService: CategoryService(widget.apiClient),
               ),
             ),
           ],
@@ -87,6 +139,7 @@ class BudgetApp extends StatelessWidget {
                 theme: AppTheme.light,
                 initialRoute: AppRoutes.splash,
                 routes: AppRoutes.routes,
+                navigatorObservers: [_routeObserver],
               );
             },
           ),

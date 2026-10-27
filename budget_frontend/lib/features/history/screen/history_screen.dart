@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/ads/banner_ad_widget.dart';
 import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/network/api_exception.dart';
@@ -152,6 +153,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         _loadTransactions(showLoader: false);
       },
       child: Scaffold(
+        bottomNavigationBar: const SafeArea(child: BannerAdWidget()),
         body: SafeArea(
           child: RefreshIndicator(
             color: AppColors.accent,

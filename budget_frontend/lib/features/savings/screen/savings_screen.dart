@@ -7,6 +7,8 @@ import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
+import 'package:budget_frontend/core/ads/banner_ad_widget.dart';
+import 'package:budget_frontend/core/widgets/app_ad_banner.dart';
 import 'package:budget_frontend/core/widgets/app_card.dart';
 import 'package:budget_frontend/features/savings/bloc/goal_bloc.dart';
 import 'package:budget_frontend/features/savings/widgets/goal_card_widget.dart';
@@ -82,6 +84,9 @@ class _SavingsScreenState extends State<SavingsScreen> {
     final isTablet = AppLayout.isTablet(context);
 
     return Scaffold(
+      bottomNavigationBar: widget.showBackButton
+          ? const SafeArea(child: BannerAdWidget())
+          : null,
       body: SafeArea(
         child: RefreshIndicator(
           color: AppColors.accent,
@@ -181,6 +186,10 @@ class _SavingsScreenState extends State<SavingsScreen> {
                           ),
                         ),
                       ),
+                      if (!widget.showBackButton) ...[
+                        const SizedBox(height: 16),
+                        const AppAdBanner(),
+                      ],
                     ] else ...[
                       // Mobile layout untouched
                       TotalSavedWidget(
@@ -200,6 +209,10 @@ class _SavingsScreenState extends State<SavingsScreen> {
                       ],
 
                       const SavingButtonWidget(),
+                      if (!widget.showBackButton) ...[
+                        15.verticalSpace,
+                        const AppAdBanner(),
+                      ],
                     ],
                   ],
                 ),

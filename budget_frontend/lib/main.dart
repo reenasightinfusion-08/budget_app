@@ -4,8 +4,11 @@ import 'package:flutter/services.dart';
 import 'package:budget_frontend/app/app.dart';
 import 'package:budget_frontend/core/network/api_client.dart';
 
-void main() {
+import 'package:budget_frontend/core/ads/ad_service.dart';
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AdService.initialize();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,

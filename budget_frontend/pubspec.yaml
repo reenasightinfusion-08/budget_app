@@ -43,6 +43,7 @@ dependencies:
   image_picker: ^1.2.4
   file_picker: ^13.1.0
   speech_to_text: ^7.5.0
+  google_mobile_ads: ^9.2.0
 
 dev_dependencies:
   flutter_test:

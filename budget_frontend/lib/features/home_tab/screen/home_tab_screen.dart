@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:budget_frontend/core/ads/ad_gate.dart';
+import 'package:budget_frontend/core/ads/native_ad_widget.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/features/home_tab/widget/add_with_budgie_card.dart';
@@ -75,10 +78,30 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
                           const QuickActionButtons(),
                           const SizedBox(height: 16),
                           AddWithBudgieCard(
-                            onScanNow: () => ScanBillBottomSheet.show(context),
-                            onPdfUpload: () => PdfBillBottomSheet.show(context),
-                            onVoice: () => VoiceBillBottomSheet.show(context),
+                            onScanNow: () => AdGate.run(
+                              context,
+                              key: 'ai_scan_bill',
+                              title: 'AI Bill Scanner',
+                              message: 'Watch a short ad to unlock AI Bill Scanning for 24 hours.',
+                              onUnlocked: () => ScanBillBottomSheet.show(context),
+                            ),
+                            onPdfUpload: () => AdGate.run(
+                              context,
+                              key: 'ai_pdf_bill',
+                              title: 'AI PDF Bill',
+                              message: 'Watch a short ad to unlock PDF Bill Upload for 24 hours.',
+                              onUnlocked: () => PdfBillBottomSheet.show(context),
+                            ),
+                            onVoice: () => AdGate.run(
+                              context,
+                              key: 'ai_voice_bill',
+                              title: 'Voice Expense',
+                              message: 'Watch a short ad to unlock Voice Logging for 24 hours.',
+                              onUnlocked: () => VoiceBillBottomSheet.show(context),
+                            ),
                           ),
+                          const SizedBox(height: 16),
+                          const NativeAdWidget(templateType: TemplateType.small),
                           const SizedBox(height: 50),
                         ],
                       ),
@@ -109,10 +132,30 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
                 const QuickActionButtons(),
                 15.verticalSpace,
                 AddWithBudgieCard(
-                  onScanNow: () => ScanBillBottomSheet.show(context),
-                  onPdfUpload: () => PdfBillBottomSheet.show(context),
-                  onVoice: () => VoiceBillBottomSheet.show(context),
+                  onScanNow: () => AdGate.run(
+                    context,
+                    key: 'ai_scan_bill',
+                    title: 'AI Bill Scanner',
+                    message: 'Watch a short ad to unlock AI Bill Scanning for 24 hours.',
+                    onUnlocked: () => ScanBillBottomSheet.show(context),
+                  ),
+                  onPdfUpload: () => AdGate.run(
+                    context,
+                    key: 'ai_pdf_bill',
+                    title: 'AI PDF Bill',
+                    message: 'Watch a short ad to unlock PDF Bill Upload for 24 hours.',
+                    onUnlocked: () => PdfBillBottomSheet.show(context),
+                  ),
+                  onVoice: () => AdGate.run(
+                    context,
+                    key: 'ai_voice_bill',
+                    title: 'Voice Expense',
+                    message: 'Watch a short ad to unlock Voice Logging for 24 hours.',
+                    onUnlocked: () => VoiceBillBottomSheet.show(context),
+                  ),
                 ),
+                15.verticalSpace,
+                const NativeAdWidget(templateType: TemplateType.small),
                 15.verticalSpace,
                 RecentTransactionsWidget(onSelectTab: widget.onSelectTab),
                 15.verticalSpace,

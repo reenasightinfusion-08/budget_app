@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:budget_frontend/core/ads/ad_service.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_gradients.dart';
@@ -154,6 +155,7 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
 
       AppToast.show(context, message: 'Goal created');
       Navigator.of(context).pop(goalData);
+      AdService.maybeShowInterstitial();
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _isSaving = false);

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/app/app_routes.dart';
+import 'package:budget_frontend/core/ads/banner_ad_widget.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
@@ -45,6 +46,7 @@ class ProfileScreen extends StatelessWidget {
         }
       },
       child: Scaffold(
+        bottomNavigationBar: const SafeArea(child: BannerAdWidget()),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: isTablet
