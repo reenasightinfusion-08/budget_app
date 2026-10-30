@@ -69,10 +69,12 @@ class InsightsData {
 
   bool get isUnderPace => paceDiff <= 0;
 
-  int get previousMonthSavePercentage =>
-      previousMonthIncome > 0 ? (previousMonthSaved / previousMonthIncome * 100).round() : 0;
+  int get previousMonthSavePercentage => previousMonthIncome > 0
+      ? (previousMonthSaved / previousMonthIncome * 100).round()
+      : 0;
 
-  int get maxCategoryAmount => categorySpends.fold(1, (max, c) => math.max(max, c.amount));
+  int get maxCategoryAmount =>
+      categorySpends.fold(1, (max, c) => math.max(max, c.amount));
 
   /// Empty insights when no live transaction data is available.
   factory InsightsData.empty(int budget) {
@@ -89,7 +91,9 @@ class InsightsData {
       monthlyRecords: const [],
       categorySpends: const [],
       previousMonthSaved: 0,
-      previousMonthName: AppFormatters.monthName(DateTime(now.year, now.month - 1).month),
+      previousMonthName: AppFormatters.monthName(
+        DateTime(now.year, now.month - 1).month,
+      ),
       previousMonthIncome: 0,
     );
   }
@@ -120,7 +124,9 @@ class InsightsData {
       try {
         parsed = DateTime.parse('${m.month}-01');
       } catch (_) {}
-      final monthName = parsed != null ? AppFormatters.monthShort(parsed.month) : m.month;
+      final monthName = parsed != null
+          ? AppFormatters.monthShort(parsed.month)
+          : m.month;
       return MonthlyRecord(
         month: monthName,
         income: m.incomeRupees,
@@ -130,10 +136,11 @@ class InsightsData {
     }).toList();
 
     // Category breakdown
-    final expenseCategories = summary.byCategory
-        .where((c) => c.type == 'expense' && c.totalPaise > 0)
-        .toList()
-      ..sort((a, b) => b.totalPaise.compareTo(a.totalPaise));
+    final expenseCategories =
+        summary.byCategory
+            .where((c) => c.type == 'expense' && c.totalPaise > 0)
+            .toList()
+          ..sort((a, b) => b.totalPaise.compareTo(a.totalPaise));
 
     final totalSpent = summary.expenseRupees;
     final categorySpends = expenseCategories.map((c) {
@@ -153,7 +160,9 @@ class InsightsData {
     }
     final prevIncome = prevMonth?.incomeRupees ?? 0;
     final prevExpense = prevMonth?.expenseRupees ?? 0;
-    final prevSaved = (prevIncome - prevExpense).clamp(0, double.infinity).toInt();
+    final prevSaved = (prevIncome - prevExpense)
+        .clamp(0, double.infinity)
+        .toInt();
 
     return InsightsData(
       budget: budget,
@@ -164,9 +173,10 @@ class InsightsData {
       monthlyRecords: monthlyRecords,
       categorySpends: categorySpends,
       previousMonthSaved: prevSaved,
-      previousMonthName: AppFormatters.monthName(DateTime(now.year, now.month - 1).month),
+      previousMonthName: AppFormatters.monthName(
+        DateTime(now.year, now.month - 1).month,
+      ),
       previousMonthIncome: prevIncome,
     );
   }
 }
-

@@ -1,10 +1,10 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
 
@@ -14,8 +14,10 @@ class AppTextField extends StatefulWidget {
     required this.controller,
     required this.hint,
     this.icon,
+    this.prefixWidget,
     this.fillColor,
     this.backgroundColor,
+    this.borderColor,
     this.borderRadius,
     this.validator,
     this.suffixIcon,
@@ -29,13 +31,16 @@ class AppTextField extends StatefulWidget {
     this.onFieldSubmitted,
     this.onTap,
     this.onChanged,
+    this.contentPadding,
   });
 
   final TextEditingController controller;
   final String hint;
   final IconData? icon;
+  final Widget? prefixWidget;
   final Color? fillColor;
   final Color? backgroundColor;
+  final Color? borderColor;
   final BorderRadius? borderRadius;
   final Widget? suffixIcon;
   final bool readOnly;
@@ -49,13 +54,15 @@ class AppTextField extends StatefulWidget {
   final ValueChanged<String>? onFieldSubmitted;
   final VoidCallback? onTap;
   final ValueChanged<String>? onChanged;
+  final EdgeInsetsGeometry? contentPadding;
 
   @override
   State<AppTextField> createState() => AppTextFieldState();
 }
 
 class AppTextFieldState extends State<AppTextField> {
-  final GlobalKey<FormFieldState<String>> _fieldKey = GlobalKey<FormFieldState<String>>();
+  final GlobalKey<FormFieldState<String>> _fieldKey =
+      GlobalKey<FormFieldState<String>>();
   bool isObscured = true;
   bool _suppressValidation = false;
 
@@ -77,7 +84,8 @@ class AppTextFieldState extends State<AppTextField> {
   void _handleUserChange(String value) {
     try {
       final authBloc = context.read<AuthBloc>();
-      if (authBloc.state.errorMessage != null || authBloc.state.googleErrorMessage != null) {
+      if (authBloc.state.errorMessage != null ||
+          authBloc.state.googleErrorMessage != null) {
         authBloc.add(const AuthErrorCleared());
       }
     } catch (_) {}
@@ -90,15 +98,24 @@ class AppTextFieldState extends State<AppTextField> {
     widget.onChanged?.call(value);
   }
 
-  OutlineInputBorder outline(Color color) => OutlineInputBorder(
-        borderRadius: widget.borderRadius ?? AppBorderRadius.md,
-        borderSide: BorderSide(color: color, width: 1.5.w),
+  OutlineInputBorder outline(Color color, {double width = 1.0}) =>
+      OutlineInputBorder(
+        borderRadius: widget.borderRadius ?? BorderRadius.circular(16.r),
+        borderSide: BorderSide(color: color, width: width),
       );
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
     final effectiveFillColor =
         widget.fillColor ?? widget.backgroundColor ?? AppColors.fill;
+
+    // When fillColor is pure surface/white (e.g. inside bottom sheets), provide a crisp subtle border
+    final effectiveBorderColor =
+        widget.borderColor ??
+        (effectiveFillColor == AppColors.surface
+            ? AppColors.line.withValues(alpha: 0.9)
+            : effectiveFillColor);
 
     return TextFormField(
       key: _fieldKey,
@@ -117,26 +134,36 @@ class AppTextFieldState extends State<AppTextField> {
       maxLength: widget.maxLength,
       textCapitalization: widget.textCapitalization,
       onFieldSubmitted: widget.onFieldSubmitted,
-      style: AppTextStyle.input,
+      style: AppTextStyle.input.copyWith(
+        fontSize: isTablet ? 15 : 14.5.sp,
+        fontWeight: FontWeight.w600,
+        color: AppColors.ink,
+      ),
       cursorColor: AppColors.accent,
       decoration: InputDecoration(
         hintText: widget.hint,
-        hintStyle: AppTextStyle.hint,
+        hintStyle: AppTextStyle.hint.copyWith(
+          fontSize: isTablet ? 14 : 14.sp,
+          color: AppColors.faint,
+        ),
         counterText: '',
         filled: true,
         fillColor: effectiveFillColor,
-        contentPadding: EdgeInsets.only(
-          left: widget.icon != null ? 0 : 16.w,
-          right: 16.w,
-          top: 18.h,
-          bottom: 18.h,
-        ),
-        prefixIcon: widget.icon != null ? Icon(widget.icon, size: 20.r) : null,
-        prefixIconColor: WidgetStateColor.fromMap({
-          WidgetState.error: AppColors.error,
-          WidgetState.focused: AppColors.accent,
-          WidgetState.any: AppColors.muted,
-        }),
+        contentPadding:
+            widget.contentPadding ??
+            EdgeInsets.symmetric(
+              horizontal: isTablet ? 14 : 14.w,
+              vertical: isTablet ? 16.5 : 16.h,
+            ),
+        prefixIcon:
+            widget.prefixWidget ??
+            (widget.icon != null
+                ? Icon(
+                    widget.icon,
+                    size: isTablet ? 19 : 19.sp,
+                    color: AppColors.muted,
+                  )
+                : null),
         suffixIcon: widget.isPassword
             ? IconButton(
                 onPressed: toggleVisibility,
@@ -148,11 +175,13 @@ class AppTextFieldState extends State<AppTextField> {
                 ),
               )
             : widget.suffixIcon,
-        errorStyle: AppTextStyle.error,
-        enabledBorder: outline(effectiveFillColor),
-        focusedBorder: outline(AppColors.accent),
-        errorBorder: outline(AppColors.error),
-        focusedErrorBorder: outline(AppColors.error),
+        errorStyle: AppTextStyle.error.copyWith(
+          fontSize: isTablet ? 12 : 11.5.sp,
+        ),
+        enabledBorder: outline(effectiveBorderColor, width: 1.0),
+        focusedBorder: outline(AppColors.accent, width: 1.0),
+        errorBorder: outline(AppColors.error, width: 1.0),
+        focusedErrorBorder: outline(AppColors.error, width: 1.0),
       ),
     );
   }

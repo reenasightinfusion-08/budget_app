@@ -51,73 +51,82 @@ class SetupScreenState extends State<SetupScreen> {
     if (amount > 0) {
       context.read<SetupBloc>().add(SetupBudgetAmountChanged(amount));
     }
-    context.read<SetupBloc>().add(SetupCompletedSubmitted(name: nameController.text.trim()));
+    context.read<SetupBloc>().add(
+      SetupCompletedSubmitted(name: nameController.text.trim()),
+    );
   }
 
   @override
   Widget build(BuildContext context) => BlocConsumer<SetupBloc, SetupState>(
-        listenWhen: (previous, current) =>
-            previous.savedUser != current.savedUser && current.savedUser != null,
-        listener: (context, state) {
-          context.read<AuthBloc>().add(AuthUserUpdated(state.savedUser!));
-          context.read<WalletBloc>().add(WalletUserSynced(state.savedUser!));
-          final name = state.savedUser?.displayName ?? nameController.text.trim();
-          Navigator.of(context).pushNamedAndRemoveUntil(
-            AppRoutes.home,
-            (route) => false,
-            arguments: {
-              'fromSignup': true,
-              'username': name,
-            },
-          );
-        },
-        builder: (context, setupState) => SheetScaffold(
-          title: 'Hi, I’m Budgie',
-          subtitle: 'Two quick answers and I’ll start counting for you.',
-          isLoading: setupState.isSaving,
-          child: Form(
-          key: formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: 4.w, bottom: 6.h),
-                child: Text('What should I call you?', style: AppTextStyle.fieldLabel),
+    listenWhen: (previous, current) =>
+        previous.savedUser != current.savedUser && current.savedUser != null,
+    listener: (context, state) {
+      context.read<AuthBloc>().add(AuthUserUpdated(state.savedUser!));
+      context.read<WalletBloc>().add(WalletUserSynced(state.savedUser!));
+      final name = state.savedUser?.displayName ?? nameController.text.trim();
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        AppRoutes.home,
+        (route) => false,
+        arguments: {'fromSignup': true, 'username': name},
+      );
+    },
+    builder: (context, setupState) => SheetScaffold(
+      title: 'Hi, I’m Budgie',
+      subtitle: 'Two quick answers and I’ll start counting for you.',
+      isLoading: setupState.isSaving,
+      child: Form(
+        key: formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 4.w, bottom: 6.h),
+              child: Text(
+                'What should I call you?',
+                style: AppTextStyle.fieldLabel,
               ),
-              AppTextField(
-                controller: nameController,
-                hint: 'Your first name',
-                icon: AppIcons.personOutline,
-                validator: AppValidators.name,
-                textInputAction: TextInputAction.next,
-                textCapitalization: TextCapitalization.words,
-                autofillHints: const [AutofillHints.givenName],
-                maxLength: 24,
-              ),
-              18.verticalSpace,
-              SetupBudgetCard(controller: budgetController, onChanged: onBudgetChanged),
-              18.verticalSpace,
-              SetupQuickAmounts(onSelected: selectAmount),
-              BlocBuilder<SetupBloc, SetupState>(
-                builder: (context, state) => ConstrainedBox(
-                  constraints: BoxConstraints(minHeight: 36.h),
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 18.h),
-                    child: Text(state.errorMessage ?? '', style: AppTextStyle.error),
+            ),
+            AppTextField(
+              controller: nameController,
+              hint: 'Your first name',
+              icon: AppIcons.personOutline,
+              validator: AppValidators.name,
+              textInputAction: TextInputAction.next,
+              textCapitalization: TextCapitalization.words,
+              autofillHints: const [AutofillHints.givenName],
+              maxLength: 24,
+            ),
+            18.verticalSpace,
+            SetupBudgetCard(
+              controller: budgetController,
+              onChanged: onBudgetChanged,
+            ),
+            18.verticalSpace,
+            SetupQuickAmounts(onSelected: selectAmount),
+            BlocBuilder<SetupBloc, SetupState>(
+              builder: (context, state) => ConstrainedBox(
+                constraints: BoxConstraints(minHeight: 36.h),
+                child: Padding(
+                  padding: EdgeInsets.only(top: 18.h),
+                  child: Text(
+                    state.errorMessage ?? '',
+                    style: AppTextStyle.error,
                   ),
                 ),
               ),
-              BlocBuilder<SetupBloc, SetupState>(
-                buildWhen: (previous, current) => previous.isSaving != current.isSaving,
-                builder: (context, state) => AppButton(
-                  label: 'Start budgeting',
-                  onPressed: submit,
-                  isLoading: state.isSaving,
-                ),
+            ),
+            BlocBuilder<SetupBloc, SetupState>(
+              buildWhen: (previous, current) =>
+                  previous.isSaving != current.isSaving,
+              builder: (context, state) => AppButton(
+                label: 'Start budgeting',
+                onPressed: submit,
+                isLoading: state.isSaving,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-        ),
-      );
+      ),
+    ),
+  );
 }

@@ -29,18 +29,32 @@ class ApiAuthService implements AuthService {
   }
 
   @override
-  Future<UserModel> login({required String email, required String password}) async =>
-      startSession(await client.post('/auth/login', {'email': email, 'password': password}));
+  Future<UserModel> login({
+    required String email,
+    required String password,
+  }) async => startSession(
+    await client.post('/auth/login', {'email': email, 'password': password}),
+  );
 
   @override
-  Future<String?> signup({required String email, required String password}) async {
-    final data = await client.post('/auth/signup', {'email': email, 'password': password});
+  Future<String?> signup({
+    required String email,
+    required String password,
+  }) async {
+    final data = await client.post('/auth/signup', {
+      'email': email,
+      'password': password,
+    });
     return data['devCode'] as String?;
   }
 
   @override
-  Future<UserModel> verifyEmail({required String email, required String code}) async =>
-      startSession(await client.post('/auth/verify-email', {'email': email, 'code': code}));
+  Future<UserModel> verifyEmail({
+    required String email,
+    required String code,
+  }) async => startSession(
+    await client.post('/auth/verify-email', {'email': email, 'code': code}),
+  );
 
   @override
   Future<String?> resendVerificationCode(String email) async {
@@ -51,10 +65,12 @@ class ApiAuthService implements AuthService {
   @override
   Future<UserModel> googleSignIn({required bool isSignup}) async {
     final idToken = await googleAuth.fetchIdToken();
-    return startSession(await client.post('/auth/google', {
-      'idToken': idToken,
-      'mode': isSignup ? 'signup' : 'login',
-    }));
+    return startSession(
+      await client.post('/auth/google', {
+        'idToken': idToken,
+        'mode': isSignup ? 'signup' : 'login',
+      }),
+    );
   }
 
   @override
@@ -72,15 +88,20 @@ class ApiAuthService implements AuthService {
     required String email,
     required String code,
     required String newPassword,
-  }) =>
-      client.post('/auth/reset-password', {'email': email, 'code': code, 'newPassword': newPassword});
+  }) => client.post('/auth/reset-password', {
+    'email': email,
+    'code': code,
+    'newPassword': newPassword,
+  });
 
   @override
-  Future<void> changePassword({required String currentPassword, required String newPassword}) =>
-      client.post('/auth/change-password', {
-        'currentPassword': currentPassword,
-        'newPassword': newPassword,
-      });
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) => client.post('/auth/change-password', {
+    'currentPassword': currentPassword,
+    'newPassword': newPassword,
+  });
 
   @override
   Future<void> deleteAccount() async {
@@ -96,7 +117,13 @@ class ApiAuthService implements AuthService {
 
   @override
   Future<void> logout() async {
-    await googleAuth.signOut();
-    await client.clearToken();
+    try {
+      await googleAuth.signOut();
+    } catch (e) {
+      // Ignore Google sign-out failure on Web/unsupported platforms
+    }
+    try {
+      await client.clearToken();
+    } catch (_) {}
   }
 }

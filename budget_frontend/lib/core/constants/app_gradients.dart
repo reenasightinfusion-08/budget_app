@@ -83,18 +83,12 @@ class AppGradients {
   static const LinearGradient navPill = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [
-      Color(0xF2FFFFFF),
-      Color(0xFFEBF0F6),
-    ],
+    colors: [Color(0xF2FFFFFF), Color(0xFFEBF0F6)],
   );
 
   static const LinearGradient paceChartArea = LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [
-      Color(0x8CA9CBF7),
-      Color(0x14A9CBF7),
-    ],
+    colors: [Color(0x8CA9CBF7), Color(0x14A9CBF7)],
   );
 }

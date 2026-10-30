@@ -4,14 +4,13 @@ import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
 
 class GoalContributionModel {
-  const GoalContributionModel({
-    required this.amountPaise,
-    required this.date,
-  });
+  const GoalContributionModel({required this.amountPaise, required this.date});
 
   factory GoalContributionModel.fromJson(Map<String, dynamic> json) {
     return GoalContributionModel(
-      amountPaise: (json['amount'] is num) ? (json['amount'] as num).toInt() : 0,
+      amountPaise: (json['amount'] is num)
+          ? (json['amount'] as num).toInt()
+          : 0,
       date: (json['date'] ?? '').toString(),
     );
   }
@@ -60,11 +59,13 @@ class GoalModel {
       id: (json['_id'] ?? '').toString(),
       name: (json['name'] ?? '').toString(),
       iconKey: (json['icon'] ?? 'star').toString(),
-      targetAmountPaise:
-          (json['targetAmount'] is num) ? (json['targetAmount'] as num).toInt() : 0,
+      targetAmountPaise: (json['targetAmount'] is num)
+          ? (json['targetAmount'] as num).toInt()
+          : 0,
       targetMonth: (json['targetMonth'] ?? '').toString(),
-      savedAmountPaise:
-          (json['savedAmount'] is num) ? (json['savedAmount'] as num).toInt() : 0,
+      savedAmountPaise: (json['savedAmount'] is num)
+          ? (json['savedAmount'] as num).toInt()
+          : 0,
       reachedAt: reached,
       contributions: contributions,
       createdAt: created,
@@ -83,7 +84,8 @@ class GoalModel {
 
   int get targetAmountRupees => targetAmountPaise ~/ 100;
   int get savedAmountRupees => savedAmountPaise ~/ 100;
-  int get remainingRupees => (targetAmountRupees - savedAmountRupees).clamp(0, targetAmountRupees);
+  int get remainingRupees =>
+      (targetAmountRupees - savedAmountRupees).clamp(0, targetAmountRupees);
 
   double get progressRatio => targetAmountPaise > 0
       ? (savedAmountPaise / targetAmountPaise).clamp(0.0, 1.0)
@@ -91,7 +93,8 @@ class GoalModel {
 
   int get progressPercent => (progressRatio * 100).round();
 
-  bool get isReached => reachedAt != null || savedAmountPaise >= targetAmountPaise;
+  bool get isReached =>
+      reachedAt != null || savedAmountPaise >= targetAmountPaise;
 
   /// Formatted month e.g. "Apr 2027" from "2027-04"
   String get formattedTargetMonth {
@@ -116,7 +119,11 @@ class GoalModel {
         final now = DateTime.now();
         final targetYear = int.parse(parts[0]);
         final targetMonthNum = int.parse(parts[1]);
-        final monthsLeft = ((targetYear - now.year) * 12 + (targetMonthNum - now.month)).clamp(1, 120);
+        final monthsLeft =
+            ((targetYear - now.year) * 12 + (targetMonthNum - now.month)).clamp(
+              1,
+              120,
+            );
         return (remainingRupees / monthsLeft).ceil();
       }
     } catch (_) {}
@@ -126,14 +133,14 @@ class GoalModel {
   IconData get iconData => iconKeyToIcon(iconKey);
 
   static IconData iconKeyToIcon(String key) => switch (key.toLowerCase()) {
-        'shield' => AppIcons.shield,
-        'phone' => AppIcons.phone,
-        'plane' => AppIcons.plane,
-        'house' || 'home' => AppIcons.home,
-        'gift' => AppIcons.gift,
-        'star' => AppIcons.star,
-        _ => AppIcons.star,
-      };
+    'shield' => AppIcons.shield,
+    'phone' => AppIcons.phone,
+    'plane' => AppIcons.plane,
+    'house' || 'home' => AppIcons.home,
+    'gift' => AppIcons.gift,
+    'star' => AppIcons.star,
+    _ => AppIcons.star,
+  };
 
   static String iconToIconKey(IconData icon) {
     if (icon == AppIcons.shield) return 'shield';
@@ -162,8 +169,7 @@ class GoalsResponseModel {
     // LIFO ordering: last added goal shows on top
     final hasCreatedAt = goals.any((g) => g.createdAt != null);
     final lifoGoals = hasCreatedAt
-        ? (List<GoalModel>.from(goals)
-          ..sort((a, b) {
+        ? (List<GoalModel>.from(goals)..sort((a, b) {
             if (a.createdAt != null && b.createdAt != null) {
               return b.createdAt!.compareTo(a.createdAt!);
             }
@@ -173,10 +179,12 @@ class GoalsResponseModel {
 
     return GoalsResponseModel(
       goals: lifoGoals,
-      totalSavedPaise:
-          (json['totalSaved'] is num) ? (json['totalSaved'] as num).toInt() : 0,
-      thisMonthPaise:
-          (json['thisMonth'] is num) ? (json['thisMonth'] as num).toInt() : 0,
+      totalSavedPaise: (json['totalSaved'] is num)
+          ? (json['totalSaved'] as num).toInt()
+          : 0,
+      thisMonthPaise: (json['thisMonth'] is num)
+          ? (json['thisMonth'] as num).toInt()
+          : 0,
     );
   }
 
@@ -186,6 +194,8 @@ class GoalsResponseModel {
 
   int get totalSavedRupees => totalSavedPaise ~/ 100;
   int get thisMonthRupees => thisMonthPaise ~/ 100;
-  int get totalTargetRupees => goals.fold(0, (sum, g) => sum + g.targetAmountRupees);
-  int get totalMonthlyNeededRupees => goals.fold(0, (sum, g) => sum + g.monthlyNeededRupees);
+  int get totalTargetRupees =>
+      goals.fold(0, (sum, g) => sum + g.targetAmountRupees);
+  int get totalMonthlyNeededRupees =>
+      goals.fold(0, (sum, g) => sum + g.monthlyNeededRupees);
 }

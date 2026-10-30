@@ -62,11 +62,13 @@ class ThisWeekCard extends StatelessWidget {
       int spent = dailyMap[dateStr] ?? 0;
       if (spent == 0 && summary != null && summary.recent.isNotEmpty) {
         final recentSpend = summary.recent
-            .where((t) =>
-                t.date.year == dayDate.year &&
-                t.date.month == dayDate.month &&
-                t.date.day == dayDate.day &&
-                t.isSpend)
+            .where(
+              (t) =>
+                  t.date.year == dayDate.year &&
+                  t.date.month == dayDate.month &&
+                  t.date.day == dayDate.day &&
+                  t.isSpend,
+            )
             .fold<int>(0, (sum, t) => sum + t.amount.round());
         if (recentSpend > 0) spent = recentSpend;
       }

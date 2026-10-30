@@ -34,7 +34,8 @@ class WalletState {
 
   int get remainingBudget => monthlyBudget - totalSpent;
 
-  int get availableToSpend => (monthlyBudget - totalSpent).clamp(0, monthlyBudget);
+  int get availableToSpend =>
+      (monthlyBudget - totalSpent).clamp(0, monthlyBudget);
 
   double get spendProgress {
     if (monthlyBudget <= 0) return 0.0;
@@ -65,4 +66,3 @@ class WalletState {
     );
   }
 }
-

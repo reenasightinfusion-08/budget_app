@@ -64,7 +64,10 @@ class CategoryBudgetTile extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(category.label, style: AppTextStyle.toggleTitle),
+                              Text(
+                                category.label,
+                                style: AppTextStyle.toggleTitle,
+                              ),
                               2.verticalSpace,
                               Text(
                                 category.statusText,
@@ -95,7 +98,8 @@ class CategoryBudgetTile extends StatelessWidget {
             ],
           ),
         ),
-        if (showDivider) Divider(height: 1.h, thickness: 1.h, color: AppColors.line),
+        if (showDivider)
+          Divider(height: 1.h, thickness: 1.h, color: AppColors.line),
       ],
     );
   }

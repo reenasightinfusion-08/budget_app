@@ -109,150 +109,149 @@ class _AppMonthYearPickerDialogState extends State<AppMonthYearPickerDialog> {
             isTablet ? 18 : 18.h,
           ),
           decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: AppBorderRadius.xl,
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.sheetShadow.withValues(alpha: 0.12),
-              blurRadius: 24,
-              offset: const Offset(0, 10),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Header: Displayed Year with Prev & Next Arrows
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  '$_displayedYear',
-                  style: AppTextStyle.cardTitle,
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Previous Year Button (Disabled if viewing current/minimum year)
-                    InkWell(
-                      onTap: canGoPrevious ? _previousYear : null,
-                      borderRadius: AppBorderRadius.md,
-                      child: Container(
-                        width: 34.r,
-                        height: 34.r,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: canGoPrevious
-                              ? AppColors.fill
-                              : AppColors.fill.withValues(alpha: 0.4),
-                        ),
-                        child: Icon(
-                          AppIcons.arrowBack,
-                          size: 14.sp,
-                          color: canGoPrevious
-                              ? AppColors.ink
-                              : AppColors.faint.withValues(alpha: 0.45),
-                        ),
-                      ),
-                    ),
-                    8.horizontalSpace,
-                    // Next Year Button
-                    InkWell(
-                      onTap: canGoNext ? _nextYear : null,
-                      borderRadius: AppBorderRadius.md,
-                      child: Container(
-                        width: 34.r,
-                        height: 34.r,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: canGoNext
-                              ? AppColors.fill
-                              : AppColors.fill.withValues(alpha: 0.4),
-                        ),
-                        child: Icon(
-                          AppIcons.arrowForward,
-                          size: 14.sp,
-                          color: canGoNext
-                              ? AppColors.ink
-                              : AppColors.faint.withValues(alpha: 0.45),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            14.verticalSpace,
-            // Month Grid: 3 columns x 4 rows with compact row spacing
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: 12,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                mainAxisSpacing: 8.h, // reduced space between rows
-                crossAxisSpacing: 10.w,
-                childAspectRatio: 2.1,
+            color: AppColors.surface,
+            borderRadius: AppBorderRadius.xl,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.sheetShadow.withValues(alpha: 0.12),
+                blurRadius: 24,
+                offset: const Offset(0, 10),
               ),
-              itemBuilder: (context, index) {
-                final month = index + 1;
-                final monthDate = DateTime(_displayedYear, month);
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header: Displayed Year with Prev & Next Arrows
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('$_displayedYear', style: AppTextStyle.cardTitle),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Previous Year Button (Disabled if viewing current/minimum year)
+                      InkWell(
+                        onTap: canGoPrevious ? _previousYear : null,
+                        borderRadius: AppBorderRadius.md,
+                        child: Container(
+                          width: 34.r,
+                          height: 34.r,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: canGoPrevious
+                                ? AppColors.fill
+                                : AppColors.fill.withValues(alpha: 0.4),
+                          ),
+                          child: Icon(
+                            AppIcons.arrowBack,
+                            size: 14.sp,
+                            color: canGoPrevious
+                                ? AppColors.ink
+                                : AppColors.faint.withValues(alpha: 0.45),
+                          ),
+                        ),
+                      ),
+                      8.horizontalSpace,
+                      // Next Year Button
+                      InkWell(
+                        onTap: canGoNext ? _nextYear : null,
+                        borderRadius: AppBorderRadius.md,
+                        child: Container(
+                          width: 34.r,
+                          height: 34.r,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: canGoNext
+                                ? AppColors.fill
+                                : AppColors.fill.withValues(alpha: 0.4),
+                          ),
+                          child: Icon(
+                            AppIcons.arrowForward,
+                            size: 14.sp,
+                            color: canGoNext
+                                ? AppColors.ink
+                                : AppColors.faint.withValues(alpha: 0.45),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              14.verticalSpace,
+              // Month Grid: 3 columns x 4 rows with compact row spacing
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: 12,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  mainAxisSpacing: 8.h, // reduced space between rows
+                  crossAxisSpacing: 10.w,
+                  childAspectRatio: 2.1,
+                ),
+                itemBuilder: (context, index) {
+                  final month = index + 1;
+                  final monthDate = DateTime(_displayedYear, month);
 
-                final bool isPast = monthDate.isBefore(minMonthDate);
-                final bool isFuture = monthDate.isAfter(maxMonthDate);
-                final bool isDisabled = isPast || isFuture;
+                  final bool isPast = monthDate.isBefore(minMonthDate);
+                  final bool isFuture = monthDate.isAfter(maxMonthDate);
+                  final bool isDisabled = isPast || isFuture;
 
-                final bool isSelected = _selectedDate != null &&
-                    _selectedDate!.year == _displayedYear &&
-                    _selectedDate!.month == month;
+                  final bool isSelected =
+                      _selectedDate != null &&
+                      _selectedDate!.year == _displayedYear &&
+                      _selectedDate!.month == month;
 
-                final String label = AppFormatters.monthShort(month);
+                  final String label = AppFormatters.monthShort(month);
 
-                if (isDisabled) {
-                  return Container(
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
+                  if (isDisabled) {
+                    return Container(
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        borderRadius: AppBorderRadius.xs,
+                      ),
+                      child: Text(
+                        label,
+                        style: AppTextStyle.body.copyWith(
+                          color: AppColors.faint.withValues(alpha: 0.4),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    );
+                  }
+
+                  return Material(
+                    color: isSelected ? AppColors.accent : AppColors.fill,
+                    borderRadius: AppBorderRadius.xs,
+                    child: InkWell(
                       borderRadius: AppBorderRadius.xs,
-                    ),
-                    child: Text(
-                      label,
-                      style: AppTextStyle.body.copyWith(
-                        color: AppColors.faint.withValues(alpha: 0.4),
-                        fontWeight: FontWeight.w500,
+                      onTap: () {
+                        final selected = DateTime(_displayedYear, month);
+                        setState(() => _selectedDate = selected);
+                        Navigator.of(context).pop(selected);
+                      },
+                      child: Center(
+                        child: Text(
+                          label,
+                          style: AppTextStyle.chip.copyWith(
+                            color: isSelected ? Colors.white : AppColors.ink,
+                            fontWeight: isSelected
+                                ? FontWeight.w700
+                                : FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ),
                   );
-                }
-
-                return Material(
-                  color: isSelected ? AppColors.accent : AppColors.fill,
-                  borderRadius: AppBorderRadius.xs,
-                  child: InkWell(
-                    borderRadius: AppBorderRadius.xs,
-                    onTap: () {
-                      final selected = DateTime(_displayedYear, month);
-                      setState(() => _selectedDate = selected);
-                      Navigator.of(context).pop(selected);
-                    },
-                    child: Center(
-                      child: Text(
-                        label,
-                        style: AppTextStyle.chip.copyWith(
-                          color: isSelected ? Colors.white : AppColors.ink,
-                          fontWeight:
-                              isSelected ? FontWeight.w700 : FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
+                },
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

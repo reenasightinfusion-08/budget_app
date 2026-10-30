@@ -53,7 +53,9 @@ class _WalletScreenState extends State<WalletScreen> {
     context.read<SetupBloc>().add(SetupBudgetAmountChanged(newBudget));
     final currentUser = context.read<AuthBloc>().state.user;
     if (currentUser != null) {
-      context.read<AuthBloc>().add(AuthUserUpdated(currentUser.copyWith(monthlyBudget: newBudget * 100)));
+      context.read<AuthBloc>().add(
+        AuthUserUpdated(currentUser.copyWith(monthlyBudget: newBudget * 100)),
+      );
     }
     AppToast.show(context, message: 'Monthly budget updated');
   }
@@ -62,7 +64,8 @@ class _WalletScreenState extends State<WalletScreen> {
     context.read<WalletBloc>().add(ApplyWalletEasyFix(fix));
     AppToast.show(
       context,
-      message: 'Plan updated: moved ${AppFormatters.rupees(fix.amount)} to ${fix.to.label}',
+      message:
+          'Plan updated: moved ${AppFormatters.rupees(fix.amount)} to ${fix.to.label}',
     );
   }
 
@@ -76,15 +79,9 @@ class _WalletScreenState extends State<WalletScreen> {
       showDivider: showDivider,
       onEditLimit: (limit) {
         context.read<WalletBloc>().add(
-              UpdateCategoryLimit(
-                categoryId: category.id,
-                newLimit: limit,
-              ),
-            );
-        AppToast.show(
-          context,
-          message: '${category.label} limit updated',
+          UpdateCategoryLimit(categoryId: category.id, newLimit: limit),
         );
+        AppToast.show(context, message: '${category.label} limit updated');
       },
     );
   }
@@ -99,8 +96,8 @@ class _WalletScreenState extends State<WalletScreen> {
         final totalBudget = state.monthlyBudget > 0
             ? state.monthlyBudget
             : ((authUser != null && authUser.monthlyBudget > 0)
-                ? (authUser.monthlyBudget ~/ 100)
-                : AppConfig.defaultMonthlyBudget);
+                  ? (authUser.monthlyBudget ~/ 100)
+                  : AppConfig.defaultMonthlyBudget);
         final categories = state.categories;
         final easyFix = state.easyFix;
 
@@ -122,110 +119,128 @@ class _WalletScreenState extends State<WalletScreen> {
                       20.w,
                       16.h,
                       20.w,
-                      widget.showBackButton ? 20.h : AppLayout.navBarClearanceOf(context),
+                      widget.showBackButton
+                          ? 20.h
+                          : AppLayout.navBarClearanceOf(context),
                     ),
               child: Align(
                 alignment: Alignment.topCenter,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: isTablet ? AppLayout.maxContentWidth : double.infinity,
+                    maxWidth: isTablet
+                        ? AppLayout.maxContentWidth
+                        : double.infinity,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       WalletHeader(
-                        onChangeBudget: () => _changeBudget(context, totalBudget),
+                        onChangeBudget: () =>
+                            _changeBudget(context, totalBudget),
                         showBackButton: widget.showBackButton,
                       ),
                       isTablet ? const SizedBox(height: 20) : 16.verticalSpace,
-                  BudgetStatusTrip(
-                    onTrackCount: state.countWithStatus(BudgetStatus.onTrack),
-                    carefulCount: state.countWithStatus(BudgetStatus.careful),
-                    overCount: state.countWithStatus(BudgetStatus.over),
-                  ),
-                  isTablet ? const SizedBox(height: 20) : 16.verticalSpace,
-                  if (easyFix != null) ...[
-                    EasyFixBanner(
-                      amount: easyFix.amount,
-                      fromCategory: easyFix.from.label,
-                      toCategory: easyFix.to.label,
-                      onMove: () => _applyEasyFix(context, easyFix),
-                    ),
-                    isTablet ? const SizedBox(height: 16) : 14.verticalSpace,
-                  ],
-                  PlanSummaryText(
-                    plannedTotal: state.plannedTotal,
-                    totalBudget: totalBudget,
-                  ),
-                  isTablet ? const SizedBox(height: 16) : 12.verticalSpace,
-                  AppCard(
-                    width: double.infinity,
-                    padding: isTablet
-                        ? const EdgeInsets.symmetric(horizontal: 24, vertical: 16)
-                        : EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-                    border: Border.all(color: AppColors.line),
-                    blur: 16,
-                    offsetY: 4,
-                    child: isTablet && categories.length > 1
-                        ? IntrinsicHeight(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      for (final (index, category) in leftCategories.indexed)
-                                        _buildCategoryTile(
-                                          context,
-                                          category,
-                                          index < leftCategories.length - 1,
-                                        ),
-                                    ],
-                                  ),
+                      BudgetStatusTrip(
+                        onTrackCount: state.countWithStatus(
+                          BudgetStatus.onTrack,
+                        ),
+                        carefulCount: state.countWithStatus(
+                          BudgetStatus.careful,
+                        ),
+                        overCount: state.countWithStatus(BudgetStatus.over),
+                      ),
+                      isTablet ? const SizedBox(height: 20) : 16.verticalSpace,
+                      if (easyFix != null) ...[
+                        EasyFixBanner(
+                          amount: easyFix.amount,
+                          fromCategory: easyFix.from.label,
+                          toCategory: easyFix.to.label,
+                          onMove: () => _applyEasyFix(context, easyFix),
+                        ),
+                        isTablet
+                            ? const SizedBox(height: 16)
+                            : 14.verticalSpace,
+                      ],
+                      PlanSummaryText(
+                        plannedTotal: state.plannedTotal,
+                        totalBudget: totalBudget,
+                      ),
+                      isTablet ? const SizedBox(height: 16) : 12.verticalSpace,
+                      AppCard(
+                        width: double.infinity,
+                        padding: isTablet
+                            ? const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 16,
+                              )
+                            : EdgeInsets.symmetric(
+                                horizontal: 16.w,
+                                vertical: 8.h,
+                              ),
+                        border: Border.all(color: AppColors.line),
+                        blur: 16,
+                        offsetY: 4,
+                        child: isTablet && categories.length > 1
+                            ? IntrinsicHeight(
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        children: [
+                                          for (final (index, category)
+                                              in leftCategories.indexed)
+                                            _buildCategoryTile(
+                                              context,
+                                              category,
+                                              index < leftCategories.length - 1,
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 24),
+                                    Container(width: 1, color: AppColors.line),
+                                    const SizedBox(width: 24),
+                                    Expanded(
+                                      child: Column(
+                                        children: [
+                                          for (final (index, category)
+                                              in rightCategories.indexed)
+                                            _buildCategoryTile(
+                                              context,
+                                              category,
+                                              index <
+                                                  rightCategories.length - 1,
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(width: 24),
-                                Container(width: 1, color: AppColors.line),
-                                const SizedBox(width: 24),
-                                Expanded(
-                                  child: Column(
-                                    children: [
-                                      for (final (index, category) in rightCategories.indexed)
-                                        _buildCategoryTile(
-                                          context,
-                                          category,
-                                          index < rightCategories.length - 1,
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : Column(
-                            children: [
-                              for (final (index, category) in categories.indexed)
-                                _buildCategoryTile(
-                                  context,
-                                  category,
-                                  index < categories.length - 1,
-                                ),
-                            ],
-                          ),
+                              )
+                            : Column(
+                                children: [
+                                  for (final (index, category)
+                                      in categories.indexed)
+                                    _buildCategoryTile(
+                                      context,
+                                      category,
+                                      index < categories.length - 1,
+                                    ),
+                                ],
+                              ),
+                      ),
+                      isTablet ? const SizedBox(height: 32) : 24.verticalSpace,
+                    ],
                   ),
-                  isTablet ? const SizedBox(height: 32) : 24.verticalSpace,
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
-    );
+        );
 
         if (widget.showBackButton) {
-          return Scaffold(
-            backgroundColor: AppColors.background,
-            body: content,
-          );
+          return Scaffold(backgroundColor: AppColors.background, body: content);
         }
         return content;
       },

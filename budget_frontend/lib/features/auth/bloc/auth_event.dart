@@ -52,7 +52,10 @@ final class AuthResendResetCodeRequested extends AuthEvent {
 }
 
 final class AuthResetPasswordRequested extends AuthEvent {
-  const AuthResetPasswordRequested({required this.code, required this.newPassword});
+  const AuthResetPasswordRequested({
+    required this.code,
+    required this.newPassword,
+  });
 
   final String code;
   final String newPassword;

@@ -113,112 +113,121 @@ class _SavingsScreenState extends State<SavingsScreen> {
                   alignment: Alignment.topCenter,
                   child: ConstrainedBox(
                     constraints: BoxConstraints(
-                      maxWidth: isTablet ? AppLayout.maxContentWidth : double.infinity,
+                      maxWidth: isTablet
+                          ? AppLayout.maxContentWidth
+                          : double.infinity,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Header remains unchanged
-                    Row(
-                      children: [
-                        if (widget.showBackButton) ...[
-                          GestureDetector(
-                            onTap: () => Navigator.of(context).pop(),
-                            child: CircleAvatar(
-                              radius: 23.r,
-                              backgroundColor: AppColors.surface,
-                              child: Icon(
-                                AppIcons.chevronLeft,
-                                color: AppColors.ink,
-                                size: 25.sp,
+                        Row(
+                          children: [
+                            if (widget.showBackButton) ...[
+                              GestureDetector(
+                                onTap: () => Navigator.of(context).pop(),
+                                child: CircleAvatar(
+                                  radius: 23.r,
+                                  backgroundColor: AppColors.surface,
+                                  child: Icon(
+                                    AppIcons.chevronLeft,
+                                    color: AppColors.ink,
+                                    size: 25.sp,
+                                  ),
+                                ),
+                              ),
+                              15.horizontalSpace,
+                            ],
+                            Text("Savings", style: AppTextStyle.screenTitle),
+                          ],
+                        ),
+                        isTablet
+                            ? const SizedBox(height: 20)
+                            : 15.verticalSpace,
+
+                        if (isTablet) ...[
+                          // 1. Total Saved Hero Banner across the top
+                          TotalSavedWidget(
+                            totalSaved: state.totalSavedRupees,
+                            monthlyAdded: state.thisMonthRupees,
+                            targetTotal: state.totalTargetRupees,
+                            monthlyNeeded: state.totalMonthlyNeededRupees,
+                            hasGoals: goals.isNotEmpty,
+                          ),
+                          const SizedBox(height: 16),
+
+                          // 2. Empty container if 0 goals, OR 2-column grid of goals
+                          if (goals.isEmpty)
+                            _buildTabletEmptyGoalsContainer()
+                          else
+                            for (int i = 0; i < goals.length; i += 2) ...[
+                              if (i > 0) const SizedBox(height: 14),
+                              IntrinsicHeight(
+                                child: Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Expanded(
+                                      child: GoalCardWidget(goal: goals[i]),
+                                    ),
+                                    const SizedBox(width: 14),
+                                    if (i + 1 < goals.length)
+                                      Expanded(
+                                        child: GoalCardWidget(
+                                          goal: goals[i + 1],
+                                        ),
+                                      )
+                                    else
+                                      const Expanded(child: SizedBox()),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          const SizedBox(height: 20),
+
+                          // 3. Saving Button centered with a comfortable max width
+                          Center(
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 440),
+                              child: const SizedBox(
+                                width: double.infinity,
+                                child: SavingButtonWidget(),
                               ),
                             ),
                           ),
-                          15.horizontalSpace,
+                          if (!widget.showBackButton) ...[
+                            const SizedBox(height: 16),
+                            const AppAdBanner(),
+                          ],
+                        ] else ...[
+                          // Mobile layout untouched
+                          TotalSavedWidget(
+                            totalSaved: state.totalSavedRupees,
+                            monthlyAdded: state.thisMonthRupees,
+                            targetTotal: state.totalTargetRupees,
+                            monthlyNeeded: state.totalMonthlyNeededRupees,
+                            hasGoals: goals.isNotEmpty,
+                          ),
+                          15.verticalSpace,
+
+                          if (goals.isNotEmpty) ...[
+                            for (final goal in goals) ...[
+                              GoalCardWidget(goal: goal),
+                              15.verticalSpace,
+                            ],
+                          ],
+
+                          const SavingButtonWidget(),
+                          if (!widget.showBackButton) ...[
+                            15.verticalSpace,
+                            const AppAdBanner(),
+                          ],
                         ],
-                        Text("Savings", style: AppTextStyle.screenTitle),
                       ],
                     ),
-                    isTablet ? const SizedBox(height: 20) : 15.verticalSpace,
-
-                    if (isTablet) ...[
-                      // 1. Total Saved Hero Banner across the top
-                      TotalSavedWidget(
-                        totalSaved: state.totalSavedRupees,
-                        monthlyAdded: state.thisMonthRupees,
-                        targetTotal: state.totalTargetRupees,
-                        monthlyNeeded: state.totalMonthlyNeededRupees,
-                        hasGoals: goals.isNotEmpty,
-                      ),
-                      const SizedBox(height: 16),
-
-                      // 2. Empty container if 0 goals, OR 2-column grid of goals
-                      if (goals.isEmpty)
-                        _buildTabletEmptyGoalsContainer()
-                      else
-                        for (int i = 0; i < goals.length; i += 2) ...[
-                          if (i > 0) const SizedBox(height: 14),
-                          IntrinsicHeight(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Expanded(child: GoalCardWidget(goal: goals[i])),
-                                const SizedBox(width: 14),
-                                if (i + 1 < goals.length)
-                                  Expanded(
-                                    child: GoalCardWidget(goal: goals[i + 1]),
-                                  )
-                                else
-                                  const Expanded(child: SizedBox()),
-                              ],
-                            ),
-                          ),
-                        ],
-                      const SizedBox(height: 20),
-
-                      // 3. Saving Button centered with a comfortable max width
-                      Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 440),
-                          child: const SizedBox(
-                            width: double.infinity,
-                            child: SavingButtonWidget(),
-                          ),
-                        ),
-                      ),
-                      if (!widget.showBackButton) ...[
-                        const SizedBox(height: 16),
-                        const AppAdBanner(),
-                      ],
-                    ] else ...[
-                      // Mobile layout untouched
-                      TotalSavedWidget(
-                        totalSaved: state.totalSavedRupees,
-                        monthlyAdded: state.thisMonthRupees,
-                        targetTotal: state.totalTargetRupees,
-                        monthlyNeeded: state.totalMonthlyNeededRupees,
-                        hasGoals: goals.isNotEmpty,
-                      ),
-                      15.verticalSpace,
-
-                      if (goals.isNotEmpty) ...[
-                        for (final goal in goals) ...[
-                          GoalCardWidget(goal: goal),
-                          15.verticalSpace,
-                        ],
-                      ],
-
-                      const SavingButtonWidget(),
-                      if (!widget.showBackButton) ...[
-                        15.verticalSpace,
-                        const AppAdBanner(),
-                      ],
-                    ],
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          );
+              );
             },
           ),
         ),

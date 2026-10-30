@@ -7,11 +7,15 @@ class SheetBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const Stack(
-        fit: StackFit.expand,
-        children: [
-          DecoratedBox(decoration: BoxDecoration(gradient: AppGradients.header)),
-          DecoratedBox(decoration: BoxDecoration(gradient: AppGradients.headerGlowTopRight)),
-          DecoratedBox(decoration: BoxDecoration(gradient: AppGradients.headerGlowBottomLeft)),
-        ],
-      );
+    fit: StackFit.expand,
+    children: [
+      DecoratedBox(decoration: BoxDecoration(gradient: AppGradients.header)),
+      DecoratedBox(
+        decoration: BoxDecoration(gradient: AppGradients.headerGlowTopRight),
+      ),
+      DecoratedBox(
+        decoration: BoxDecoration(gradient: AppGradients.headerGlowBottomLeft),
+      ),
+    ],
+  );
 }

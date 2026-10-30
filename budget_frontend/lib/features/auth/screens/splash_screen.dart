@@ -35,17 +35,18 @@ class SplashScreenState extends State<SplashScreen> {
       listener: (context, state) async {
         await Future.delayed(const Duration(seconds: 3));
         if (!context.mounted) return;
-        final nextRoute =
-            state.status == AuthStatus.authenticated ? AppRoutes.afterAuth(state.user) : AppRoutes.login;
-        Navigator.of(context).pushNamedAndRemoveUntil(nextRoute, (route) => false);
+        final nextRoute = state.status == AuthStatus.authenticated
+            ? AppRoutes.afterAuth(state.user)
+            : AppRoutes.login;
+        Navigator.of(
+          context,
+        ).pushNamedAndRemoveUntil(nextRoute, (route) => false);
       },
       child: Scaffold(
         body: Container(
           width: double.infinity,
           height: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: AppGradients.card,
-          ),
+          decoration: const BoxDecoration(gradient: AppGradients.card),
           child: Center(
             child: Padding(
               padding: EdgeInsets.symmetric(horizontal: isTablet ? 48.0 : 24.w),
@@ -99,12 +100,11 @@ class SplashScreenState extends State<SplashScreen> {
                   Text(
                     'A calmer way to watch your money.',
                     textAlign: TextAlign.center,
-                    style: (isTablet
-                            ? AppTextStyle.subtitle.copyWith(fontSize: 16)
-                            : AppTextStyle.subtitle)
-                        .copyWith(
-                      color: AppColors.onAccent,
-                    ),
+                    style:
+                        (isTablet
+                                ? AppTextStyle.subtitle.copyWith(fontSize: 16)
+                                : AppTextStyle.subtitle)
+                            .copyWith(color: AppColors.onAccent),
                   ),
                 ],
               ),

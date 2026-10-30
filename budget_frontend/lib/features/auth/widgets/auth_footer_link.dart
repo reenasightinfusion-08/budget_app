@@ -19,11 +19,11 @@ class AuthFooterLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(prompt, style: AppTextStyle.body),
-          4.horizontalSpace,
-          AppLinkButton(label: actionLabel, onPressed: onPressed),
-        ],
-      );
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+      Text(prompt, style: AppTextStyle.body),
+      4.horizontalSpace,
+      AppLinkButton(label: actionLabel, onPressed: onPressed),
+    ],
+  );
 }

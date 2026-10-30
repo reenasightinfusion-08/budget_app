@@ -43,7 +43,8 @@ class AppCategoryPickerDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isTablet = AppLayout.isTablet(context);
-    final isSpend = transactionType.toLowerCase() == 'spend' ||
+    final isSpend =
+        transactionType.toLowerCase() == 'spend' ||
         transactionType.toLowerCase() == 'expense';
     final type = isSpend ? 'expense' : 'income';
 
@@ -127,8 +128,11 @@ class AppCategoryPickerDialog extends StatelessWidget {
                     final isSelected =
                         cat.toLowerCase() == currentCategory.toLowerCase();
                     final icon = CategoryRegistry.getIcon(cat, type);
-                    final color =
-                        CategoryRegistry.getColor(cat, type, !isSpend);
+                    final color = CategoryRegistry.getColor(
+                      cat,
+                      type,
+                      !isSpend,
+                    );
 
                     return GestureDetector(
                       onTap: () => Navigator.of(context).pop(cat),
@@ -163,11 +167,7 @@ class AppCategoryPickerDialog extends StatelessWidget {
                                 shape: BoxShape.circle,
                               ),
                               alignment: Alignment.center,
-                              child: Icon(
-                                icon,
-                                size: 15.sp,
-                                color: color,
-                              ),
+                              child: Icon(icon, size: 15.sp, color: color),
                             ),
                             6.horizontalSpace,
                             Expanded(

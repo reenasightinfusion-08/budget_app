@@ -142,7 +142,9 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
     try {
       final bytes = await image.readAsBytes();
       if (bytes.length > 3 * 1024 * 1024) {
-        throw const ApiException('Photo is too large. Keep it under about 3 MB.');
+        throw const ApiException(
+          'Photo is too large. Keep it under about 3 MB.',
+        );
       }
 
       if (!mounted) return;
@@ -180,17 +182,17 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
       final afterTxs = await txService.getTransactions(limit: 50);
 
       // Find the newly added transaction by diffing IDs
-      final newCandidates =
-          afterTxs.where((t) => !beforeIds.contains(t.id)).toList();
+      final newCandidates = afterTxs
+          .where((t) => !beforeIds.contains(t.id))
+          .toList();
       final newTx = newCandidates.isNotEmpty
-          ? (newCandidates
-            ..sort((a, b) {
-              if (a.createdAt != null && b.createdAt != null) {
-                return b.createdAt!.compareTo(a.createdAt!);
-              }
-              return 0;
-            }))
-              .first
+          ? (newCandidates..sort((a, b) {
+                  if (a.createdAt != null && b.createdAt != null) {
+                    return b.createdAt!.compareTo(a.createdAt!);
+                  }
+                  return 0;
+                }))
+                .first
           : null;
 
       if (newTx == null) {
@@ -199,9 +201,12 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
         );
       }
       _createdTransactionId = newTx.id;
-      _amountController.text =
-          newTx.amount.toStringAsFixed(newTx.amount % 1 == 0 ? 0 : 2);
-      _brandName = newTx.description.isNotEmpty ? newTx.description : 'Bill Receipt';
+      _amountController.text = newTx.amount.toStringAsFixed(
+        newTx.amount % 1 == 0 ? 0 : 2,
+      );
+      _brandName = newTx.description.isNotEmpty
+          ? newTx.description
+          : 'Bill Receipt';
       _category = newTx.category;
       _entryDate = newTx.date;
       _transactionType = newTx.isIncome ? 'Income' : 'Spend';
@@ -296,7 +301,9 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
         amountController: _amountController,
         category: _category,
         isSaving: _isSaving,
-        categories: availableCats.isNotEmpty ? availableCats : const ['Food', 'Shopping', 'Bills', 'Other'],
+        categories: availableCats.isNotEmpty
+            ? availableCats
+            : const ['Food', 'Shopping', 'Bills', 'Other'],
         onCategoryChanged: (val) => setState(() => _category = val),
         entryDate: _entryDate,
         onDateChanged: (val) => setState(() => _entryDate = val),
@@ -336,11 +343,7 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
         if (_selectedImage == null) ...[
           // 1. Empty / Picker State: Uses common SmartAddPickerCard
           SmartAddPickerCard(
-            icon: Icon(
-              AppIcons.camera,
-              color: Colors.white,
-              size: 26.sp,
-            ),
+            icon: Icon(AppIcons.camera, color: Colors.white, size: 26.sp),
             title: 'Snap or upload a bill',
             subtitle: 'Budgie reads the total, store and date for you',
             actionButtons: [
@@ -349,14 +352,18 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
                 onTap: _isLoading ? null : () => _pickImage(ImageSource.camera),
                 behavior: HitTestBehavior.opaque,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 22.w, vertical: 12.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 22.w,
+                    vertical: 12.h,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.accent,
                     borderRadius: AppBorderRadius.dialog,
                   ),
                   child: Text(
                     'Take photo',
-                    style: TextStyle(fontFamily: 'DMSans', 
+                    style: TextStyle(
+                      fontFamily: 'DMSans',
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -368,10 +375,15 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
 
               // Choose image button
               GestureDetector(
-                onTap: _isLoading ? null : () => _pickImage(ImageSource.gallery),
+                onTap: _isLoading
+                    ? null
+                    : () => _pickImage(ImageSource.gallery),
                 behavior: HitTestBehavior.opaque,
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 22.w, vertical: 12.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 22.w,
+                    vertical: 12.h,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: AppBorderRadius.dialog,
@@ -385,7 +397,8 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
                   ),
                   child: Text(
                     'Choose image',
-                    style: TextStyle(fontFamily: 'DMSans', 
+                    style: TextStyle(
+                      fontFamily: 'DMSans',
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                       color: AppColors.ink,
@@ -404,14 +417,8 @@ class _ScanBillBottomSheetState extends State<ScanBillBottomSheet> {
             previewChild: ClipRRect(
               borderRadius: AppBorderRadius.xs,
               child: kIsWeb
-                  ? Image.network(
-                      _selectedImage!.path,
-                      fit: BoxFit.contain,
-                    )
-                  : Image.file(
-                      File(_selectedImage!.path),
-                      fit: BoxFit.contain,
-                    ),
+                  ? Image.network(_selectedImage!.path, fit: BoxFit.contain)
+                  : Image.file(File(_selectedImage!.path), fit: BoxFit.contain),
             ),
             progressRatio: _progressRatio,
             progressText: _progressText,

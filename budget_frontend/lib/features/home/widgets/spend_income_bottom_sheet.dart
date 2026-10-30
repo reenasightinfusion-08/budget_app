@@ -335,10 +335,11 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
                 controller: _noteController,
                 hint: 'Add a note (optional)',
                 fillColor: AppColors.surface,
-                borderRadius: AppBorderRadius.card,
+                borderRadius: BorderRadius.circular(16.r),
+                textCapitalization: TextCapitalization.sentences,
                 validator: (_) => null,
               ),
-              10.verticalSpace,
+              12.verticalSpace,
               AppTextField(
                 icon: AppIcons.calendar,
                 controller: _dateController,
@@ -346,7 +347,12 @@ class _SpendIncomeBottomSheetState extends State<SpendIncomeBottomSheet> {
                 readOnly: true,
                 onTap: _pickDate,
                 fillColor: AppColors.surface,
-                borderRadius: AppBorderRadius.card,
+                borderRadius: BorderRadius.circular(16.r),
+                suffixIcon: Icon(
+                  AppIcons.arrowDropDown,
+                  color: AppColors.muted,
+                  size: isTablet ? 22 : 22.sp,
+                ),
                 validator: (_) => null,
               ),
 

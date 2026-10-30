@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_config.dart';
-import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
@@ -84,12 +83,6 @@ class ProfileUserCard extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-          CircleAvatar(
-            radius: isTablet ? 22 : 23.r,
-            backgroundColor: AppColors.glassFill,
-            foregroundColor: AppColors.surface,
-            child: Icon(AppIcons.filter, size: isTablet ? 22 : 25.sp),
           ),
         ],
       ),

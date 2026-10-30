@@ -27,8 +27,9 @@ class GoalProgressCircle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isCompleted = progress >= 1.0;
-    final Color progressColor =
-        isCompleted ? AppColors.success : AppColors.accent;
+    final Color progressColor = isCompleted
+        ? AppColors.success
+        : AppColors.accent;
     final bool isTablet = AppLayout.isTablet(context);
 
     return SizedBox(
@@ -48,11 +49,7 @@ class GoalProgressCircle extends StatelessWidget {
               valueColor: AlwaysStoppedAnimation<Color>(progressColor),
             ),
           ),
-          Icon(
-            icon,
-            size: isTablet ? 20 : 20.sp,
-            color: AppColors.ink,
-          ),
+          Icon(icon, size: isTablet ? 20 : 20.sp, color: AppColors.ink),
         ],
       ),
     );
@@ -61,11 +58,7 @@ class GoalProgressCircle extends StatelessWidget {
 
 /// Goal display card with progress circle, details, and monthly saving target.
 class GoalCardWidget extends StatelessWidget {
-  const GoalCardWidget({
-    super.key,
-    required this.goal,
-    this.onTap,
-  });
+  const GoalCardWidget({super.key, required this.goal, this.onTap});
 
   final GoalModel goal;
   final VoidCallback? onTap;
@@ -140,13 +133,16 @@ class GoalCardWidget extends StatelessWidget {
                     children: [
                       const TextSpan(text: 'Save '),
                       TextSpan(
-                        text: '${AppFormatters.rupees(goal.monthlyNeededRupees)} a month',
+                        text:
+                            '${AppFormatters.rupees(goal.monthlyNeededRupees)} a month',
                         style: AppTextStyle.fieldLabel.copyWith(
                           fontWeight: FontWeight.w700,
                           color: AppColors.ink,
                         ),
                       ),
-                      TextSpan(text: ' to reach it by ${goal.formattedTargetMonth}.'),
+                      TextSpan(
+                        text: ' to reach it by ${goal.formattedTargetMonth}.',
+                      ),
                     ],
                   ),
                 ),
@@ -162,8 +158,11 @@ class GoalCardWidget extends StatelessWidget {
                     : EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
                 child: Row(
                   children: [
-                    Icon(AppIcons.checkCircle,
-                        color: AppColors.success, size: isTablet ? 18 : 18.sp),
+                    Icon(
+                      AppIcons.checkCircle,
+                      color: AppColors.success,
+                      size: isTablet ? 18 : 18.sp,
+                    ),
                     isTablet ? const SizedBox(width: 8) : 8.horizontalSpace,
                     Text(
                       'Goal reached! 🎉',

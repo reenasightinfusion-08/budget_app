@@ -85,8 +85,8 @@ class BudgetCategoryModel {
 
     return sourceList.map((cat) {
       final int defaultLimit = _defaultLimits[cat.key] ?? 2000;
-      final int effectiveLimit = (customLimitsPaise != null &&
-              customLimitsPaise.containsKey(cat.key))
+      final int effectiveLimit =
+          (customLimitsPaise != null && customLimitsPaise.containsKey(cat.key))
           ? (customLimitsPaise[cat.key]! ~/ 100)
           : (defaultLimit * factor).round();
 

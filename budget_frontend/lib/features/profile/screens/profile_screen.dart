@@ -61,57 +61,59 @@ class ProfileScreen extends StatelessWidget {
               alignment: Alignment.topCenter,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  maxWidth: isTablet ? AppLayout.maxContentWidth : double.infinity,
+                  maxWidth: isTablet
+                      ? AppLayout.maxContentWidth
+                      : double.infinity,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const ProfileHeader(),
                     isTablet ? const SizedBox(height: 20) : 15.verticalSpace,
-                if (isTablet) ...[
-                  const ProfileUserCard(),
-                  const SizedBox(height: 20),
-                  const ProfileStatsRow(),
-                  const SizedBox(height: 24),
-                  const ProfileMenuCard(),
-                  const SizedBox(height: 24),
-                  const ProfileAccountActionsCard(),
-                  const SizedBox(height: 24),
-                  Center(
-                    child: Text(
-                      'Your entries stay on this device only.',
-                      style: AppTextStyle.subtitle.copyWith(
-                        fontSize: 13,
-                        color: AppColors.muted,
+                    if (isTablet) ...[
+                      const ProfileUserCard(),
+                      const SizedBox(height: 20),
+                      const ProfileStatsRow(),
+                      const SizedBox(height: 24),
+                      const ProfileMenuCard(),
+                      const SizedBox(height: 24),
+                      const ProfileAccountActionsCard(),
+                      const SizedBox(height: 24),
+                      Center(
+                        child: Text(
+                          'Your entries stay on this device only.',
+                          style: AppTextStyle.subtitle.copyWith(
+                            fontSize: 13,
+                            color: AppColors.muted,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                ] else ...[
-                  const ProfileUserCard(),
-                  15.verticalSpace,
-                  const ProfileStatsRow(),
-                  15.verticalSpace,
-                  const ProfileMenuCard(),
-                  15.verticalSpace,
-                  const ProfileAccountActionsCard(),
-                  20.verticalSpace,
-                  Center(
-                    child: Text(
-                      'Your entries stay on this device only.',
-                      style: AppTextStyle.subtitle.copyWith(
-                        fontSize: 13.sp,
-                        color: AppColors.muted,
+                      const SizedBox(height: 24),
+                    ] else ...[
+                      const ProfileUserCard(),
+                      15.verticalSpace,
+                      const ProfileStatsRow(),
+                      15.verticalSpace,
+                      const ProfileMenuCard(),
+                      15.verticalSpace,
+                      const ProfileAccountActionsCard(),
+                      20.verticalSpace,
+                      Center(
+                        child: Text(
+                          'Your entries stay on this device only.',
+                          style: AppTextStyle.subtitle.copyWith(
+                            fontSize: 13.sp,
+                            color: AppColors.muted,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  20.verticalSpace,
-                ],
-              ],
+                      20.verticalSpace,
+                    ],
+                  ],
+                ),
+              ),
             ),
           ),
-        ),
-      ),
         ),
       ),
     );

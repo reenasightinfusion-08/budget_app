@@ -73,7 +73,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   user: authUser,
                 );
 
-          final message = isLogin ? 'Welcome back! $username' : 'Welcome! $username';
+          final message = isLogin
+              ? 'Welcome back! $username'
+              : 'Welcome! $username';
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
@@ -102,16 +104,19 @@ class _HomeScreenState extends State<HomeScreen> {
     return BlocListener<AuthBloc, AuthState>(
       listenWhen: (previous, current) =>
           current.status == AuthStatus.unauthenticated ||
-          (previous.user?.monthlyBudget != current.user?.monthlyBudget && current.user != null) ||
+          (previous.user?.monthlyBudget != current.user?.monthlyBudget &&
+              current.user != null) ||
           (current.errorMessage != null &&
               previous.errorMessage != current.errorMessage),
       listener: (context, state) {
         if (state.status == AuthStatus.unauthenticated) {
           context.read<WalletBloc>().add(const ResetWallet());
           context.read<GoalBloc>().add(const ResetGoals());
-          Navigator.of(
-            context,
-          ).pushNamedAndRemoveUntil(AppRoutes.signup, (route) => false);
+          if (ModalRoute.of(context)?.isCurrent == true) {
+            Navigator.of(
+              context,
+            ).pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+          }
         } else if (state.user != null && state.user!.monthlyBudget > 0) {
           context.read<WalletBloc>().add(WalletUserSynced(state.user!));
         } else if (state.errorMessage != null) {
@@ -164,7 +169,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       backgroundColor: Colors.transparent,
                       shape: const CircleBorder(),
                       onPressed: () => SpendIncomeBottomSheet.show(context),
-                      child: const Icon(AppIcons.add, color: AppColors.fill, size: 30),
+                      child: const Icon(
+                        AppIcons.add,
+                        color: AppColors.fill,
+                        size: 30,
+                      ),
                     ),
                   ),
                 ),
@@ -205,7 +214,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       backgroundColor: Colors.transparent,
                       shape: const CircleBorder(),
                       onPressed: () => SpendIncomeBottomSheet.show(context),
-                      child: Icon(AppIcons.add, color: AppColors.fill, size: 30.sp),
+                      child: Icon(
+                        AppIcons.add,
+                        color: AppColors.fill,
+                        size: 30.sp,
+                      ),
                     ),
                   ),
                 ),

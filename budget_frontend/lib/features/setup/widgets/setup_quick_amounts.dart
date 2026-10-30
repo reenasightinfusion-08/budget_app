@@ -15,18 +15,18 @@ class SetupQuickAmounts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocBuilder<SetupBloc, SetupState>(
-        builder: (context, state) => Row(
-          spacing: 8.w,
-          children: [
-            for (final amount in amounts)
-              Expanded(
-                child: SetupQuickAmountChip(
-                  label: AppFormatters.rupees(amount),
-                  isSelected: amount == state.budgetAmount,
-                  onPressed: () => onSelected(amount),
-                ),
-              ),
-          ],
-        ),
-      );
+    builder: (context, state) => Row(
+      spacing: 8.w,
+      children: [
+        for (final amount in amounts)
+          Expanded(
+            child: SetupQuickAmountChip(
+              label: AppFormatters.rupees(amount),
+              isSelected: amount == state.budgetAmount,
+              onPressed: () => onSelected(amount),
+            ),
+          ),
+      ],
+    ),
+  );
 }

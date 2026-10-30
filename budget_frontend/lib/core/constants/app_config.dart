@@ -10,6 +10,7 @@ class AppConfig {
   /// Override at build time: `--dart-define=GOOGLE_SERVER_CLIENT_ID=<id>.apps.googleusercontent.com`
   static const String googleServerClientId = String.fromEnvironment(
     'GOOGLE_SERVER_CLIENT_ID',
-    defaultValue: '668877744444-tnmlhbmciv0ar75nsl4cva7dhih3dt3b.apps.googleusercontent.com',
+    defaultValue:
+        '668877744444-tnmlhbmciv0ar75nsl4cva7dhih3dt3b.apps.googleusercontent.com',
   );
 }

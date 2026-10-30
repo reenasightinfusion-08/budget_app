@@ -83,19 +83,25 @@ class VoiceTextParser {
 
     // Context words with numbers: table 4, room 101, seat 12, gate 5, order 123, flight 402, etc.
     cleaned = cleaned.replaceAll(
-      RegExp(r'\b(?:table|room|seat|gate|flat|order|id|bus|train|flight|platform|no|number)\s*#?\s*\d+\b'),
+      RegExp(
+        r'\b(?:table|room|seat|gate|flat|order|id|bus|train|flight|platform|no|number)\s*#?\s*\d+\b',
+      ),
       ' ',
     );
 
     // Quantities with units: 2 kg, 5 km, 3 hrs, 10 pcs, etc.
     cleaned = cleaned.replaceAll(
-      RegExp(r'\b\d+\s*(?:items?|pcs|pieces?|qty|kg|kgs|km|kms|hours?|hrs|mins?|minutes?|%|percent)\b'),
+      RegExp(
+        r'\b\d+\s*(?:items?|pcs|pieces?|qty|kg|kgs|km|kms|hours?|hrs|mins?|minutes?|%|percent)\b',
+      ),
       ' ',
     );
 
     // Quantities before common counted items: "2 pizzas", "3 coffees", "4 beers", "2 plates", "5 tickets"
     cleaned = cleaned.replaceAll(
-      RegExp(r'\b\d+\s+(?:pizzas?|burgers?|coffees?|beers?|plates?|bottles?|tickets?|cups?|drinks?|cans?|packs?|people|persons?)\b'),
+      RegExp(
+        r'\b\d+\s+(?:pizzas?|burgers?|coffees?|beers?|plates?|bottles?|tickets?|cups?|drinks?|cans?|packs?|people|persons?)\b',
+      ),
       ' ',
     );
 
@@ -120,7 +126,9 @@ class VoiceTextParser {
     if (matches.isNotEmpty) {
       // Sum only if numbers are explicitly linked with "and", "&", or "+"
       if (matches.length > 1 &&
-          (cleaned.contains(' and ') || cleaned.contains(' & ') || cleaned.contains(' + '))) {
+          (cleaned.contains(' and ') ||
+              cleaned.contains(' & ') ||
+              cleaned.contains(' + '))) {
         double total = 0.0;
         for (final m in matches) {
           total += double.tryParse(m.group(0) ?? '0') ?? 0.0;
@@ -183,10 +191,25 @@ class VoiceTextParser {
     // Clean note: strip numbers, currencies and filler prepositions
     String cleanNote = rawText
         .replaceAll(RegExp(r'\b\d+(?:\.\d+)?\b'), ' ')
-        .replaceAll(RegExp(r'\b\d+(?:st|nd|rd|th)\b', caseSensitive: false), ' ')
+        .replaceAll(
+          RegExp(r'\b\d+(?:st|nd|rd|th)\b', caseSensitive: false),
+          ' ',
+        )
         .replaceAll(RegExp(r'[₹$€£,.]'), ' ')
-        .replaceAll(RegExp(r'\b(?:rs\.?|rupees|inr|bucks|dollars)\b', caseSensitive: false), ' ')
-        .replaceAll(RegExp(r'\b(?:for|paid|spent|cost|yesterday|today|was)\b', caseSensitive: false), ' ')
+        .replaceAll(
+          RegExp(
+            r'\b(?:rs\.?|rupees|inr|bucks|dollars)\b',
+            caseSensitive: false,
+          ),
+          ' ',
+        )
+        .replaceAll(
+          RegExp(
+            r'\b(?:for|paid|spent|cost|yesterday|today|was)\b',
+            caseSensitive: false,
+          ),
+          ' ',
+        )
         .replaceAll(RegExp(r'\s+'), ' ')
         .trim();
 

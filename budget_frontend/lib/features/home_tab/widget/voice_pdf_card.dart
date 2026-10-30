@@ -43,97 +43,91 @@ class VoicePdfCard extends StatelessWidget {
         radius: AppBorderRadius.card,
         padding: isTablet ? const EdgeInsets.all(8) : EdgeInsets.all(10.r),
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Image / Icon box
-          AspectRatio(
-            aspectRatio: 15/8,
-            child: AppCard(
-              color: bgColor,
-              radius: AppBorderRadius.md,
-              child: Center(
-                child: imagePath != null
-                    ? (imagePath!.endsWith('.svg')
-                        ? Padding(
-                            padding: EdgeInsets.all(6.r),
-                            child: SvgPicture.asset(
-                              imagePath!,
-                              fit: BoxFit.contain,
-                            ),
-                          )
-                        : Padding(
-                            padding: EdgeInsets.all(6.r),
-                            child: Image.asset(
-                              imagePath!,
-                              fit: BoxFit.contain,
-                            ),
-                          ))
-                    : (icon != null
-                        ? Icon(
-                            icon,
-                            size: isTablet ? 32 : 40.sp,
-                            color: iconColor,
-                          )
-                        : const SizedBox.shrink()),
-              ),
-            ),
-          ),
-          6.verticalSpace,
-
-          // Title
-          Text(
-            title,
-            style: AppTextStyle.subCardTitle,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          4.verticalSpace,
-
-          // Subtitle
-          Text(
-            subtitle,
-            style: AppTextStyle.description,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          8.verticalSpace,
-
-          // Action Button
-          GestureDetector(
-            onTap: onTap,
-            behavior: HitTestBehavior.opaque,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Image / Icon box
+            AspectRatio(
+              aspectRatio: 15 / 8,
               child: AppCard(
-                color: AppColors.popDeep,
-                radius: AppBorderRadius.pill,
-                padding: isTablet
-                    ? const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
-                    : EdgeInsets.symmetric(
-                        horizontal: 14.w,
-                        vertical: 6.h,
-                      ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      buttonText,
-                      style: AppTextStyle.buttonAction,
-                    ),
-                    isTablet ? const SizedBox(width: 2) : 4.horizontalSpace,
-                    Icon(
-                      AppIcons.chevronRight,
-                      size: isTablet ? 16 : 20.sp,
-                      color: AppColors.surface,
-                    ),
-                  ],
+                color: bgColor,
+                radius: AppBorderRadius.md,
+                child: Center(
+                  child: imagePath != null
+                      ? (imagePath!.endsWith('.svg')
+                            ? Padding(
+                                padding: EdgeInsets.all(6.r),
+                                child: SvgPicture.asset(
+                                  imagePath!,
+                                  fit: BoxFit.contain,
+                                ),
+                              )
+                            : Padding(
+                                padding: EdgeInsets.all(6.r),
+                                child: Image.asset(
+                                  imagePath!,
+                                  fit: BoxFit.contain,
+                                ),
+                              ))
+                      : (icon != null
+                            ? Icon(
+                                icon,
+                                size: isTablet ? 32 : 40.sp,
+                                color: iconColor,
+                              )
+                            : const SizedBox.shrink()),
                 ),
               ),
             ),
-          ),
-        ],
+            6.verticalSpace,
+
+            // Title
+            Text(
+              title,
+              style: AppTextStyle.subCardTitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            4.verticalSpace,
+
+            // Subtitle
+            Text(
+              subtitle,
+              style: AppTextStyle.description,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            8.verticalSpace,
+
+            // Action Button
+            GestureDetector(
+              onTap: onTap,
+              behavior: HitTestBehavior.opaque,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: AppCard(
+                  color: AppColors.popDeep,
+                  radius: AppBorderRadius.pill,
+                  padding: isTablet
+                      ? const EdgeInsets.symmetric(horizontal: 10, vertical: 6)
+                      : EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(buttonText, style: AppTextStyle.buttonAction),
+                      isTablet ? const SizedBox(width: 2) : 4.horizontalSpace,
+                      Icon(
+                        AppIcons.chevronRight,
+                        size: isTablet ? 16 : 20.sp,
+                        color: AppColors.surface,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

@@ -12,7 +12,7 @@ class AppLoader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox.square(
-        dimension: size.r,
-        child: CircularProgressIndicator(strokeWidth: 2.5.w, color: color),
-      );
+    dimension: size.r,
+    child: CircularProgressIndicator(strokeWidth: 2.5.w, color: color),
+  );
 }

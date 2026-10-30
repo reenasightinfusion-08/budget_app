@@ -16,10 +16,39 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
   BannerAd? _ad;
   int? _loadedWidth;
 
+  @override
+  void initState() {
+    super.initState();
+    AdService.fullScreenDismissedNotifier.addListener(_onFullScreenDismissed);
+  }
+
+  @override
+  void dispose() {
+    AdService.fullScreenDismissedNotifier.removeListener(
+      _onFullScreenDismissed,
+    );
+    _ad?.dispose();
+    super.dispose();
+  }
+
+  void _onFullScreenDismissed() {
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        _reloadAd();
+      }
+    });
+  }
+
+  void _reloadAd() {
+    if (!mounted || !AdService.supported) return;
+    _loadedWidth = null;
+    final width = MediaQuery.sizeOf(context).width.truncate();
+    _load(width);
+  }
+
   Future<void> _load(int width) async {
     _loadedWidth = width;
-    final size =
-        await AdSize.getLargeAnchoredAdaptiveBannerAdSize(width);
+    final size = await AdSize.getLargeAnchoredAdaptiveBannerAdSize(width);
     if (size == null || !mounted) return;
     _ad?.dispose();
     _ad = BannerAd(
@@ -37,12 +66,6 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
         },
       ),
     )..load();
-  }
-
-  @override
-  void dispose() {
-    _ad?.dispose();
-    super.dispose();
   }
 
   @override

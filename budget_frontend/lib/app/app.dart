@@ -72,77 +72,78 @@ class _BudgetAppState extends State<BudgetApp> {
   @override
   void initState() {
     super.initState();
-    AdService.appOpenGuard = () => !_kAppOpenExemptRoutes.contains(_currentRoute);
+    AdService.appOpenGuard = () =>
+        !_kAppOpenExemptRoutes.contains(_currentRoute);
   }
 
   @override
   Widget build(BuildContext context) => MultiRepositoryProvider(
-        providers: [
-          RepositoryProvider<TransactionService>(
-            create: (context) => TransactionService(widget.apiClient),
-          ),
-          RepositoryProvider<CategoryService>(
-            create: (context) => CategoryService(widget.apiClient),
-          ),
-          RepositoryProvider<GoalService>(
-            create: (context) => GoalService(widget.apiClient),
-          ),
-          RepositoryProvider<SmartAddService>(
-            create: (context) => SmartAddService(widget.apiClient),
-          ),
-        ],
-        child: MultiBlocProvider(
-          providers: [
-            BlocProvider<AuthBloc>(
-              create: (context) => AuthBloc(authService: ApiAuthService(widget.apiClient)),
-            ),
-            BlocProvider<CategoryBloc>(
-              create: (context) => CategoryBloc(
-                categoryService: CategoryService(widget.apiClient),
-              ),
-            ),
-            BlocProvider<GoalBloc>(
-              create: (context) => GoalBloc(
-                goalService: GoalService(widget.apiClient),
-              ),
-            ),
-            BlocProvider<SetupBloc>(
-              create: (context) => SetupBloc(profileService: ProfileService(widget.apiClient)),
-            ),
-            BlocProvider<WalletBloc>(
-              create: (context) => WalletBloc(
-                profileService: ProfileService(widget.apiClient),
-                transactionService: TransactionService(widget.apiClient),
-                categoryService: CategoryService(widget.apiClient),
-              ),
-            ),
-          ],
-          child: ScreenUtilInit(
-            designSize: const Size(390, 844),
-            minTextAdapt: true,
-            fontSizeResolver: (fontSize, instance) {
-              final shortestSide = min(instance.screenWidth, instance.screenHeight);
-              if (shortestSide >= 600) {
-                return fontSize.toDouble();
-              }
-              return FontSizeResolvers.width(fontSize, instance);
-            },
-            builder: (context, child) {
-              final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
-              ScreenUtil.enableScale(
-                enableWH: () => !isTablet,
-                enableText: () => !isTablet,
-              );
-              return MaterialApp(
-                title: 'Budgie',
-                debugShowCheckedModeBanner: false,
-                theme: AppTheme.light,
-                initialRoute: AppRoutes.splash,
-                routes: AppRoutes.routes,
-                navigatorObservers: [_routeObserver],
-              );
-            },
+    providers: [
+      RepositoryProvider<TransactionService>(
+        create: (context) => TransactionService(widget.apiClient),
+      ),
+      RepositoryProvider<CategoryService>(
+        create: (context) => CategoryService(widget.apiClient),
+      ),
+      RepositoryProvider<GoalService>(
+        create: (context) => GoalService(widget.apiClient),
+      ),
+      RepositoryProvider<SmartAddService>(
+        create: (context) => SmartAddService(widget.apiClient),
+      ),
+    ],
+    child: MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthBloc>(
+          create: (context) =>
+              AuthBloc(authService: ApiAuthService(widget.apiClient)),
+        ),
+        BlocProvider<CategoryBloc>(
+          create: (context) =>
+              CategoryBloc(categoryService: CategoryService(widget.apiClient)),
+        ),
+        BlocProvider<GoalBloc>(
+          create: (context) =>
+              GoalBloc(goalService: GoalService(widget.apiClient)),
+        ),
+        BlocProvider<SetupBloc>(
+          create: (context) =>
+              SetupBloc(profileService: ProfileService(widget.apiClient)),
+        ),
+        BlocProvider<WalletBloc>(
+          create: (context) => WalletBloc(
+            profileService: ProfileService(widget.apiClient),
+            transactionService: TransactionService(widget.apiClient),
+            categoryService: CategoryService(widget.apiClient),
           ),
         ),
-      );
+      ],
+      child: ScreenUtilInit(
+        designSize: const Size(390, 844),
+        minTextAdapt: true,
+        fontSizeResolver: (fontSize, instance) {
+          final shortestSide = min(instance.screenWidth, instance.screenHeight);
+          if (shortestSide >= 600) {
+            return fontSize.toDouble();
+          }
+          return FontSizeResolvers.width(fontSize, instance);
+        },
+        builder: (context, child) {
+          final isTablet = MediaQuery.sizeOf(context).shortestSide >= 600;
+          ScreenUtil.enableScale(
+            enableWH: () => !isTablet,
+            enableText: () => !isTablet,
+          );
+          return MaterialApp(
+            title: 'Budgie',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light,
+            initialRoute: AppRoutes.splash,
+            routes: AppRoutes.routes,
+            navigatorObservers: [_routeObserver],
+          );
+        },
+      ),
+    ),
+  );
 }

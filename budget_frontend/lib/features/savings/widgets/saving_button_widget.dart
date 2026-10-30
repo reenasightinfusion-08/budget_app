@@ -23,9 +23,7 @@ class SavingButtonWidget extends StatelessWidget {
         child: Container(
           width: double.infinity,
           height: 52.h,
-          decoration: BoxDecoration(
-            borderRadius: AppBorderRadius.pill,
-          ),
+          decoration: BoxDecoration(borderRadius: AppBorderRadius.pill),
           child: CustomPaint(
             painter: DashedBorderPainter(),
             child: Center(
@@ -33,16 +31,9 @@ class SavingButtonWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    AppIcons.add,
-                    color: AppColors.ink,
-                    size: 20.sp,
-                  ),
+                  Icon(AppIcons.add, color: AppColors.ink, size: 20.sp),
                   8.horizontalSpace,
-                  Text(
-                    'New savings goal',
-                    style: AppTextStyle.toggleTitle,
-                  ),
+                  Text('New savings goal', style: AppTextStyle.toggleTitle),
                 ],
               ),
             ),

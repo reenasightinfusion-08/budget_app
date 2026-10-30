@@ -21,30 +21,30 @@ class AppAmountField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        crossAxisAlignment: CrossAxisAlignment.baseline,
-        textBaseline: TextBaseline.alphabetic,
-        children: [
-          Text('₹', style: AppTextStyle.amountSymbol),
-          6.horizontalSpace,
-          Expanded(
-            child: TextFormField(
-              controller: controller,
-              validator: validator,
-              onChanged: onChanged,
-              keyboardType: TextInputType.number,
-              inputFormatters: const [IndianDigitsFormatter()],
-              style: AppTextStyle.amount,
-              cursorColor: AppColors.onAccent,
-              decoration: InputDecoration(
-                isDense: true,
-                border: InputBorder.none,
-                contentPadding: EdgeInsets.zero,
-                hintText: '30,000',
-                hintStyle: AppTextStyle.amountHint,
-                errorStyle: AppTextStyle.cardError,
-              ),
-            ),
+    crossAxisAlignment: CrossAxisAlignment.baseline,
+    textBaseline: TextBaseline.alphabetic,
+    children: [
+      Text('₹', style: AppTextStyle.amountSymbol),
+      6.horizontalSpace,
+      Expanded(
+        child: TextFormField(
+          controller: controller,
+          validator: validator,
+          onChanged: onChanged,
+          keyboardType: TextInputType.number,
+          inputFormatters: const [IndianDigitsFormatter()],
+          style: AppTextStyle.amount,
+          cursorColor: AppColors.onAccent,
+          decoration: InputDecoration(
+            isDense: true,
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.zero,
+            hintText: '30,000',
+            hintStyle: AppTextStyle.amountHint,
+            errorStyle: AppTextStyle.cardError,
           ),
-        ],
-      );
+        ),
+      ),
+    ],
+  );
 }

@@ -63,7 +63,7 @@ class AddWithBudgieCard extends StatelessWidget {
                 Expanded(
                   flex: 3,
                   child: AspectRatio(
-                    aspectRatio: 8/7,
+                    aspectRatio: 8 / 7,
                     child: AppCard(
                       color: AppColors.glassFill,
                       radius: AppBorderRadius.md,
@@ -86,10 +86,7 @@ class AddWithBudgieCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        'Scan a bill',
-                        style: AppTextStyle.cardTitleWhite,
-                      ),
+                      Text('Scan a bill', style: AppTextStyle.cardTitleWhite),
                       3.verticalSpace,
                       Text(
                         'scan a recepit and i will log it for you',
@@ -106,10 +103,7 @@ class AddWithBudgieCard extends StatelessWidget {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              'Scan now',
-                              style: AppTextStyle.buttonPill,
-                            ),
+                            Text('Scan now', style: AppTextStyle.buttonPill),
                             4.horizontalSpace,
                             Icon(
                               AppIcons.chevronRight,

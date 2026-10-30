@@ -12,9 +12,9 @@ enum TransactionType {
   bool get isSpend => this == TransactionType.spend;
 
   String get label => switch (this) {
-        TransactionType.income => 'Money in',
-        TransactionType.spend => 'Money out',
-      };
+    TransactionType.income => 'Money in',
+    TransactionType.spend => 'Money out',
+  };
 }
 
 /// Data model representing a transaction entry in history.

@@ -47,9 +47,7 @@ class SmartAddPickerCard extends StatelessWidget {
           ),
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 26.h),
-            decoration: BoxDecoration(
-              borderRadius: AppBorderRadius.dialog,
-            ),
+            decoration: BoxDecoration(borderRadius: AppBorderRadius.dialog),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -69,7 +67,8 @@ class SmartAddPickerCard extends StatelessWidget {
                 // Title
                 Text(
                   title,
-                  style: TextStyle(fontFamily: 'DMSans', 
+                  style: TextStyle(
+                    fontFamily: 'DMSans',
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w700,
                     color: AppColors.ink,
@@ -81,7 +80,8 @@ class SmartAddPickerCard extends StatelessWidget {
                 // Subtitle
                 Text(
                   subtitle,
-                  style: TextStyle(fontFamily: 'DMSans', 
+                  style: TextStyle(
+                    fontFamily: 'DMSans',
                     fontSize: 13.sp,
                     fontWeight: FontWeight.w400,
                     color: AppColors.muted,
@@ -111,15 +111,13 @@ class SmartAddPickerCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.surface,
               borderRadius: AppBorderRadius.dialog,
-              border: Border.all(
-                color: AppColors.line,
-                width: 1.2,
-              ),
+              border: Border.all(color: AppColors.line, width: 1.2),
             ),
             child: Center(
               child: Text(
                 'Add by hand instead',
-                style: TextStyle(fontFamily: 'DMSans', 
+                style: TextStyle(
+                  fontFamily: 'DMSans',
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w700,
                   color: AppColors.ink,
@@ -140,7 +138,8 @@ class SmartAddProcessingView extends StatelessWidget {
     required this.previewChild,
     required this.progressRatio,
     required this.progressText,
-    this.noteText = "The first scan downloads the reader once (about 15 MB),\nthen it's quick.",
+    this.noteText =
+        "The first scan downloads the reader once (about 15 MB),\nthen it's quick.",
     this.changeButtonLabel = 'Change bill photo',
     required this.onChange,
     this.errorMessage,
@@ -188,7 +187,9 @@ class SmartAddProcessingView extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.error.withValues(alpha: 0.08),
               borderRadius: AppBorderRadius.dialogInput,
-              border: Border.all(color: AppColors.error.withValues(alpha: 0.25)),
+              border: Border.all(
+                color: AppColors.error.withValues(alpha: 0.25),
+              ),
             ),
             child: Row(
               children: [
@@ -197,7 +198,8 @@ class SmartAddProcessingView extends StatelessWidget {
                 Expanded(
                   child: Text(
                     errorMessage!,
-                    style: TextStyle(fontFamily: 'DMSans', 
+                    style: TextStyle(
+                      fontFamily: 'DMSans',
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w500,
                       color: AppColors.error,
@@ -223,7 +225,8 @@ class SmartAddProcessingView extends StatelessWidget {
                   ),
                   child: Text(
                     changeButtonLabel,
-                    style: TextStyle(fontFamily: 'DMSans', 
+                    style: TextStyle(
+                      fontFamily: 'DMSans',
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w600,
                       color: AppColors.ink,
@@ -237,15 +240,16 @@ class SmartAddProcessingView extends StatelessWidget {
                   child: TextButton(
                     onPressed: onAddByHand,
                     style: TextButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 12.h),
-                    backgroundColor: AppColors.accent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppBorderRadius.chip,
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                      backgroundColor: AppColors.accent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: AppBorderRadius.chip,
+                      ),
                     ),
-                  ),
                     child: Text(
                       'Add by hand',
-                      style: TextStyle(fontFamily: 'DMSans', 
+                      style: TextStyle(
+                        fontFamily: 'DMSans',
                         fontSize: 13.sp,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
@@ -271,7 +275,8 @@ class SmartAddProcessingView extends StatelessWidget {
           // Progress Text
           Text(
             progressText,
-            style: TextStyle(fontFamily: 'DMSans', 
+            style: TextStyle(
+              fontFamily: 'DMSans',
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
               color: AppColors.muted,
@@ -285,7 +290,8 @@ class SmartAddProcessingView extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: Text(
               noteText,
-              style: TextStyle(fontFamily: 'DMSans', 
+              style: TextStyle(
+                fontFamily: 'DMSans',
                 fontSize: 12.sp,
                 fontWeight: FontWeight.w400,
                 height: 1.4,
@@ -301,7 +307,8 @@ class SmartAddProcessingView extends StatelessWidget {
             onPressed: onChange,
             child: Text(
               changeButtonLabel,
-              style: TextStyle(fontFamily: 'DMSans', 
+              style: TextStyle(
+                fontFamily: 'DMSans',
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w600,
                 color: AppColors.accent,
@@ -364,7 +371,8 @@ class SmartAddMultiReviewView extends StatefulWidget {
   final List<String> categories;
 
   @override
-  State<SmartAddMultiReviewView> createState() => _SmartAddMultiReviewViewState();
+  State<SmartAddMultiReviewView> createState() =>
+      _SmartAddMultiReviewViewState();
 }
 
 class _SmartAddMultiReviewViewState extends State<SmartAddMultiReviewView> {
@@ -373,7 +381,9 @@ class _SmartAddMultiReviewViewState extends State<SmartAddMultiReviewView> {
   String _formatDate(DateTime date) => AppFormatters.dateSlash(date);
 
   Future<void> _showCategoryPicker(
-      BuildContext context, SmartAddReviewItem item) async {
+    BuildContext context,
+    SmartAddReviewItem item,
+  ) async {
     final selected = await AppCategoryPickerDialog.show(
       context: context,
       currentCategory: item.category,
@@ -429,7 +439,9 @@ class _SmartAddMultiReviewViewState extends State<SmartAddMultiReviewView> {
                     width: 26.r,
                     height: 26.r,
                     decoration: BoxDecoration(
-                      color: item.isSelected ? AppColors.accent : AppColors.fill,
+                      color: item.isSelected
+                          ? AppColors.accent
+                          : AppColors.fill,
                       shape: BoxShape.circle,
                       border: item.isSelected
                           ? null
@@ -462,7 +474,10 @@ class _SmartAddMultiReviewViewState extends State<SmartAddMultiReviewView> {
                 // Amount container with ₹ symbol and editable TextField
                 Container(
                   width: 105.w,
-                  padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 10.w,
+                    vertical: 6.h,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.fill,
                     borderRadius: AppBorderRadius.chip,
@@ -483,11 +498,13 @@ class _SmartAddMultiReviewViewState extends State<SmartAddMultiReviewView> {
                       Expanded(
                         child: TextField(
                           controller: item.amountController,
-                          keyboardType:
-                              const TextInputType.numberWithOptions(decimal: true),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(
-                                RegExp(r'^\d*\.?\d*')),
+                              RegExp(r'^\d*\.?\d*'),
+                            ),
                           ],
                           style: TextStyle(
                             fontFamily: 'DMSans',
@@ -517,8 +534,10 @@ class _SmartAddMultiReviewViewState extends State<SmartAddMultiReviewView> {
                   onTap: () => _showCategoryPicker(context, item),
                   behavior: HitTestBehavior.opaque,
                   child: Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 8.h,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.fill,
                       borderRadius: AppBorderRadius.chip,
@@ -571,8 +590,9 @@ class _SmartAddMultiReviewViewState extends State<SmartAddMultiReviewView> {
                       final today = DateTime(now.year, now.month, now.day);
                       final picked = await AppDatePickerDialog.show(
                         context: context,
-                        initialDate:
-                            item.date.isAfter(today) ? today : item.date,
+                        initialDate: item.date.isAfter(today)
+                            ? today
+                            : item.date,
                         firstDate: DateTime(now.year - 5, 1, 1),
                         lastDate: today,
                       );
@@ -584,8 +604,10 @@ class _SmartAddMultiReviewViewState extends State<SmartAddMultiReviewView> {
                     },
                     behavior: HitTestBehavior.opaque,
                     child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10.w,
+                        vertical: 8.h,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.fill,
                         borderRadius: AppBorderRadius.chip,
@@ -622,17 +644,22 @@ class _SmartAddMultiReviewViewState extends State<SmartAddMultiReviewView> {
                 GestureDetector(
                   onTap: () {
                     setState(() {
-                      item.transactionType =
-                          item.transactionType == 'Spend' ? 'Income' : 'Spend';
+                      item.transactionType = item.transactionType == 'Spend'
+                          ? 'Income'
+                          : 'Spend';
                     });
                   },
                   behavior: HitTestBehavior.opaque,
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 14.w,
+                      vertical: 10.h,
+                    ),
                     decoration: BoxDecoration(
-                      color: isSpend ? AppColors.popSoft : AppColors.successSoft,
+                      color: isSpend
+                          ? AppColors.popSoft
+                          : AppColors.successSoft,
                       borderRadius: AppBorderRadius.chip,
                     ),
                     child: Text(
@@ -675,10 +702,12 @@ class _SmartAddMultiReviewViewState extends State<SmartAddMultiReviewView> {
         16.verticalSpace,
 
         // List of recognized entry cards
-        ...widget.items.map((item) => Padding(
-              padding: EdgeInsets.only(bottom: 12.h),
-              child: _buildItemCard(item),
-            )),
+        ...widget.items.map(
+          (item) => Padding(
+            padding: EdgeInsets.only(bottom: 12.h),
+            child: _buildItemCard(item),
+          ),
+        ),
 
         4.verticalSpace,
 
@@ -797,9 +826,7 @@ class _SmartAddMultiReviewViewState extends State<SmartAddMultiReviewView> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: AppBorderRadius.button,
-              border: Border.all(
-                color: AppColors.line,
-              ),
+              border: Border.all(color: AppColors.line),
             ),
             alignment: Alignment.center,
             child: Text(
@@ -893,7 +920,8 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
         // Subtitle: "Budgie read this. Check it, then save."
         Text(
           'Budgie read this. Check it, then save.',
-          style: TextStyle(fontFamily: 'DMSans', 
+          style: TextStyle(
+            fontFamily: 'DMSans',
             fontSize: 14.sp,
             fontWeight: FontWeight.w400,
             color: AppColors.muted,
@@ -907,9 +935,7 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: AppBorderRadius.md,
-            border: Border.all(
-              color: AppColors.line.withValues(alpha: 0.9),
-            ),
+            border: Border.all(color: AppColors.line.withValues(alpha: 0.9)),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.03),
@@ -943,7 +969,8 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                   Expanded(
                     child: Text(
                       widget.brandName,
-                      style: TextStyle(fontFamily: 'DMSans', 
+                      style: TextStyle(
+                        fontFamily: 'DMSans',
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w700,
                         color: AppColors.ink,
@@ -956,7 +983,10 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                   // Amount container with ₹ symbol and editable TextField
                   Container(
                     width: 105.w,
-                    padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 6.h,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.fill,
                       borderRadius: AppBorderRadius.chip,
@@ -966,7 +996,8 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                       children: [
                         Text(
                           '₹',
-                          style: TextStyle(fontFamily: 'DMSans', 
+                          style: TextStyle(
+                            fontFamily: 'DMSans',
                             fontSize: 15.sp,
                             fontWeight: FontWeight.w600,
                             color: AppColors.ink,
@@ -976,11 +1007,16 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                         Expanded(
                           child: TextField(
                             controller: widget.amountController,
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
                             inputFormatters: [
-                              FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*')),
+                              FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d*\.?\d*'),
+                              ),
                             ],
-                            style: TextStyle(fontFamily: 'DMSans', 
+                            style: TextStyle(
+                              fontFamily: 'DMSans',
                               fontSize: 16.sp,
                               fontWeight: FontWeight.w700,
                               color: AppColors.ink,
@@ -1007,7 +1043,10 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                     onTap: () => _showCategoryPicker(context),
                     behavior: HitTestBehavior.opaque,
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10.w,
+                        vertical: 8.h,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.fill,
                         borderRadius: AppBorderRadius.chip,
@@ -1072,7 +1111,10 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                       },
                       behavior: HitTestBehavior.opaque,
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 10.w,
+                          vertical: 8.h,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.fill,
                           borderRadius: AppBorderRadius.chip,
@@ -1111,14 +1153,20 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                     behavior: HitTestBehavior.opaque,
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 10.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 14.w,
+                        vertical: 10.h,
+                      ),
                       decoration: BoxDecoration(
-                        color: isSpend ? AppColors.popSoft : AppColors.successSoft,
+                        color: isSpend
+                            ? AppColors.popSoft
+                            : AppColors.successSoft,
                         borderRadius: AppBorderRadius.chip,
                       ),
                       child: Text(
                         widget.transactionType,
-                        style: TextStyle(fontFamily: 'DMSans', 
+                        style: TextStyle(
+                          fontFamily: 'DMSans',
                           fontSize: 13.sp,
                           fontWeight: FontWeight.w700,
                           color: isSpend ? AppColors.accent : AppColors.success,
@@ -1144,14 +1192,17 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
           child: Row(
             children: [
               Icon(
-                _isTextExpanded ? AppIcons.arrowDropDown : AppIcons.chevronRight,
+                _isTextExpanded
+                    ? AppIcons.arrowDropDown
+                    : AppIcons.chevronRight,
                 size: 22.sp,
                 color: AppColors.muted,
               ),
               4.horizontalSpace,
               Text(
                 'Text Budgie read',
-                style: TextStyle(fontFamily: 'DMSans', 
+                style: TextStyle(
+                  fontFamily: 'DMSans',
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
                   color: AppColors.muted,
@@ -1172,7 +1223,8 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
             ),
             child: Text(
               widget.rawReadText,
-              style: TextStyle(fontFamily: 'DMSans', 
+              style: TextStyle(
+                fontFamily: 'DMSans',
                 fontSize: 12.sp,
                 height: 1.4,
                 color: AppColors.muted,
@@ -1211,7 +1263,8 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
                     children: [
                       Text(
                         'Add 1 entry',
-                        style: TextStyle(fontFamily: 'DMSans', 
+                        style: TextStyle(
+                          fontFamily: 'DMSans',
                           fontSize: 16.sp,
                           fontWeight: FontWeight.w700,
                           color: Colors.white,
@@ -1241,14 +1294,13 @@ class _SmartAddReviewViewState extends State<SmartAddReviewView> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: AppBorderRadius.button,
-              border: Border.all(
-                color: AppColors.line,
-              ),
+              border: Border.all(color: AppColors.line),
             ),
             alignment: Alignment.center,
             child: Text(
               'Back',
-              style: TextStyle(fontFamily: 'DMSans', 
+              style: TextStyle(
+                fontFamily: 'DMSans',
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
                 color: widget.isSaving ? AppColors.muted : AppColors.ink,
@@ -1270,7 +1322,9 @@ String sanitizeSmartAddError(Object error, {required String noAmountFallback}) {
     final rawMsg = error.message.toLowerCase();
 
     // 1. Rate limit / Daily limit
-    if (status == 429 || rawMsg.contains('daily') || rawMsg.contains('limit reached')) {
+    if (status == 429 ||
+        rawMsg.contains('daily') ||
+        rawMsg.contains('limit reached')) {
       return 'Daily Smart add limit reached. Please try again tomorrow or add by hand.';
     }
 

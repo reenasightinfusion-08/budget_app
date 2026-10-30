@@ -241,7 +241,9 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
       final amt = double.tryParse(item.amountController.text.trim()) ?? 0.0;
       if (amt <= 0) {
         AppToast.show(
-            context, message: 'Please enter a valid amount for ${item.title}');
+          context,
+          message: 'Please enter a valid amount for ${item.title}',
+        );
         return;
       }
     }
@@ -337,11 +339,13 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
               'Bills',
               'Health',
               'Income',
-              'Other'
+              'Other',
             ],
-      rawReadText: _reviewItems.map((item) {
-        return 'Item: ${item.title}\nCategory: ${item.category}\nAmount: ₹${item.amountController.text}\nDate: ${_formatDate(item.date)}\nType: ${item.transactionType}';
-      }).join('\n---\n'),
+      rawReadText: _reviewItems
+          .map((item) {
+            return 'Item: ${item.title}\nCategory: ${item.category}\nAmount: ₹${item.amountController.text}\nDate: ${_formatDate(item.date)}\nType: ${item.transactionType}';
+          })
+          .join('\n---\n'),
       isSaving: _isSaving,
       onSave: _saveReviewedEntries,
       onBack: _onBackFromReview,
@@ -355,10 +359,7 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: AppBorderRadius.sm,
-        border: Border.all(
-          color: AppColors.line,
-          width: 1.2,
-        ),
+        border: Border.all(color: AppColors.line, width: 1.2),
         boxShadow: [
           BoxShadow(
             color: AppColors.ink.withValues(alpha: 0.04),
@@ -437,10 +438,11 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
                     shape: BoxShape.circle,
                     boxShadow: [
                       BoxShadow(
-                        color: (_isListening
-                                ? AppColors.accent
-                                : AppColors.popDeep)
-                            .withValues(alpha: 0.35),
+                        color:
+                            (_isListening
+                                    ? AppColors.accent
+                                    : AppColors.popDeep)
+                                .withValues(alpha: 0.35),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),
@@ -522,17 +524,11 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
       decoration: BoxDecoration(
         color: AppColors.error.withValues(alpha: 0.08),
         borderRadius: AppBorderRadius.chip,
-        border: Border.all(
-          color: AppColors.error.withValues(alpha: 0.25),
-        ),
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.25)),
       ),
       child: Row(
         children: [
-          Icon(
-            AppIcons.error,
-            color: AppColors.error,
-            size: 20.sp,
-          ),
+          Icon(AppIcons.error, color: AppColors.error, size: 20.sp),
           10.horizontalSpace,
           Expanded(
             child: Text(
@@ -616,10 +612,7 @@ class _VoiceBillBottomSheetState extends State<VoiceBillBottomSheet> {
         decoration: BoxDecoration(
           color: AppColors.surface,
           borderRadius: AppBorderRadius.dialog,
-          border: Border.all(
-            color: AppColors.line,
-            width: 1.2,
-          ),
+          border: Border.all(color: AppColors.line, width: 1.2),
         ),
         child: Center(
           child: Text(

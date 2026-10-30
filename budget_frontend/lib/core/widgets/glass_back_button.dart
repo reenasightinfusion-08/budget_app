@@ -12,18 +12,24 @@ class GlassBackButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-        color: AppColors.glassFill,
-        shape: CircleBorder(side: BorderSide(color: AppColors.glassBorder, width: 1.w)),
-        child: InkWell(
-          customBorder: const CircleBorder(),
-          onTap: () {
-            FocusManager.instance.primaryFocus?.unfocus();
-            onPressed();
-          },
-          child: SizedBox.square(
-            dimension: 44.r,
-            child: Icon(AppIcons.chevronLeft, size: 26.r, color: AppColors.onAccent),
-          ),
+    color: AppColors.glassFill,
+    shape: CircleBorder(
+      side: BorderSide(color: AppColors.glassBorder, width: 1.w),
+    ),
+    child: InkWell(
+      customBorder: const CircleBorder(),
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+        onPressed();
+      },
+      child: SizedBox.square(
+        dimension: 44.r,
+        child: Icon(
+          AppIcons.chevronLeft,
+          size: 26.r,
+          color: AppColors.onAccent,
         ),
-      );
+      ),
+    ),
+  );
 }

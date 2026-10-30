@@ -45,7 +45,9 @@ class CategorySpendRow extends StatelessWidget {
                     Text(spend.name, style: AppTextStyle.toggleTitle),
                     8.verticalSpace,
                     AppProgressBar(
-                      ratio: maxAmount > 0 ? (spend.amount / maxAmount).clamp(0.0, 1.0) : 0.0,
+                      ratio: maxAmount > 0
+                          ? (spend.amount / maxAmount).clamp(0.0, 1.0)
+                          : 0.0,
                       height: 7,
                       color: AppColors.popDeep,
                     ),
@@ -75,7 +77,8 @@ class CategorySpendRow extends StatelessWidget {
             ],
           ),
         ),
-        if (showDivider) Divider(height: 1.h, thickness: 1.h, color: AppColors.line),
+        if (showDivider)
+          Divider(height: 1.h, thickness: 1.h, color: AppColors.line),
       ],
     );
   }

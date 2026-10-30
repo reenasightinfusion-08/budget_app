@@ -149,10 +149,7 @@ class FloatingBottomNavBarState extends State<FloatingBottomNavBar>
       height: navHeight,
       padding: isTablet
           ? const EdgeInsets.symmetric(horizontal: 6, vertical: 5)
-          : EdgeInsets.symmetric(
-              horizontal: 6.w,
-              vertical: math.min(5.0, 5.h),
-            ),
+          : EdgeInsets.symmetric(horizontal: 6.w, vertical: math.min(5.0, 5.h)),
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: AppBorderRadius.navBar,
@@ -176,7 +173,8 @@ class FloatingBottomNavBarState extends State<FloatingBottomNavBar>
           return GestureDetector(
             behavior: HitTestBehavior.opaque,
             onHorizontalDragStart: onDragStart,
-            onHorizontalDragUpdate: (details) => onDragUpdate(details, slotWidth),
+            onHorizontalDragUpdate: (details) =>
+                onDragUpdate(details, slotWidth),
             onHorizontalDragEnd: (details) => onDragEnd(details, slotWidth),
             child: AnimatedBuilder(
               animation: Listenable.merge([leftEdge, rightEdge]),
@@ -212,7 +210,10 @@ class FloatingBottomNavBarState extends State<FloatingBottomNavBar>
                                 alpha: 0.22 * stretch,
                               ),
                               blurRadius: (isTablet ? 18.0 : 18.r) * stretch,
-                              offset: Offset(0, (isTablet ? 6.0 : 6.h) * stretch),
+                              offset: Offset(
+                                0,
+                                (isTablet ? 6.0 : 6.h) * stretch,
+                              ),
                             ),
                           ],
                         ),
@@ -220,7 +221,11 @@ class FloatingBottomNavBarState extends State<FloatingBottomNavBar>
                     ),
                     Row(
                       children: [
-                        for (var index = 0; index < widget.items.length; index++)
+                        for (
+                          var index = 0;
+                          index < widget.items.length;
+                          index++
+                        )
                           Expanded(
                             child: NavBarItem(
                               data: widget.items[index],

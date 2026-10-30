@@ -172,7 +172,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 alignment: Alignment.topCenter,
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
-                    maxWidth: isTablet ? AppLayout.maxContentWidth : double.infinity,
+                    maxWidth: isTablet
+                        ? AppLayout.maxContentWidth
+                        : double.infinity,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,78 +182,78 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       // Top navigation row
                       Row(
                         children: [
-                      GestureDetector(
-                        onTap: () => Navigator.of(context).pop(),
-                        child: CircleAvatar(
-                          radius: isTablet ? 22 : 23.r,
-                          backgroundColor: AppColors.surface,
-                          child: Icon(
-                            AppIcons.chevronLeft,
-                            color: AppColors.ink,
-                            size: isTablet ? 22 : 25.sp,
+                          GestureDetector(
+                            onTap: () => Navigator.of(context).pop(),
+                            child: CircleAvatar(
+                              radius: isTablet ? 22 : 23.r,
+                              backgroundColor: AppColors.surface,
+                              child: Icon(
+                                AppIcons.chevronLeft,
+                                color: AppColors.ink,
+                                size: isTablet ? 22 : 25.sp,
+                              ),
+                            ),
                           ),
-                        ),
+                          SizedBox(width: isTablet ? 15 : 15.w),
+                          Text('History', style: AppTextStyle.screenTitle),
+                        ],
                       ),
-                      SizedBox(width: isTablet ? 15 : 15.w),
-                      Text('History', style: AppTextStyle.screenTitle),
+                      isTablet ? const SizedBox(height: 16) : 16.verticalSpace,
+
+                      // Search field & filter buttons
+                      HistoryHeader(
+                        selectedFilterIndex: _selectedFilterIndex,
+                        onFilterIndexChanged: _onFilterChanged,
+                        onChanged: _onSearchChanged,
+                        onClear: () {
+                          _searchQuery = '';
+                          _loadTransactions();
+                        },
+                      ),
+                      16.verticalSpace,
+
+                      // GridView.builder displaying transaction items or Loading/Error
+                      if (_isLoading)
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 40.h),
+                          child: const Center(
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                AppColors.accent,
+                              ),
+                            ),
+                          ),
+                        )
+                      else if (_errorMessage != null)
+                        Padding(
+                          padding: EdgeInsets.symmetric(vertical: 40.h),
+                          child: Center(
+                            child: Column(
+                              children: [
+                                Text(_errorMessage!, style: AppTextStyle.error),
+                                8.verticalSpace,
+                                TextButton(
+                                  onPressed: _loadTransactions,
+                                  child: const Text('Try again'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
+                      else
+                        HistoryGridView(
+                          transactions: _transactions,
+                          onDelete: _onDelete,
+                          crossAxisCount: isTablet ? 2 : 1,
+                        ),
                     ],
                   ),
-                  isTablet ? const SizedBox(height: 16) : 16.verticalSpace,
-
-                  // Search field & filter buttons
-                  HistoryHeader(
-                    selectedFilterIndex: _selectedFilterIndex,
-                    onFilterIndexChanged: _onFilterChanged,
-                    onChanged: _onSearchChanged,
-                    onClear: () {
-                      _searchQuery = '';
-                      _loadTransactions();
-                    },
-                  ),
-                  16.verticalSpace,
-
-                  // GridView.builder displaying transaction items or Loading/Error
-                  if (_isLoading)
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 40.h),
-                      child: const Center(
-                        child: CircularProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            AppColors.accent,
-                          ),
-                        ),
-                      ),
-                    )
-                  else if (_errorMessage != null)
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 40.h),
-                      child: Center(
-                        child: Column(
-                          children: [
-                            Text(_errorMessage!, style: AppTextStyle.error),
-                            8.verticalSpace,
-                            TextButton(
-                              onPressed: _loadTransactions,
-                              child: const Text('Try again'),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                  else
-                    HistoryGridView(
-                      transactions: _transactions,
-                      onDelete: _onDelete,
-                      crossAxisCount: isTablet ? 2 : 1,
-                    ),
-                ],
+                ),
               ),
             ),
           ),
         ),
       ),
-    ),
-  ),
-);
+    );
   }
 }

@@ -42,7 +42,8 @@ class GoalState {
       totalSavedRupees: totalSavedRupees ?? this.totalSavedRupees,
       thisMonthRupees: thisMonthRupees ?? this.thisMonthRupees,
       totalTargetRupees: totalTargetRupees ?? this.totalTargetRupees,
-      totalMonthlyNeededRupees: totalMonthlyNeededRupees ?? this.totalMonthlyNeededRupees,
+      totalMonthlyNeededRupees:
+          totalMonthlyNeededRupees ?? this.totalMonthlyNeededRupees,
       isLoading: isLoading ?? this.isLoading,
       isLoaded: isLoaded ?? this.isLoaded,
       isSubmitting: isSubmitting ?? this.isSubmitting,

@@ -61,9 +61,11 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
       return;
     }
 
-    if (selectedTabIndex == 1 && enteredAmount > widget.goal.savedAmountRupees) {
+    if (selectedTabIndex == 1 &&
+        enteredAmount > widget.goal.savedAmountRupees) {
       setState(() {
-        amountError = 'Cannot take out more than saved (${AppFormatters.rupees(widget.goal.savedAmountRupees)})';
+        amountError =
+            'Cannot take out more than saved (${AppFormatters.rupees(widget.goal.savedAmountRupees)})';
       });
       return;
     }
@@ -75,7 +77,8 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
 
     final now = DateTime.now();
     final today = _formatDate(now);
-    final amountPaise = (selectedTabIndex == 0 ? enteredAmount : -enteredAmount) * 100;
+    final amountPaise =
+        (selectedTabIndex == 0 ? enteredAmount : -enteredAmount) * 100;
 
     try {
       final goalService = context.read<GoalService>();
@@ -99,11 +102,19 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _isSaving = false);
-      AppToast.show(context, message: e.message, backgroundColor: AppColors.error);
+      AppToast.show(
+        context,
+        message: e.message,
+        backgroundColor: AppColors.error,
+      );
     } catch (e) {
       if (!mounted) return;
       setState(() => _isSaving = false);
-      AppToast.show(context, message: 'Failed to update goal', backgroundColor: AppColors.error);
+      AppToast.show(
+        context,
+        message: 'Failed to update goal',
+        backgroundColor: AppColors.error,
+      );
     }
   }
 
@@ -126,11 +137,19 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _isSaving = false);
-      AppToast.show(context, message: e.message, backgroundColor: AppColors.error);
+      AppToast.show(
+        context,
+        message: e.message,
+        backgroundColor: AppColors.error,
+      );
     } catch (e) {
       if (!mounted) return;
       setState(() => _isSaving = false);
-      AppToast.show(context, message: 'Failed to delete goal', backgroundColor: AppColors.error);
+      AppToast.show(
+        context,
+        message: 'Failed to delete goal',
+        backgroundColor: AppColors.error,
+      );
     }
   }
 
@@ -162,8 +181,12 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
                     'Add money',
                     style: AppTextStyle.chip.copyWith(
                       fontSize: 15.sp,
-                      fontWeight: selectedTabIndex == 0 ? FontWeight.w700 : FontWeight.w600,
-                      color: selectedTabIndex == 0 ? Colors.white : AppColors.ink,
+                      fontWeight: selectedTabIndex == 0
+                          ? FontWeight.w700
+                          : FontWeight.w600,
+                      color: selectedTabIndex == 0
+                          ? Colors.white
+                          : AppColors.ink,
                     ),
                   ),
                 ),
@@ -188,8 +211,12 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
                     'Take out',
                     style: AppTextStyle.chip.copyWith(
                       fontSize: 15.sp,
-                      fontWeight: selectedTabIndex == 1 ? FontWeight.w700 : FontWeight.w600,
-                      color: selectedTabIndex == 1 ? Colors.white : AppColors.ink,
+                      fontWeight: selectedTabIndex == 1
+                          ? FontWeight.w700
+                          : FontWeight.w600,
+                      color: selectedTabIndex == 1
+                          ? Colors.white
+                          : AppColors.ink,
                     ),
                   ),
                 ),
@@ -260,21 +287,14 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
           children: [
             Text(
               '${AppFormatters.rupees(widget.goal.savedAmountRupees)} saved of ${AppFormatters.rupees(widget.goal.targetAmountRupees)}',
-              style: AppTextStyle.body.copyWith(
-                fontWeight: FontWeight.w500,
-              ),
+              style: AppTextStyle.body.copyWith(fontWeight: FontWeight.w500),
             ),
             if (widget.goal.isReached) ...[
               Text(
                 ' · ',
-                style: AppTextStyle.body.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+                style: AppTextStyle.body.copyWith(fontWeight: FontWeight.w700),
               ),
-              Text(
-                'Goal reached',
-                style: AppTextStyle.notice,
-              ),
+              Text('Goal reached', style: AppTextStyle.notice),
             ],
           ],
         ),
@@ -311,19 +331,13 @@ class _GoalDetailBottomSheetState extends State<GoalDetailBottomSheet> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    AppIcons.delete,
-                    size: 18.sp,
-                    color: AppColors.error,
-                  ),
+                  Icon(AppIcons.delete, size: 18.sp, color: AppColors.error),
                   6.horizontalSpace,
                   Text(
                     isConfirmingDelete
                         ? 'Tap again to delete this goal'
                         : 'Delete goal',
-                    style: AppTextStyle.error.copyWith(
-                      fontSize: 15.sp,
-                    ),
+                    style: AppTextStyle.error.copyWith(fontSize: 15.sp),
                   ),
                 ],
               ),

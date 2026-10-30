@@ -3,10 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:budget_frontend/core/ads/ad_service.dart';
-import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
-import 'package:budget_frontend/core/constants/app_gradients.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
+import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/network/api_exception.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
@@ -65,8 +64,10 @@ class NewGoalBottomSheet extends StatefulWidget {
 class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
   final _formKey = GlobalKey<FormState>();
 
-  final DateTime currentMonthYear =
-      DateTime(DateTime.now().year, DateTime.now().month);
+  final DateTime currentMonthYear = DateTime(
+    DateTime.now().year,
+    DateTime.now().month,
+  );
 
   String get currentMonthYearText =>
       '${AppFormatters.monthName(currentMonthYear.month)} ${currentMonthYear.year}';
@@ -177,21 +178,30 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final isTablet = AppLayout.isTablet(context);
+
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 1. Goal Name
           Text(
             'What are you saving for?',
-            style: AppTextStyle.fieldLabel.copyWith(fontSize: 15),
+            style: AppTextStyle.fieldLabel.copyWith(
+              fontSize: isTablet ? 14.5 : 14.sp,
+              fontWeight: FontWeight.w600,
+              color: AppColors.ink,
+            ),
           ),
           6.verticalSpace,
           AppTextField(
-            borderRadius: AppBorderRadius.card,
-            fillColor: AppColors.surface,
             controller: nameController,
-            hint: 'e.g. Goa trip',
+            hint: 'e.g. Goa trip, New laptop',
+            icon: AppIcons.editNote,
+            fillColor: AppColors.surface,
+            borderRadius: BorderRadius.circular(16.r),
+            textCapitalization: TextCapitalization.sentences,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter what you are saving for';
@@ -203,9 +213,15 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
             },
           ),
           14.verticalSpace,
+
+          // 2. Pick an icon
           Text(
             'Pick an icon',
-            style: AppTextStyle.fieldLabel.copyWith(fontSize: 15),
+            style: AppTextStyle.fieldLabel.copyWith(
+              fontSize: isTablet ? 14.5 : 14.sp,
+              fontWeight: FontWeight.w600,
+              color: AppColors.ink,
+            ),
           ),
           8.verticalSpace,
           Row(
@@ -218,35 +234,87 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
                     selectedIconIndex = index;
                   });
                 },
-                child: Container(
-                  width: 50.r,
-                  height: 50.r,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: isSelected ? AppGradients.card : null,
-                    color: isSelected ? null : AppColors.surface,
-                  ),
-                  child: Icon(
-                    goalIcons[index].$1,
-                    size: 20.sp,
-                    color: isSelected ? AppColors.pop : AppColors.catOther,
+                behavior: HitTestBehavior.opaque,
+                child: AnimatedScale(
+                  scale: isSelected ? 1.05 : 1.0,
+                  duration: const Duration(milliseconds: 120),
+                  child: Container(
+                    width: isTablet ? 46 : 46.r,
+                    height: isTablet ? 46 : 46.r,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isSelected ? AppColors.accent : AppColors.surface,
+                      border: Border.all(
+                        color: isSelected
+                            ? AppColors.accent
+                            : AppColors.line.withValues(alpha: 0.9),
+                        width: 1.0,
+                      ),
+                      boxShadow: isSelected
+                          ? [
+                              BoxShadow(
+                                color: AppColors.accent.withValues(alpha: 0.3),
+                                blurRadius: 8.r,
+                                offset: Offset(0, 3.h),
+                              ),
+                            ]
+                          : null,
+                    ),
+                    alignment: Alignment.center,
+                    child: Icon(
+                      goalIcons[index].$1,
+                      size: isTablet ? 20 : 20.sp,
+                      color: isSelected ? Colors.white : AppColors.muted,
+                    ),
                   ),
                 ),
               );
             }),
           ),
           14.verticalSpace,
+
+          // 3. How much do you need?
           Text(
-            'How much do you need? (₹)',
-            style: AppTextStyle.fieldLabel.copyWith(fontSize: 15),
+            'How much do you need?',
+            style: AppTextStyle.fieldLabel.copyWith(
+              fontSize: isTablet ? 14.5 : 14.sp,
+              fontWeight: FontWeight.w600,
+              color: AppColors.ink,
+            ),
           ),
           6.verticalSpace,
           AppTextField(
-            borderRadius: AppBorderRadius.card,
-            fillColor: AppColors.surface,
             controller: amountController,
-            hint: 'e.g. 20000',
+            hint: 'e.g. 50000',
+            fillColor: AppColors.surface,
+            borderRadius: BorderRadius.circular(16.r),
             keyboardType: TextInputType.number,
+            prefixWidget: Padding(
+              padding: EdgeInsets.only(left: 12.w, right: 10.w),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 7.w,
+                      vertical: 3.h,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.popSoft,
+                      borderRadius: BorderRadius.circular(6.r),
+                    ),
+                    child: Text(
+                      '₹',
+                      style: TextStyle(
+                        fontSize: isTablet ? 14 : 14.sp,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.accent,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return 'Please enter an amount';
@@ -259,25 +327,29 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
             },
           ),
           14.verticalSpace,
+
+          // 4. By when?
           Text(
             'By when?',
-            style: AppTextStyle.fieldLabel.copyWith(fontSize: 15),
+            style: AppTextStyle.fieldLabel.copyWith(
+              fontSize: isTablet ? 14.5 : 14.sp,
+              fontWeight: FontWeight.w600,
+              color: AppColors.ink,
+            ),
           ),
           6.verticalSpace,
           AppTextField(
-            borderRadius: AppBorderRadius.card,
-            fillColor: AppColors.surface,
             controller: dateController,
             readOnly: true,
             onTap: _pickMonthYear,
             hint: currentMonthYearText,
-            suffixIcon: GestureDetector(
-              onTap: _pickMonthYear,
-              child: Icon(
-                AppIcons.calendar,
-                color: AppColors.ink,
-                size: 20.sp,
-              ),
+            icon: AppIcons.calendar,
+            fillColor: AppColors.surface,
+            borderRadius: BorderRadius.circular(16.r),
+            suffixIcon: Icon(
+              AppIcons.arrowDropDown,
+              color: AppColors.muted,
+              size: isTablet ? 22 : 22.sp,
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
@@ -286,7 +358,9 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
               return null;
             },
           ),
-          45.verticalSpace,
+          26.verticalSpace,
+
+          // 5. Submit Button
           AppButton(
             label: 'Create goal',
             isCentered: true,
@@ -301,4 +375,3 @@ class _NewGoalBottomSheetState extends State<NewGoalBottomSheet> {
 
 typedef NewGoalSheet = NewGoalBottomSheet;
 typedef NewGoalWidget = NewGoalBottomSheet;
-

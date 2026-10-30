@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -34,6 +36,37 @@ class _NativeAdWidgetState extends State<NativeAdWidget>
   @override
   void initState() {
     super.initState();
+    _loadAd();
+    AdService.fullScreenDismissedNotifier.addListener(_onFullScreenDismissed);
+  }
+
+  @override
+  void dispose() {
+    AdService.fullScreenDismissedNotifier.removeListener(
+      _onFullScreenDismissed,
+    );
+    _ad?.dispose();
+    super.dispose();
+  }
+
+  void _onFullScreenDismissed() {
+    // Reload once system bars and window insets settle to fix corrupted surface texture
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        _reloadAd();
+      }
+    });
+  }
+
+  void _reloadAd() {
+    if (!mounted || !AdService.supported) return;
+    _ad?.dispose();
+    _ad = null;
+    _loaded = false;
+    _loadAd();
+  }
+
+  void _loadAd() {
     if (!AdService.supported) return;
 
     _ad = NativeAd(
@@ -77,19 +110,16 @@ class _NativeAdWidgetState extends State<NativeAdWidget>
   }
 
   @override
-  void dispose() {
-    _ad?.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     super.build(context);
     final ad = _ad;
     if (ad == null || !_loaded) return const SizedBox.shrink();
 
     final isSmall = widget.templateType == TemplateType.small;
-    final contentHeight = widget.height ?? (isSmall ? 95.0 : 355.0);
+    // iOS Google Native Template small view requires ~118pt to prevent clipping,
+    // while Android remains exactly 95.0.
+    final defaultSmallHeight = (!kIsWeb && Platform.isIOS) ? 118.0 : 95.0;
+    final contentHeight = widget.height ?? (isSmall ? defaultSmallHeight : 355.0);
 
     return Container(
       margin: widget.margin ?? EdgeInsets.symmetric(vertical: 8.h),

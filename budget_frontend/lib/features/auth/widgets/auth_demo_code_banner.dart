@@ -15,28 +15,28 @@ class AuthDemoCodeBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocBuilder<AuthBloc, AuthState>(
-        builder: (context, state) {
-          final code = state.demoCode;
-          if (code == null) return const SizedBox.shrink();
+    builder: (context, state) {
+      final code = state.demoCode;
+      if (code == null) return const SizedBox.shrink();
 
-          return AppCard(
-            width: double.infinity,
-            margin: EdgeInsets.only(bottom: 16.h),
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-            color: AppColors.warningSoft,
-            radius: AppBorderRadius.md,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Demo mode. No email is sent yet, so your code is shown here.',
-                  style: AppTextStyle.body.copyWith(color: AppColors.ink),
-                ),
-                4.verticalSpace,
-                Text(code, style: AppTextStyle.code),
-              ],
+      return AppCard(
+        width: double.infinity,
+        margin: EdgeInsets.only(bottom: 16.h),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        color: AppColors.warningSoft,
+        radius: AppBorderRadius.md,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Demo mode. No email is sent yet, so your code is shown here.',
+              style: AppTextStyle.body.copyWith(color: AppColors.ink),
             ),
-          );
-        },
+            4.verticalSpace,
+            Text(code, style: AppTextStyle.code),
+          ],
+        ),
       );
+    },
+  );
 }

@@ -52,10 +52,15 @@ class SheetScaffold extends StatelessWidget {
                 bottom: false,
                 child: CustomScrollView(
                   physics: const ClampingScrollPhysics(),
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
                   slivers: [
                     SliverToBoxAdapter(
-                      child: SheetHeader(title: title, subtitle: subtitle, onBack: onBack),
+                      child: SheetHeader(
+                        title: title,
+                        subtitle: subtitle,
+                        onBack: onBack,
+                      ),
                     ),
                     SliverFillRemaining(
                       hasScrollBody: false,
@@ -73,10 +78,7 @@ class SheetScaffold extends StatelessWidget {
                 child: child,
               ),
             ],
-            if (effectiveLoading)
-              const Positioned.fill(
-                child: CommonLoader(),
-              ),
+            if (effectiveLoading) const Positioned.fill(child: CommonLoader()),
           ],
         ),
       ),
@@ -131,7 +133,8 @@ class _TabletSplitLayout extends StatelessWidget {
         break;
       case 'Verify your email':
         leftTitle = 'Check your\ninbox';
-        leftSubtitle = 'One last step to confirm your email and secure your account.';
+        leftSubtitle =
+            'One last step to confirm your email and secure your account.';
         detailTitle = 'Verify email';
         detailSubtitle = subtitle;
         break;
@@ -189,7 +192,10 @@ class _TabletSplitLayout extends StatelessWidget {
               ),
               SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 32),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 40,
+                    vertical: 32,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -243,7 +249,8 @@ class _TabletSplitLayout extends StatelessWidget {
                 builder: (context, constraints) {
                   return SingleChildScrollView(
                     physics: const ClampingScrollPhysics(),
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
                         minHeight: constraints.maxHeight,
@@ -253,7 +260,10 @@ class _TabletSplitLayout extends StatelessWidget {
                           child: ConstrainedBox(
                             constraints: const BoxConstraints(maxWidth: 440),
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 36),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 40,
+                                vertical: 36,
+                              ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [

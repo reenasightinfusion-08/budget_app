@@ -39,7 +39,9 @@ class UserModel {
   final bool hasExampleData;
   final Map<String, int> categoryLimits;
 
-  String get displayName => name.isNotEmpty ? name : (email.isNotEmpty ? email.split('@').first : 'User');
+  String get displayName => name.isNotEmpty
+      ? name
+      : (email.isNotEmpty ? email.split('@').first : 'User');
 
   /// Resolves the user's display name from profile, auth state, or fallback to 'User'.
   static String resolveName({

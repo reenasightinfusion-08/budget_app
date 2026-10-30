@@ -39,6 +39,11 @@ class AdService {
   // from immediately triggering an app open ad.
   static const _appOpenGap = Duration(seconds: 15);
 
+  /// Notifier triggered whenever any full-screen ad (interstitial, rewarded, app open) finishes.
+  /// Inline ad widgets listen to this to refresh their platform views and restore clean textures.
+  static final ValueNotifier<int> fullScreenDismissedNotifier =
+      ValueNotifier<int>(0);
+
   static const _maxRetries = 4;
   static const _adMaxAge = Duration(minutes: 55);
   static const _appOpenMaxAge = Duration(hours: 4);
@@ -104,7 +109,9 @@ class AdService {
 
     try {
       final status = await MobileAds.instance.initialize();
-      debugPrint('[AdService] MobileAds initialized: ${status.adapterStatuses}');
+      debugPrint(
+        '[AdService] MobileAds initialized: ${status.adapterStatuses}',
+      );
     } catch (e) {
       debugPrint('[AdService] MobileAds initialization failed: $e');
     }
@@ -381,19 +388,22 @@ class AdService {
       dispose();
       reload();
       onClosed?.call();
+      fullScreenDismissedNotifier.value++;
     }
 
-    setCallback(FullScreenContentCallback<T>(
-      onAdShowedFullScreenContent: (_) {
-        _showingFullScreen = true;
-        _lastFullScreenAt = DateTime.now();
-      },
-      onAdDismissedFullScreenContent: (_) => finish(),
-      onAdFailedToShowFullScreenContent: (_, e) {
-        debugPrint('[AdService] Full-screen ad failed to show: $e');
-        finish();
-      },
-    ));
+    setCallback(
+      FullScreenContentCallback<T>(
+        onAdShowedFullScreenContent: (_) {
+          _showingFullScreen = true;
+          _lastFullScreenAt = DateTime.now();
+        },
+        onAdDismissedFullScreenContent: (_) => finish(),
+        onAdFailedToShowFullScreenContent: (_, e) {
+          debugPrint('[AdService] Full-screen ad failed to show: $e');
+          finish();
+        },
+      ),
+    );
     show();
   }
 }

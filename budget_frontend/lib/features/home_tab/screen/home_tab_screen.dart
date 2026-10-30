@@ -56,120 +56,133 @@ class _HomeTabScreenState extends State<HomeTabScreen> {
             alignment: Alignment.topCenter,
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                maxWidth: isTablet ? AppLayout.maxContentWidth : double.infinity,
+                maxWidth: isTablet
+                    ? AppLayout.maxContentWidth
+                    : double.infinity,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const HomeHeader(),
                   isTablet ? const SizedBox(height: 16) : 15.verticalSpace,
-              if (isTablet)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const AvailableToSpendCard(),
-                          const SizedBox(height: 16),
-                          const BudgieCard(),
-                          const SizedBox(height: 16),
-                          const QuickActionButtons(),
-                          const SizedBox(height: 16),
-                          AddWithBudgieCard(
-                            onScanNow: () => AdGate.run(
-                              context,
-                              key: 'ai_scan_bill',
-                              title: 'AI Bill Scanner',
-                              message: 'Watch a short ad to unlock AI Bill Scanning for 24 hours.',
-                              onUnlocked: () => ScanBillBottomSheet.show(context),
-                            ),
-                            onPdfUpload: () => AdGate.run(
-                              context,
-                              key: 'ai_pdf_bill',
-                              title: 'AI PDF Bill',
-                              message: 'Watch a short ad to unlock PDF Bill Upload for 24 hours.',
-                              onUnlocked: () => PdfBillBottomSheet.show(context),
-                            ),
-                            onVoice: () => AdGate.run(
-                              context,
-                              key: 'ai_voice_bill',
-                              title: 'Voice Expense',
-                              message: 'Watch a short ad to unlock Voice Logging for 24 hours.',
-                              onUnlocked: () => VoiceBillBottomSheet.show(context),
-                            ),
+                  if (isTablet)
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const AvailableToSpendCard(),
+                              const SizedBox(height: 16),
+                              const BudgieCard(),
+                              const SizedBox(height: 16),
+                              const QuickActionButtons(),
+                              const SizedBox(height: 16),
+                              AddWithBudgieCard(
+                                onScanNow: () => AdGate.run(
+                                  context,
+                                  key: 'ai_scan_bill',
+                                  title: 'AI Bill Scanner',
+                                  message:
+                                      'Watch a short ad to unlock AI Bill Scanning for 24 hours.',
+                                  onUnlocked: () =>
+                                      ScanBillBottomSheet.show(context),
+                                ),
+                                onPdfUpload: () => AdGate.run(
+                                  context,
+                                  key: 'ai_pdf_bill',
+                                  title: 'AI PDF Bill',
+                                  message:
+                                      'Watch a short ad to unlock PDF Bill Upload for 24 hours.',
+                                  onUnlocked: () =>
+                                      PdfBillBottomSheet.show(context),
+                                ),
+                                onVoice: () => AdGate.run(
+                                  context,
+                                  key: 'ai_voice_bill',
+                                  title: 'Voice Expense',
+                                  message:
+                                      'Watch a short ad to unlock Voice Logging for 24 hours.',
+                                  onUnlocked: () =>
+                                      VoiceBillBottomSheet.show(context),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              const NativeAdWidget(
+                                templateType: TemplateType.small,
+                              ),
+                              const SizedBox(height: 50),
+                            ],
                           ),
-                          const SizedBox(height: 16),
-                          const NativeAdWidget(templateType: TemplateType.small),
-                          const SizedBox(height: 50),
-                        ],
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              RecentTransactionsWidget(
+                                onSelectTab: widget.onSelectTab,
+                              ),
+                              const SizedBox(height: 16),
+                              const ThisWeekCard(),
+                              const SizedBox(height: 16),
+                              const RecentHistory(),
+                              const SizedBox(height: 50),
+                            ],
+                          ),
+                        ),
+                      ],
+                    )
+                  else ...[
+                    const AvailableToSpendCard(),
+                    15.verticalSpace,
+                    const BudgieCard(),
+                    15.verticalSpace,
+                    const QuickActionButtons(),
+                    15.verticalSpace,
+                    AddWithBudgieCard(
+                      onScanNow: () => AdGate.run(
+                        context,
+                        key: 'ai_scan_bill',
+                        title: 'AI Bill Scanner',
+                        message:
+                            'Watch a short ad to unlock AI Bill Scanning for 24 hours.',
+                        onUnlocked: () => ScanBillBottomSheet.show(context),
+                      ),
+                      onPdfUpload: () => AdGate.run(
+                        context,
+                        key: 'ai_pdf_bill',
+                        title: 'AI PDF Bill',
+                        message:
+                            'Watch a short ad to unlock PDF Bill Upload for 24 hours.',
+                        onUnlocked: () => PdfBillBottomSheet.show(context),
+                      ),
+                      onVoice: () => AdGate.run(
+                        context,
+                        key: 'ai_voice_bill',
+                        title: 'Voice Expense',
+                        message:
+                            'Watch a short ad to unlock Voice Logging for 24 hours.',
+                        onUnlocked: () => VoiceBillBottomSheet.show(context),
                       ),
                     ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          RecentTransactionsWidget(
-                            onSelectTab: widget.onSelectTab,
-                          ),
-                          const SizedBox(height: 16),
-                          const ThisWeekCard(),
-                          const SizedBox(height: 16),
-                          const RecentHistory(),
-                          const SizedBox(height: 50),
-                        ],
-                      ),
-                    ),
+                    15.verticalSpace,
+                    const NativeAdWidget(templateType: TemplateType.small),
+                    15.verticalSpace,
+                    RecentTransactionsWidget(onSelectTab: widget.onSelectTab),
+                    15.verticalSpace,
+                    const ThisWeekCard(),
+                    15.verticalSpace,
+                    const RecentHistory(),
+                    50.verticalSpace,
                   ],
-                )
-              else ...[
-                const AvailableToSpendCard(),
-                15.verticalSpace,
-                const BudgieCard(),
-                15.verticalSpace,
-                const QuickActionButtons(),
-                15.verticalSpace,
-                AddWithBudgieCard(
-                  onScanNow: () => AdGate.run(
-                    context,
-                    key: 'ai_scan_bill',
-                    title: 'AI Bill Scanner',
-                    message: 'Watch a short ad to unlock AI Bill Scanning for 24 hours.',
-                    onUnlocked: () => ScanBillBottomSheet.show(context),
-                  ),
-                  onPdfUpload: () => AdGate.run(
-                    context,
-                    key: 'ai_pdf_bill',
-                    title: 'AI PDF Bill',
-                    message: 'Watch a short ad to unlock PDF Bill Upload for 24 hours.',
-                    onUnlocked: () => PdfBillBottomSheet.show(context),
-                  ),
-                  onVoice: () => AdGate.run(
-                    context,
-                    key: 'ai_voice_bill',
-                    title: 'Voice Expense',
-                    message: 'Watch a short ad to unlock Voice Logging for 24 hours.',
-                    onUnlocked: () => VoiceBillBottomSheet.show(context),
-                  ),
-                ),
-                15.verticalSpace,
-                const NativeAdWidget(templateType: TemplateType.small),
-                15.verticalSpace,
-                RecentTransactionsWidget(onSelectTab: widget.onSelectTab),
-                15.verticalSpace,
-                const ThisWeekCard(),
-                15.verticalSpace,
-                const RecentHistory(),
-                50.verticalSpace,
-              ],
-            ],
+                ],
+              ),
+            ),
           ),
         ),
       ),
-    ),
-  ),
-);
+    );
   }
 }

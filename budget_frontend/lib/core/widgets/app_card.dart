@@ -43,7 +43,8 @@ class AppCard extends StatelessWidget {
         ? null
         : (radius ?? AppBorderRadius.card);
 
-    final effectiveShadows = boxShadow ??
+    final effectiveShadows =
+        boxShadow ??
         (blur != null || offsetY != null
             ? [
                 BoxShadow(

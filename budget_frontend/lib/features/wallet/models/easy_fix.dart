@@ -12,17 +12,26 @@ class EasyFix {
 
   /// Picks the most overspent category and the on-track one best placed to cover it, or null if none can.
   static EasyFix? find(List<BudgetCategoryModel> categories) {
-    final overspent = categories.where((c) => c.status == BudgetStatus.over).toList()
-      ..sort((a, b) => a.remaining.compareTo(b.remaining));
-    final spare = categories.where((c) => c.status == BudgetStatus.onTrack).toList()
-      ..sort((a, b) => b.remaining.compareTo(a.remaining));
+    final overspent =
+        categories.where((c) => c.status == BudgetStatus.over).toList()
+          ..sort((a, b) => a.remaining.compareTo(b.remaining));
+    final spare =
+        categories.where((c) => c.status == BudgetStatus.onTrack).toList()
+          ..sort((a, b) => b.remaining.compareTo(a.remaining));
     if (overspent.isEmpty || spare.isEmpty) return null;
 
     final target = overspent.first;
     final needed = -target.remaining;
-    final source = spare.firstWhere((c) => c.remaining >= needed, orElse: () => spare.first);
+    final source = spare.firstWhere(
+      (c) => c.remaining >= needed,
+      orElse: () => spare.first,
+    );
     if (source.remaining <= 0) return null;
 
-    return EasyFix(from: source, to: target, amount: math.min(needed, source.remaining));
+    return EasyFix(
+      from: source,
+      to: target,
+      amount: math.min(needed, source.remaining),
+    );
   }
 }

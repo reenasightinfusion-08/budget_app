@@ -54,9 +54,7 @@ class StatusCountCard extends StatelessWidget {
           children: [
             Text(
               count.toString(),
-              style: AppTextStyle.cardAmount.copyWith(
-                height: 1.0,
-              ),
+              style: AppTextStyle.cardAmount.copyWith(height: 1.0),
             ),
             6.verticalSpace,
             Row(

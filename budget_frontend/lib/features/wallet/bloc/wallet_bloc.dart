@@ -22,10 +22,12 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     required this.transactionService,
     this.categoryService,
     int initialBudget = AppConfig.defaultMonthlyBudget,
-  }) : super(WalletState(
-          monthlyBudget: initialBudget,
-          categories: BudgetCategoryModel.generateInitial(initialBudget),
-        )) {
+  }) : super(
+         WalletState(
+           monthlyBudget: initialBudget,
+           categories: BudgetCategoryModel.generateInitial(initialBudget),
+         ),
+       ) {
     on<LoadWallet>(_onLoadWallet);
     on<RefreshWalletSummary>(_onRefreshWalletSummary);
     on<WalletUserSynced>(_onWalletUserSynced);
@@ -45,24 +47,34 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     Emitter<WalletState> emit,
   ) async {
     emit(state.copyWith(isLoading: true, clearError: true));
-    final profileFuture = profileService.getProfile().then<UserModel?>((u) => u).catchError((e) {
-      debugPrint('LoadWallet profile error: $e');
-      return null;
-    });
+    final profileFuture = profileService
+        .getProfile()
+        .then<UserModel?>((u) => u)
+        .catchError((e) {
+          debugPrint('LoadWallet profile error: $e');
+          return null;
+        });
 
-    final summaryFuture =
-        transactionService.getTransactionSummary().then<MonthSummaryModel?>((s) => s).catchError((e) {
-      debugPrint('LoadWallet summary error: $e');
-      return null;
-    });
+    final summaryFuture = transactionService
+        .getTransactionSummary()
+        .then<MonthSummaryModel?>((s) => s)
+        .catchError((e) {
+          debugPrint('LoadWallet summary error: $e');
+          return null;
+        });
 
     final existingCategories =
-        _cachedCategories ?? (CategoryRegistry.all.isNotEmpty ? CategoryRegistry.all : null);
-    final categoriesFuture = categoryService != null && existingCategories == null
-        ? categoryService!.getCategories().then<List<CategoryModel>?>((c) => c).catchError((e) {
-            debugPrint('LoadWallet categories error: $e');
-            return null;
-          })
+        _cachedCategories ??
+        (CategoryRegistry.all.isNotEmpty ? CategoryRegistry.all : null);
+    final categoriesFuture =
+        categoryService != null && existingCategories == null
+        ? categoryService!
+              .getCategories()
+              .then<List<CategoryModel>?>((c) => c)
+              .catchError((e) {
+                debugPrint('LoadWallet categories error: $e');
+                return null;
+              })
         : Future<List<CategoryModel>?>.value(existingCategories);
 
     final results = await Future.wait([
@@ -87,7 +99,9 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
         emit: emit,
       );
     } else {
-      emit(state.copyWith(isLoading: false, errorMessage: 'Failed to load wallet'));
+      emit(
+        state.copyWith(isLoading: false, errorMessage: 'Failed to load wallet'),
+      );
     }
   }
 
@@ -106,10 +120,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     }
   }
 
-  void _onWalletUserSynced(
-    WalletUserSynced event,
-    Emitter<WalletState> emit,
-  ) {
+  void _onWalletUserSynced(WalletUserSynced event, Emitter<WalletState> emit) {
     _syncData(user: event.user, emit: emit);
   }
 
@@ -123,7 +134,8 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
       _cachedCategories = liveCategories;
       CategoryRegistry.setCategories(liveCategories);
     }
-    final effectiveCategories = liveCategories ??
+    final effectiveCategories =
+        liveCategories ??
         _cachedCategories ??
         (CategoryRegistry.all.isNotEmpty ? CategoryRegistry.all : null);
     final effectiveSummary = summary ?? state.summary;
@@ -153,23 +165,26 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
       }).toList();
     }
 
-    emit(state.copyWith(
-      monthlyBudget: budgetRupees,
-      categories: categories,
-      summary: effectiveSummary,
-      isLoading: false,
-      isInitialized: true,
-    ));
+    emit(
+      state.copyWith(
+        monthlyBudget: budgetRupees,
+        categories: categories,
+        summary: effectiveSummary,
+        isLoading: false,
+        isInitialized: true,
+      ),
+    );
   }
 
-  void _onResetWallet(
-    ResetWallet event,
-    Emitter<WalletState> emit,
-  ) {
-    emit(WalletState(
-      monthlyBudget: AppConfig.defaultMonthlyBudget,
-      categories: BudgetCategoryModel.generateInitial(AppConfig.defaultMonthlyBudget),
-    ));
+  void _onResetWallet(ResetWallet event, Emitter<WalletState> emit) {
+    emit(
+      WalletState(
+        monthlyBudget: AppConfig.defaultMonthlyBudget,
+        categories: BudgetCategoryModel.generateInitial(
+          AppConfig.defaultMonthlyBudget,
+        ),
+      ),
+    );
   }
 
   Future<void> _onUpdateMonthlyBudget(
@@ -195,10 +210,12 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
         c.spent = spendMap[c.id] ?? 0;
       }
     }
-    emit(state.copyWith(
-      monthlyBudget: event.monthlyBudget,
-      categories: updatedCategories,
-    ));
+    emit(
+      state.copyWith(
+        monthlyBudget: event.monthlyBudget,
+        categories: updatedCategories,
+      ),
+    );
 
     // Save to API
     try {
@@ -225,9 +242,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     emit(state.copyWith(categories: updated));
 
     // Save all category limits to API in paise
-    final limitsPaise = {
-      for (final c in updated) c.id: c.limit * 100,
-    };
+    final limitsPaise = {for (final c in updated) c.id: c.limit * 100};
     try {
       await profileService.updateCategoryLimits(limitsPaise);
     } catch (e) {
@@ -272,9 +287,7 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
 
     emit(state.copyWith(categories: updated));
 
-    final limitsPaise = {
-      for (final c in updated) c.id: c.limit * 100,
-    };
+    final limitsPaise = {for (final c in updated) c.id: c.limit * 100};
     try {
       await profileService.updateCategoryLimits(limitsPaise);
     } catch (e) {
@@ -282,4 +295,3 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
     }
   }
 }
-

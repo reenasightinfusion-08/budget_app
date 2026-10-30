@@ -50,8 +50,8 @@ class _BudgieCardState extends State<BudgieCard> {
     final int monthlyBudget = walletState.monthlyBudget > 0
         ? walletState.monthlyBudget
         : ((authState.user != null && authState.user!.monthlyBudget > 0)
-            ? (authState.user!.monthlyBudget ~/ 100)
-            : AppConfig.defaultMonthlyBudget);
+              ? (authState.user!.monthlyBudget ~/ 100)
+              : AppConfig.defaultMonthlyBudget);
     final int totalSpent = walletState.totalSpent;
 
     final now = DateTime.now();
@@ -68,7 +68,8 @@ class _BudgieCardState extends State<BudgieCard> {
     } else if (totalSpent >= monthlyBudget) {
       energy = 15;
     } else {
-      final paceRatio = totalSpent / (allowedByToday <= 0 ? 1.0 : allowedByToday);
+      final paceRatio =
+          totalSpent / (allowedByToday <= 0 ? 1.0 : allowedByToday);
       if (paceRatio <= 1.0) {
         // Under pace: 60 to 100
         energy = (100 - (paceRatio * 40)).round().clamp(60, 100);
@@ -151,10 +152,7 @@ class _BudgieCardState extends State<BudgieCard> {
                     spacing: 6,
                     runSpacing: 4,
                     children: [
-                      Text(
-                        'Budgie',
-                        style: AppTextStyle.cardTitle,
-                      ),
+                      Text('Budgie', style: AppTextStyle.cardTitle),
                       AppCard(
                         color: tagBgColor,
                         radius: AppBorderRadius.pill,

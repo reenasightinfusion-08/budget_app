@@ -27,11 +27,7 @@ class SelectedPdfData {
   final int sizeInBytes;
   final String? path;
 
-  SelectedPdfData({
-    required this.name,
-    required this.sizeInBytes,
-    this.path,
-  });
+  SelectedPdfData({required this.name, required this.sizeInBytes, this.path});
 }
 
 class PdfBillBottomSheet extends StatefulWidget {
@@ -120,7 +116,9 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
     try {
       final bytes = await file.readAsBytes();
       if (bytes.isEmpty) {
-        throw const ApiException('Could not read the PDF file. Please try again.');
+        throw const ApiException(
+          'Could not read the PDF file. Please try again.',
+        );
       }
       if (bytes.length > 3 * 1024 * 1024) {
         throw const ApiException('PDF is too large. Keep it under about 3 MB.');
@@ -156,17 +154,17 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
       final afterTxs = await txService.getTransactions(limit: 50);
 
       // Find the newly added transaction by diffing IDs
-      final newCandidates =
-          afterTxs.where((t) => !beforeIds.contains(t.id)).toList();
+      final newCandidates = afterTxs
+          .where((t) => !beforeIds.contains(t.id))
+          .toList();
       final newTx = newCandidates.isNotEmpty
-          ? (newCandidates
-            ..sort((a, b) {
-              if (a.createdAt != null && b.createdAt != null) {
-                return b.createdAt!.compareTo(a.createdAt!);
-              }
-              return 0;
-            }))
-              .first
+          ? (newCandidates..sort((a, b) {
+                  if (a.createdAt != null && b.createdAt != null) {
+                    return b.createdAt!.compareTo(a.createdAt!);
+                  }
+                  return 0;
+                }))
+                .first
           : null;
 
       if (newTx == null) {
@@ -175,9 +173,12 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
         );
       }
       _createdTransactionId = newTx.id;
-      _amountController.text =
-          newTx.amount.toStringAsFixed(newTx.amount % 1 == 0 ? 0 : 2);
-      _itemName = newTx.description.isNotEmpty ? newTx.description : 'PDF Invoice';
+      _amountController.text = newTx.amount.toStringAsFixed(
+        newTx.amount % 1 == 0 ? 0 : 2,
+      );
+      _itemName = newTx.description.isNotEmpty
+          ? newTx.description
+          : 'PDF Invoice';
       _category = newTx.category;
       _entryDate = newTx.date;
       _transactionType = newTx.isIncome ? 'Income' : 'Spend';
@@ -267,7 +268,9 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
           allowedExtensions: ['pdf'],
         );
       } catch (customErr) {
-        debugPrint('Custom PDF filter failed: $customErr, falling back to any type');
+        debugPrint(
+          'Custom PDF filter failed: $customErr, falling back to any type',
+        );
         try {
           file = await FilePicker.pickFile(type: FileType.any);
         } catch (anyErr) {
@@ -324,7 +327,9 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
         amountController: _amountController,
         category: _category,
         isSaving: _isSaving,
-        categories: availableCats.isNotEmpty ? availableCats : const ['Shopping', 'Bills', 'Food', 'Other'],
+        categories: availableCats.isNotEmpty
+            ? availableCats
+            : const ['Shopping', 'Bills', 'Food', 'Other'],
         onCategoryChanged: (val) => setState(() => _category = val),
         entryDate: _entryDate,
         onDateChanged: (val) => setState(() => _entryDate = val),
@@ -364,11 +369,7 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
         if (_selectedPdf == null) ...[
           // 1. Empty / Picker State: Matches screenshot 1
           SmartAddPickerCard(
-            icon: Icon(
-              AppIcons.article,
-              color: Colors.white,
-              size: 26.sp,
-            ),
+            icon: Icon(AppIcons.article, color: Colors.white, size: 26.sp),
             title: 'Upload a bill or statement PDF',
             subtitle:
                 'Budgie reads invoices and bank statements, even scanned ones',
@@ -378,15 +379,18 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
                 onTap: _isLoading ? null : _pickPdf,
                 behavior: HitTestBehavior.opaque,
                 child: Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 32.w, vertical: 12.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 32.w,
+                    vertical: 12.h,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.accent,
                     borderRadius: AppBorderRadius.dialog,
                   ),
                   child: Text(
                     'Choose PDF',
-                    style: TextStyle(fontFamily: 'DMSans', 
+                    style: TextStyle(
+                      fontFamily: 'DMSans',
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                       color: Colors.white,
@@ -421,7 +425,8 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
                 10.verticalSpace,
                 Text(
                   _selectedPdf!.name,
-                  style: TextStyle(fontFamily: 'DMSans', 
+                  style: TextStyle(
+                    fontFamily: 'DMSans',
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
                     color: AppColors.ink,
@@ -433,7 +438,8 @@ class _PdfBillBottomSheetState extends State<PdfBillBottomSheet> {
                 4.verticalSpace,
                 Text(
                   '${(_selectedPdf!.sizeInBytes / 1024).toStringAsFixed(1)} KB',
-                  style: TextStyle(fontFamily: 'DMSans', 
+                  style: TextStyle(
+                    fontFamily: 'DMSans',
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w500,
                     color: AppColors.muted,

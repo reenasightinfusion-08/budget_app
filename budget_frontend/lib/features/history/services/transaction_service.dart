@@ -178,4 +178,3 @@ class TransactionService {
     return MonthSummaryModel.fromJson(data);
   }
 }
-

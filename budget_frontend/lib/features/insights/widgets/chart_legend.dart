@@ -13,7 +13,11 @@ class ChartLegend extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const ChartLegendItem(color: AppColors.pop, label: 'In', hasBorder: true),
+        const ChartLegendItem(
+          color: AppColors.pop,
+          label: 'In',
+          hasBorder: true,
+        ),
         14.horizontalSpace,
         const ChartLegendItem(color: AppColors.accent, label: 'Out'),
       ],
@@ -44,15 +48,15 @@ class ChartLegendItem extends StatelessWidget {
           decoration: BoxDecoration(
             color: color,
             shape: BoxShape.circle,
-            border: hasBorder ? Border.all(color: AppColors.accent, width: 1.5) : null,
+            border: hasBorder
+                ? Border.all(color: AppColors.accent, width: 1.5)
+                : null,
           ),
         ),
         6.horizontalSpace,
         Text(
           label,
-          style: AppTextStyle.metricTitle.copyWith(
-            color: AppColors.muted,
-          ),
+          style: AppTextStyle.metricTitle.copyWith(color: AppColors.muted),
         ),
       ],
     );

@@ -29,10 +29,7 @@ class UpdateMonthlyBudget extends WalletEvent {
 
 /// Dispatched when a single category limit is edited.
 class UpdateCategoryLimit extends WalletEvent {
-  const UpdateCategoryLimit({
-    required this.categoryId,
-    required this.newLimit,
-  });
+  const UpdateCategoryLimit({required this.categoryId, required this.newLimit});
 
   final String categoryId;
   final int newLimit;
@@ -57,4 +54,3 @@ class RefreshWalletSummary extends WalletEvent {
 class ResetWallet extends WalletEvent {
   const ResetWallet();
 }
-

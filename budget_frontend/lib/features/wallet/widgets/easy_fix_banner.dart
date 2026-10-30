@@ -47,7 +47,8 @@ class EasyFixBanner extends StatelessWidget {
                     ),
                   ),
                   TextSpan(
-                    text: 'move ${AppFormatters.rupees(amount)} from $fromCategory to cover $toCategory.',
+                    text:
+                        'move ${AppFormatters.rupees(amount)} from $fromCategory to cover $toCategory.',
                   ),
                 ],
               ),
@@ -74,9 +75,7 @@ class EasyFixBanner extends StatelessWidget {
               onPressed: onMove,
               child: Text(
                 'Move it',
-                style: AppTextStyle.buttonPill.copyWith(
-                  color: Colors.white,
-                ),
+                style: AppTextStyle.buttonPill.copyWith(color: Colors.white),
               ),
             ),
           ),

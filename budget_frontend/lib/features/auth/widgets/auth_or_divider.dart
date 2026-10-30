@@ -9,20 +9,20 @@ class AuthOrDivider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-        children: [
-          const Expanded(child: Divider(color: AppColors.line, thickness: 1)),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 12.w),
-            child: Text(
-              'OR',
-              style: AppTextStyle.fieldLabel.copyWith(
-                fontWeight: FontWeight.w700,
-                color: AppColors.faint,
-                letterSpacing: 1.sp,
-              ),
-            ),
+    children: [
+      const Expanded(child: Divider(color: AppColors.line, thickness: 1)),
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: 12.w),
+        child: Text(
+          'OR',
+          style: AppTextStyle.fieldLabel.copyWith(
+            fontWeight: FontWeight.w700,
+            color: AppColors.faint,
+            letterSpacing: 1.sp,
           ),
-          const Expanded(child: Divider(color: AppColors.line, thickness: 1)),
-        ],
-      );
+        ),
+      ),
+      const Expanded(child: Divider(color: AppColors.line, thickness: 1)),
+    ],
+  );
 }

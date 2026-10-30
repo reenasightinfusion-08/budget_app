@@ -10,6 +10,70 @@ class AppToast {
   static OverlayEntry? _currentEntry;
   static _AppToastAnimationState? _currentState;
 
+  /// Formats any message into a crisp, concise phrase suitable for a toast pill.
+  static String formatShortMessage(String raw) {
+    final trimmed = raw.trim();
+    if (trimmed.isEmpty) return trimmed;
+
+    final lower = trimmed.toLowerCase();
+
+    // Map common verbose auth/api strings to crisp, short phrases
+    if (lower.contains('no account found') ||
+        lower.contains('no account exists') ||
+        lower.contains('account not found')) {
+      return 'No account found';
+    }
+    if (lower.contains('invalid email or password') ||
+        lower.contains('invalid credentials') ||
+        lower.contains('wrong password')) {
+      return 'Invalid email or password';
+    }
+    if (lower.contains('6-digit') ||
+        lower.contains('six digit') ||
+        lower.contains('verification code')) {
+      if (lower.contains('enter') ||
+          lower.contains('complete') ||
+          lower.contains('required')) {
+        return 'Enter 6-digit code';
+      }
+      if (lower.contains('invalid') ||
+          lower.contains('wrong') ||
+          lower.contains('incorrect')) {
+        return 'Invalid code';
+      }
+      if (lower.contains('expired')) {
+        return 'Code expired';
+      }
+    }
+    if (lower.contains('already exists') ||
+        lower.contains('already in use') ||
+        lower.contains('already registered')) {
+      return 'Account already exists';
+    }
+    if (lower.contains('password reset successful') ||
+        lower.contains('password updated')) {
+      return 'Password reset successful';
+    }
+    if (lower.contains('something went wrong') || lower.contains('try again')) {
+      return 'Something went wrong';
+    }
+    if (lower.contains('network') || lower.contains('connection')) {
+      return 'Connection error';
+    }
+
+    // If message contains multiple sentences, take only the first sentence
+    final firstSentence = trimmed.split(RegExp(r'[.\n]')).first.trim();
+    if (firstSentence.length > 36) {
+      final cut = firstSentence.substring(0, 36);
+      final lastSpace = cut.lastIndexOf(' ');
+      if (lastSpace > 16) {
+        return cut.substring(0, lastSpace);
+      }
+      return cut;
+    }
+    return firstSentence.isNotEmpty ? firstSentence : trimmed;
+  }
+
   /// Shows the toast across the screen via [OverlayEntry].
   ///
   /// Any existing toast is smoothly dismissed before the new one is shown.
@@ -29,12 +93,14 @@ class AppToast {
     // Dismiss any previously showing toast
     dismiss();
 
+    final shortMessage = formatShortMessage(message);
+
     final overlay = Overlay.of(context, rootOverlay: true);
 
     late final OverlayEntry entry;
     entry = OverlayEntry(
       builder: (context) => _ToastOverlayWrapper(
-        message: message,
+        message: shortMessage,
         duration: duration,
         backgroundColor: backgroundColor ?? AppColors.accent,
         textColor: textColor ?? AppColors.onAccent,
@@ -62,6 +128,32 @@ class AppToast {
 
     _currentEntry = entry;
     overlay.insert(entry);
+  }
+
+  /// Shows an error toast with [AppColors.error] background and an error icon.
+  static void error(
+    BuildContext context, {
+    required String message,
+    Duration duration = const Duration(milliseconds: 3200),
+    double? bottom,
+    VoidCallback? onTap,
+    VoidCallback? onDismissed,
+  }) {
+    show(
+      context,
+      message: message,
+      duration: duration,
+      backgroundColor: AppColors.error,
+      textColor: AppColors.surface,
+      leading: Icon(
+        Icons.error_outline_rounded,
+        color: AppColors.surface,
+        size: 18.r,
+      ),
+      bottom: bottom,
+      onTap: onTap,
+      onDismissed: onDismissed,
+    );
   }
 
   /// Manually dismisses the currently visible toast with reverse animation.
@@ -146,47 +238,30 @@ class _AppToastAnimationState extends State<_ToastOverlayWrapper>
     );
 
     // Subtle scale pop on enter
-    _enterScale = Tween<double>(
-      begin: 0.90,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _enterController,
-      curve: Curves.easeOutBack,
-    ));
+    _enterScale = Tween<double>(begin: 0.90, end: 1.0).animate(
+      CurvedAnimation(parent: _enterController, curve: Curves.easeOutBack),
+    );
 
     // Y comes down from UPWARD (-0.75) to resting position (0.0)
-    _enterSlideY = Tween<double>(
-      begin: -0.75,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _enterController,
-      curve: Curves.easeOutBack,
-    ));
+    _enterSlideY = Tween<double>(begin: -0.75, end: 0.0).animate(
+      CurvedAnimation(parent: _enterController, curve: Curves.easeOutBack),
+    );
 
     // Exit: slides DOWNWARD (0.0 -> 0.75)
-    _exitSlideY = Tween<double>(
-      begin: 0.0,
-      end: 0.75,
-    ).animate(CurvedAnimation(
-      parent: _exitController,
-      curve: Curves.easeInCubic,
-    ));
+    _exitSlideY = Tween<double>(begin: 0.0, end: 0.75).animate(
+      CurvedAnimation(parent: _exitController, curve: Curves.easeInCubic),
+    );
 
-    _exitScale = Tween<double>(
-      begin: 1.0,
-      end: 0.92,
-    ).animate(CurvedAnimation(
-      parent: _exitController,
-      curve: Curves.easeInCubic,
-    ));
+    _exitScale = Tween<double>(begin: 1.0, end: 0.92).animate(
+      CurvedAnimation(parent: _exitController, curve: Curves.easeInCubic),
+    );
 
-    _exitFade = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-      parent: _exitController,
-      curve: const Interval(0.1, 1.0, curve: Curves.easeIn),
-    ));
+    _exitFade = Tween<double>(begin: 1.0, end: 0.0).animate(
+      CurvedAnimation(
+        parent: _exitController,
+        curve: const Interval(0.1, 1.0, curve: Curves.easeIn),
+      ),
+    );
 
     _enterController.forward().then((_) {
       if (mounted) {
@@ -233,17 +308,16 @@ class _AppToastAnimationState extends State<_ToastOverlayWrapper>
               animation: Listenable.merge([_enterController, _exitController]),
               builder: (context, child) {
                 final double currentY = _enterSlideY.value + _exitSlideY.value;
-                final double currentFade = (_enterFade.value * _exitFade.value).clamp(0.0, 1.0);
-                final double currentScale = _enterScale.value * _exitScale.value;
+                final double currentFade = (_enterFade.value * _exitFade.value)
+                    .clamp(0.0, 1.0);
+                final double currentScale =
+                    _enterScale.value * _exitScale.value;
 
                 return FractionalTranslation(
                   translation: Offset(0.0, currentY),
                   child: Opacity(
                     opacity: currentFade,
-                    child: Transform.scale(
-                      scale: currentScale,
-                      child: child,
-                    ),
+                    child: Transform.scale(scale: currentScale, child: child),
                   ),
                 );
               },
@@ -295,7 +369,8 @@ class AppToastWidget extends StatelessWidget {
     final effectiveDotColor = dotColor ?? AppColors.pop;
 
     return Container(
-      padding: padding ?? EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+      padding:
+          padding ?? EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
       decoration: BoxDecoration(
         color: effectiveBgColor,
         borderRadius: AppBorderRadius.pill,
@@ -332,13 +407,14 @@ class AppToastWidget extends StatelessWidget {
           Flexible(
             child: Text(
               message,
-              style: TextStyle(fontFamily: 'DMSans', 
+              style: TextStyle(
+                fontFamily: 'DMSans',
                 fontSize: 13.5.sp,
                 fontWeight: FontWeight.w600,
                 color: effectiveTextColor,
                 letterSpacing: -0.2,
               ),
-              maxLines: 2,
+              maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
           ),

@@ -12,13 +12,7 @@ enum AuthStatus {
   passwordResetSuccess,
 }
 
-enum AuthScreen {
-  login,
-  signup,
-  forgotPassword,
-  resetPassword,
-  verifyEmail,
-}
+enum AuthScreen { login, signup, forgotPassword, resetPassword, verifyEmail }
 
 @immutable
 class AuthState {
@@ -71,12 +65,18 @@ class AuthState {
       isLoading: isLoading ?? this.isLoading,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       errorSource: clearError ? null : (errorSource ?? this.errorSource),
-      googleErrorMessage: clearError ? null : (googleErrorMessage ?? this.googleErrorMessage),
-      googleErrorSource: clearError ? null : (googleErrorSource ?? this.googleErrorSource),
+      googleErrorMessage: clearError
+          ? null
+          : (googleErrorMessage ?? this.googleErrorMessage),
+      googleErrorSource: clearError
+          ? null
+          : (googleErrorSource ?? this.googleErrorSource),
       pendingEmail: pendingEmail ?? this.pendingEmail,
       resetEmail: resetEmail ?? this.resetEmail,
       demoCode: clearDemoCode ? null : (demoCode ?? this.demoCode),
-      successMessage: clearSuccessMessage ? null : (successMessage ?? this.successMessage),
+      successMessage: clearSuccessMessage
+          ? null
+          : (successMessage ?? this.successMessage),
     );
   }
 }

@@ -63,18 +63,29 @@ class PaceChartPainter extends CustomPainter {
     final maxSpent = cumulativeSpending.fold<double>(0, math.max);
     final topValue = math.max(budget, maxSpent) * 1.08;
 
-    double x(int day) =>
-        daysInMonth <= 1 ? left : left + (day - 1) / (daysInMonth - 1) * chartWidth;
-    double y(double value) =>
-        topValue <= 0 ? topMargin + chartHeight : topMargin + chartHeight - value / topValue * chartHeight;
+    double x(int day) => daysInMonth <= 1
+        ? left
+        : left + (day - 1) / (daysInMonth - 1) * chartWidth;
+    double y(double value) => topValue <= 0
+        ? topMargin + chartHeight
+        : topMargin + chartHeight - value / topValue * chartHeight;
 
-    ChartPainting.drawGrid(canvas, size, levels: [0, budget / 2, budget], yOf: y);
+    ChartPainting.drawGrid(
+      canvas,
+      size,
+      levels: [0, budget / 2, budget],
+      yOf: y,
+    );
     drawBudgetPace(canvas, x, y);
     if (cumulativeSpending.isNotEmpty) drawSpending(canvas, size, x, y);
     drawDayLabels(canvas, size, x);
   }
 
-  void drawBudgetPace(Canvas canvas, double Function(int) x, double Function(double) y) {
+  void drawBudgetPace(
+    Canvas canvas,
+    double Function(int) x,
+    double Function(double) y,
+  ) {
     final end = Offset(x(daysInMonth), y(budget));
     final pacePaint = Paint()
       ..color = AppColors.faint
@@ -85,12 +96,21 @@ class PaceChartPainter extends CustomPainter {
     ChartPainting.paintText(
       canvas,
       'Budget pace',
-      ChartPainting.labelStyle.copyWith(fontSize: 9.5.sp, color: AppColors.muted),
-      (textSize) => Offset(end.dx - textSize.width, end.dy - textSize.height - 4),
+      ChartPainting.labelStyle.copyWith(
+        fontSize: 9.5.sp,
+        color: AppColors.muted,
+      ),
+      (textSize) =>
+          Offset(end.dx - textSize.width, end.dy - textSize.height - 4),
     );
   }
 
-  void drawSpending(Canvas canvas, Size size, double Function(int) x, double Function(double) y) {
+  void drawSpending(
+    Canvas canvas,
+    Size size,
+    double Function(int) x,
+    double Function(double) y,
+  ) {
     final linePath = Path()..moveTo(x(1), y(cumulativeSpending[0]));
     final areaPath = Path()
       ..moveTo(x(1), y(0))
@@ -101,8 +121,22 @@ class PaceChartPainter extends CustomPainter {
       final controlX = previousX + (x(i + 1) - previousX) / 2;
       final previousY = y(cumulativeSpending[i - 1]);
       final currentY = y(cumulativeSpending[i]);
-      linePath.cubicTo(controlX, previousY, controlX, currentY, x(i + 1), currentY);
-      areaPath.cubicTo(controlX, previousY, controlX, currentY, x(i + 1), currentY);
+      linePath.cubicTo(
+        controlX,
+        previousY,
+        controlX,
+        currentY,
+        x(i + 1),
+        currentY,
+      );
+      areaPath.cubicTo(
+        controlX,
+        previousY,
+        controlX,
+        currentY,
+        x(i + 1),
+        currentY,
+      );
     }
 
     final lastX = x(cumulativeSpending.length);
@@ -111,8 +145,14 @@ class PaceChartPainter extends CustomPainter {
       ..close();
 
     final areaPaint = Paint()
-      ..shader = AppGradients.paceChartArea
-          .createShader(Rect.fromLTRB(ChartPainting.leftMargin, topMargin, size.width, size.height));
+      ..shader = AppGradients.paceChartArea.createShader(
+        Rect.fromLTRB(
+          ChartPainting.leftMargin,
+          topMargin,
+          size.width,
+          size.height,
+        ),
+      );
     canvas.drawPath(areaPath, areaPaint);
 
     final linePaint = Paint()
@@ -144,14 +184,11 @@ class PaceChartPainter extends CustomPainter {
         canvas,
         '$month $day',
         ChartPainting.labelStyle,
-        (textSize) => Offset(
-          switch (index) {
-            0 => x(day),
-            2 => x(day) - textSize.width,
-            _ => x(day) - textSize.width / 2,
-          },
-          size.height - textSize.height,
-        ),
+        (textSize) => Offset(switch (index) {
+          0 => x(day),
+          2 => x(day) - textSize.width,
+          _ => x(day) - textSize.width / 2,
+        }, size.height - textSize.height),
       );
     }
   }

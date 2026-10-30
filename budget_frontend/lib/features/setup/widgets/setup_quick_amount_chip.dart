@@ -21,25 +21,28 @@ class SetupQuickAmountChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => GestureDetector(
-        onTap: () {
-          FocusManager.instance.primaryFocus?.unfocus();
-          onPressed();
-        },
-        behavior: HitTestBehavior.opaque,
-        child: Container(
-          height: 42.h,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            gradient: isSelected ? AppGradients.accent : null,
-            borderRadius: AppBorderRadius.pill,
-            border: isSelected ? null : Border.all(color: AppColors.line, width: 1.5.w),
-          ),
-          child: Text(
-            label,
-            style: AppTextStyle.chip.copyWith(
-              color: isSelected ? AppColors.onAccent : AppColors.ink,
-            ),
-          ),
+    onTap: () {
+      FocusManager.instance.primaryFocus?.unfocus();
+      onPressed();
+    },
+    behavior: HitTestBehavior.opaque,
+    child: Container(
+      height: 42.h,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: isSelected ? null : AppColors.surface,
+        gradient: isSelected ? AppGradients.accent : null,
+        borderRadius: AppBorderRadius.pill,
+        border: isSelected
+            ? null
+            : Border.all(color: AppColors.line, width: 1.5.w),
+      ),
+      child: Text(
+        label,
+        style: AppTextStyle.chip.copyWith(
+          color: isSelected ? AppColors.onAccent : AppColors.ink,
         ),
-      );
+      ),
+    ),
+  );
 }

@@ -14,10 +14,10 @@ class AuthNoticeBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AppCard(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        color: AppColors.successSoft,
-        radius: AppBorderRadius.sm,
-        child: Text(message, style: AppTextStyle.notice),
-      );
+    width: double.infinity,
+    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+    color: AppColors.successSoft,
+    radius: AppBorderRadius.sm,
+    child: Text(message, style: AppTextStyle.notice),
+  );
 }

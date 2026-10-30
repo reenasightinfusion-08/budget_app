@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -36,7 +38,8 @@ class InsightsScreen extends StatelessWidget {
         AppFormatters.rupees(data.spentThisMonth),
         style: AppTextStyle.dialogTitle,
       ),
-      subtitle: 'Stay under the dotted line and you\'ll finish inside your budget.',
+      subtitle:
+          'Stay under the dotted line and you\'ll finish inside your budget.',
       child: PaceChart(
         budget: data.budget,
         cumulativeSpending: data.cumulativeSpending,
@@ -60,12 +63,19 @@ class InsightsScreen extends StatelessWidget {
           physics: const AlwaysScrollableScrollPhysics(),
           padding: isTablet
               ? const EdgeInsets.fromLTRB(30, 20, 30, 120)
-              : EdgeInsets.fromLTRB(20.w, 16.h, 20.w, AppLayout.navBarClearanceOf(context)),
+              : EdgeInsets.fromLTRB(
+                  20.w,
+                  16.h,
+                  20.w,
+                  AppLayout.navBarClearanceOf(context),
+                ),
           child: Align(
             alignment: Alignment.topCenter,
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                maxWidth: isTablet ? AppLayout.maxContentWidth : double.infinity,
+                maxWidth: isTablet
+                    ? AppLayout.maxContentWidth
+                    : double.infinity,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,7 +105,11 @@ class InsightsScreen extends StatelessWidget {
                   CategoryBreakdownCard(data: data),
                   isTablet ? const SizedBox(height: 16) : 16.verticalSpace,
                   const NativeAdWidget(templateType: TemplateType.medium),
-                  isTablet ? const SizedBox(height: 24) : 24.verticalSpace,
+                  isTablet
+                      ? const SizedBox(height: 24)
+                      : (!kIsWeb && Platform.isIOS
+                          ? 85.verticalSpace
+                          : 24.verticalSpace),
                 ],
               ),
             ),

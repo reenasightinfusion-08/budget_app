@@ -6,8 +6,14 @@ class ProfileService {
 
   final ApiClient client;
 
-  Future<UserModel> saveSetup({required String name, required int monthlyBudgetPaise}) async {
-    final data = await client.patch('/users/me', {'name': name, 'monthlyBudget': monthlyBudgetPaise});
+  Future<UserModel> saveSetup({
+    required String name,
+    required int monthlyBudgetPaise,
+  }) async {
+    final data = await client.patch('/users/me', {
+      'name': name,
+      'monthlyBudget': monthlyBudgetPaise,
+    });
     return UserModel.fromJson(data['user'] as Map<String, dynamic>);
   }
 
@@ -17,12 +23,18 @@ class ProfileService {
   }
 
   Future<UserModel> updateMonthlyBudget(int monthlyBudgetPaise) async {
-    final data = await client.patch('/users/me', {'monthlyBudget': monthlyBudgetPaise});
+    final data = await client.patch('/users/me', {
+      'monthlyBudget': monthlyBudgetPaise,
+    });
     return UserModel.fromJson(data['user'] as Map<String, dynamic>);
   }
 
-  Future<UserModel> updateCategoryLimits(Map<String, int> categoryLimitsPaise) async {
-    final data = await client.patch('/users/me', {'categoryLimits': categoryLimitsPaise});
+  Future<UserModel> updateCategoryLimits(
+    Map<String, int> categoryLimitsPaise,
+  ) async {
+    final data = await client.patch('/users/me', {
+      'categoryLimits': categoryLimitsPaise,
+    });
     return UserModel.fromJson(data['user'] as Map<String, dynamic>);
   }
 }

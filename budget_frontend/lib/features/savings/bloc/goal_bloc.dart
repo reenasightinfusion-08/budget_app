@@ -20,30 +20,31 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
 
   final GoalService goalService;
 
-  Future<void> _onLoadGoals(
-    LoadGoals event,
-    Emitter<GoalState> emit,
-  ) async {
+  Future<void> _onLoadGoals(LoadGoals event, Emitter<GoalState> emit) async {
     if (!state.isLoaded) {
       emit(state.copyWith(isLoading: true, clearError: true));
     }
     try {
       final res = await goalService.getGoals(month: event.month);
-      emit(state.copyWith(
-        goals: res.goals,
-        totalSavedRupees: res.totalSavedRupees,
-        thisMonthRupees: res.thisMonthRupees,
-        totalTargetRupees: res.totalTargetRupees,
-        totalMonthlyNeededRupees: res.totalMonthlyNeededRupees,
-        isLoading: false,
-        isLoaded: true,
-      ));
+      emit(
+        state.copyWith(
+          goals: res.goals,
+          totalSavedRupees: res.totalSavedRupees,
+          thisMonthRupees: res.thisMonthRupees,
+          totalTargetRupees: res.totalTargetRupees,
+          totalMonthlyNeededRupees: res.totalMonthlyNeededRupees,
+          isLoading: false,
+          isLoaded: true,
+        ),
+      );
     } catch (e) {
       debugPrint('LoadGoals error: $e');
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: 'Failed to load savings goals',
-      ));
+      emit(
+        state.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to load savings goals',
+        ),
+      );
     }
   }
 
@@ -66,10 +67,12 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
       emit(state.copyWith(isSubmitting: false, errorMessage: e.message));
     } catch (e) {
       debugPrint('CreateGoal error: $e');
-      emit(state.copyWith(
-        isSubmitting: false,
-        errorMessage: 'Failed to create goal',
-      ));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          errorMessage: 'Failed to create goal',
+        ),
+      );
     }
   }
 
@@ -92,10 +95,12 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
       emit(state.copyWith(isSubmitting: false, errorMessage: e.message));
     } catch (e) {
       debugPrint('AddGoalContribution error: $e');
-      emit(state.copyWith(
-        isSubmitting: false,
-        errorMessage: 'Failed to update goal amount',
-      ));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          errorMessage: 'Failed to update goal amount',
+        ),
+      );
     }
   }
 
@@ -111,10 +116,12 @@ class GoalBloc extends Bloc<GoalEvent, GoalState> {
       add(const LoadGoals());
     } catch (e) {
       debugPrint('DeleteGoal error: $e');
-      emit(state.copyWith(
-        isSubmitting: false,
-        errorMessage: 'Failed to delete goal',
-      ));
+      emit(
+        state.copyWith(
+          isSubmitting: false,
+          errorMessage: 'Failed to delete goal',
+        ),
+      );
     }
   }
 }

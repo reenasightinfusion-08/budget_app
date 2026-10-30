@@ -14,21 +14,46 @@ import 'package:budget_frontend/features/savings/bloc/goal_bloc.dart';
 import 'package:budget_frontend/features/setup/bloc/setup_bloc.dart';
 import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 
-class ProfileAccountActionsCard extends StatelessWidget {
+class ProfileAccountActionsCard extends StatefulWidget {
   const ProfileAccountActionsCard({super.key});
 
-  void _performLogout(BuildContext context) {
-    context.read<SetupBloc>().add(const SetupReset());
-    context.read<WalletBloc>().add(const ResetWallet());
-    context.read<GoalBloc>().add(const ResetGoals());
-    context.read<AuthBloc>().add(const AuthLogoutRequested());
+  @override
+  State<ProfileAccountActionsCard> createState() =>
+      _ProfileAccountActionsCardState();
+}
+
+class _ProfileAccountActionsCardState extends State<ProfileAccountActionsCard> {
+  bool _isLoggingOut = false;
+  bool _isDeletingAccount = false;
+
+  void _performLogout() {
+    if (!mounted) return;
+    setState(() => _isLoggingOut = true);
+
+    final setupBloc = context.read<SetupBloc>();
+    final walletBloc = context.read<WalletBloc>();
+    final goalBloc = context.read<GoalBloc>();
+    final authBloc = context.read<AuthBloc>();
+
+    setupBloc.add(const SetupReset());
+    walletBloc.add(const ResetWallet());
+    goalBloc.add(const ResetGoals());
+    authBloc.add(const AuthLogoutRequested());
   }
 
-  void _performDeleteAccount(BuildContext context) {
-    context.read<SetupBloc>().add(const SetupReset());
-    context.read<WalletBloc>().add(const ResetWallet());
-    context.read<GoalBloc>().add(const ResetGoals());
-    context.read<AuthBloc>().add(const AuthDeleteAccountRequested());
+  void _performDeleteAccount() {
+    if (!mounted) return;
+    setState(() => _isDeletingAccount = true);
+
+    final setupBloc = context.read<SetupBloc>();
+    final walletBloc = context.read<WalletBloc>();
+    final goalBloc = context.read<GoalBloc>();
+    final authBloc = context.read<AuthBloc>();
+
+    setupBloc.add(const SetupReset());
+    walletBloc.add(const ResetWallet());
+    goalBloc.add(const ResetGoals());
+    authBloc.add(const AuthDeleteAccountRequested());
   }
 
   void _confirmLogout(BuildContext context) {
@@ -38,7 +63,7 @@ class ProfileAccountActionsCard extends StatelessWidget {
       message: 'Are you sure you want to log out of your account?',
       icon: AppIcons.logout,
       confirmLabel: 'Log out',
-      onConfirm: () => _performLogout(context),
+      onConfirm: _performLogout,
     );
   }
 
@@ -50,7 +75,7 @@ class ProfileAccountActionsCard extends StatelessWidget {
           'Are you sure you want to delete your account? This action cannot be undone.',
       icon: AppIcons.delete,
       confirmLabel: 'Delete',
-      onConfirm: () => _performDeleteAccount(context),
+      onConfirm: _performDeleteAccount,
     );
   }
 
@@ -60,10 +85,7 @@ class ProfileAccountActionsCard extends StatelessWidget {
         color: AppColors.surface,
         borderRadius: AppBorderRadius.card,
       ),
-      child: ClipRRect(
-        borderRadius: AppBorderRadius.card,
-        child: child,
-      ),
+      child: ClipRRect(borderRadius: AppBorderRadius.card, child: child),
     );
   }
 
@@ -71,6 +93,7 @@ class ProfileAccountActionsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isTablet = AppLayout.isTablet(context);
     final authState = context.watch<AuthBloc>().state;
+    final isBusy = _isLoggingOut || _isDeletingAccount;
 
     final logoutItem = DataRaw(
       icon: AppIcons.logout,
@@ -78,7 +101,8 @@ class ProfileAccountActionsCard extends StatelessWidget {
       subtitle: authState.user?.email ?? 'Signed in',
       iconColor: AppColors.error,
       iconBackgroundColor: AppColors.errorSoft,
-      onTap: () => _confirmLogout(context),
+      isLoading: _isLoggingOut,
+      onTap: isBusy ? null : () => _confirmLogout(context),
     );
 
     final deleteAccountItem = DataRaw(
@@ -87,7 +111,8 @@ class ProfileAccountActionsCard extends StatelessWidget {
       subtitle: 'Permanently remove your account and data',
       iconColor: AppColors.error,
       iconBackgroundColor: AppColors.errorSoft,
-      onTap: () => _confirmDeleteAccount(context),
+      isLoading: _isDeletingAccount,
+      onTap: isBusy ? null : () => _confirmDeleteAccount(context),
     );
 
     if (isTablet) {
@@ -108,13 +133,9 @@ class ProfileAccountActionsCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: _buildTabletItem(context, logoutItem),
-                ),
+                Expanded(child: _buildTabletItem(context, logoutItem)),
                 const SizedBox(width: 16),
-                Expanded(
-                  child: _buildTabletItem(context, deleteAccountItem),
-                ),
+                Expanded(child: _buildTabletItem(context, deleteAccountItem)),
               ],
             ),
           ),

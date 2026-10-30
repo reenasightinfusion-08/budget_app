@@ -50,10 +50,7 @@ class SmartAddService {
 
     final res = await client.postFull('/smart-add', {
       'inputType': inputType,
-      'file': {
-        'mimeType': mimeType,
-        'data': base64String,
-      },
+      'file': {'mimeType': mimeType, 'data': base64String},
       'today': today,
       'tzOffsetMinutes': tzOffsetMinutes,
     });

@@ -73,6 +73,7 @@ flutter:
     - assest/scan_bill.jpg
     - assest/voice.jpg
     - assest/pdf.jpg
+    - assest/app_icon.png
 
 
   # To add assets to your application, add an assets section, like this:

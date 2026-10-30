@@ -15,7 +15,7 @@ import 'package:budget_frontend/features/home/widgets/home_tab_scope.dart';
 import 'package:budget_frontend/features/wallet/bloc/wallet_bloc.dart';
 
 class TransactionItemData {
-   TransactionItemData({
+  TransactionItemData({
     required this.title,
     required this.amount,
     required this.icon,
@@ -35,11 +35,7 @@ class TransactionItemData {
 }
 
 class TransactionItemWidget extends StatelessWidget {
-  const TransactionItemWidget({
-    super.key,
-    required this.data,
-    this.onTap,
-  });
+  const TransactionItemWidget({super.key, required this.data, this.onTap});
 
   final TransactionItemData data;
   final VoidCallback? onTap;
@@ -131,7 +127,9 @@ class RecentTransactionsWidget extends StatelessWidget {
     final incomeText = AppFormatters.rupees(incomeRupees).replaceAll('₹', '');
 
     // OUT amount
-    final expenseRupees = summary != null ? summary.expenseRupees : walletState.totalSpent;
+    final expenseRupees = summary != null
+        ? summary.expenseRupees
+        : walletState.totalSpent;
     final expenseText = AppFormatters.rupees(expenseRupees).replaceAll('₹', '');
 
     // OUT description: compare with last month so far if available
@@ -182,7 +180,8 @@ class RecentTransactionsWidget extends StatelessWidget {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => const HistoryScreen(initialFilterIndex: 2),
+                      builder: (_) =>
+                          const HistoryScreen(initialFilterIndex: 2),
                     ),
                   );
                 },
@@ -203,7 +202,8 @@ class RecentTransactionsWidget extends StatelessWidget {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => const HistoryScreen(initialFilterIndex: 1),
+                      builder: (_) =>
+                          const HistoryScreen(initialFilterIndex: 1),
                     ),
                   );
                 },
@@ -253,7 +253,6 @@ class RecentTransactionsWidget extends StatelessWidget {
           ],
         ),
 
-
         12.verticalSpace,
 
         // Savings Goal Banner Card
@@ -291,23 +290,23 @@ class RecentTransactionsWidget extends StatelessWidget {
                     children: [
                       Text(
                         'SAVINGS',
-                        style: AppTextStyle.tag.copyWith(color: AppColors.faint),
+                        style: AppTextStyle.tag.copyWith(
+                          color: AppColors.faint,
+                        ),
                       ),
                       2.verticalSpace,
                       Text(
                         'Start a savings goal',
-                        style: AppTextStyle.subCardTitle.copyWith(fontSize: 15.sp),
+                        style: AppTextStyle.subCardTitle.copyWith(
+                          fontSize: 15.sp,
+                        ),
                       ),
                     ],
                   ),
                 ),
 
                 // 3. Upward arrow icon
-                Icon(
-                  AppIcons.arrowUp,
-                  size: 20.sp,
-                  color: AppColors.muted,
-                ),
+                Icon(AppIcons.arrowUp, size: 20.sp, color: AppColors.muted),
               ],
             ),
           ),

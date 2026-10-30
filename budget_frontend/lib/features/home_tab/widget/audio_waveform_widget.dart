@@ -139,8 +139,7 @@ class _AudioWaveformLinePainter extends CustomPainter {
       final factor2 = p2Base.dy == 0
           ? 0.0
           : (0.70 +
-              0.30 *
-                  math.sin(2 * math.pi * animationValue + (i + 1) * 0.35));
+                0.30 * math.sin(2 * math.pi * animationValue + (i + 1) * 0.35));
 
       final dy1 = p1Base.dy * factor1;
       final dy2 = p2Base.dy * factor2;

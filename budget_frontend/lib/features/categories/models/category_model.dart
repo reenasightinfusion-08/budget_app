@@ -30,7 +30,9 @@ class CategoryModel {
       label: (json['label'] ?? '').toString().trim(),
       iconName: (json['icon'] ?? '').toString().toLowerCase().trim(),
       colorHex: json['color'] as String?,
-      sortOrder: (json['sortOrder'] is num) ? (json['sortOrder'] as num).toInt() : 0,
+      sortOrder: (json['sortOrder'] is num)
+          ? (json['sortOrder'] as num).toInt()
+          : 0,
     );
   }
 

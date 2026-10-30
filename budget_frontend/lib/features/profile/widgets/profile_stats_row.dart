@@ -36,7 +36,9 @@ class _ProfileStatsRowState extends State<ProfileStatsRow> {
       final txs = await txService.getTransactions(limit: 100);
       if (!mounted) return;
       final uniqueMonths = txs
-          .map((t) => '${t.date.year}-${t.date.month.toString().padLeft(2, '0')}')
+          .map(
+            (t) => '${t.date.year}-${t.date.month.toString().padLeft(2, '0')}',
+          )
           .toSet();
 
       _cachedEntriesCount = txs.length;
@@ -69,17 +71,13 @@ class _ProfileStatsRowState extends State<ProfileStatsRow> {
           count: '$goalsCount',
           name: "Goals",
           onTap: () {
-            Navigator.of(context).pushNamed(
-              AppRoutes.savings,
-              arguments: {'showBackButton': true},
-            );
+            Navigator.of(
+              context,
+            ).pushNamed(AppRoutes.savings, arguments: {'showBackButton': true});
           },
         ),
         10.horizontalSpace,
-        DataCard(
-          count: '$_monthsCount',
-          name: "Months",
-        ),
+        DataCard(count: '$_monthsCount', name: "Months"),
       ],
     );
 

@@ -43,12 +43,9 @@ class ProfileMenuCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: AppBorderRadius.card,
-      //  border: Border.all(color: AppColors.faint, width: 1),
+        //  border: Border.all(color: AppColors.faint, width: 1),
       ),
-      child: ClipRRect(
-        borderRadius: AppBorderRadius.card,
-        child: child,
-      ),
+      child: ClipRRect(borderRadius: AppBorderRadius.card, child: child),
     );
   }
 
@@ -67,10 +64,10 @@ class ProfileMenuCard extends StatelessWidget {
     final int budgetAmount = walletState.monthlyBudget > 0
         ? walletState.monthlyBudget
         : ((authState.user != null && authState.user!.monthlyBudget > 0)
-            ? (authState.user!.monthlyBudget ~/ 100)
-            : (setupState.budgetAmount > 0
-                ? setupState.budgetAmount
-                : AppConfig.defaultMonthlyBudget));
+              ? (authState.user!.monthlyBudget ~/ 100)
+              : (setupState.budgetAmount > 0
+                    ? setupState.budgetAmount
+                    : AppConfig.defaultMonthlyBudget));
 
     final historyItem = DataRaw(
       icon: AppIcons.history,
@@ -86,10 +83,9 @@ class ProfileMenuCard extends StatelessWidget {
       title: 'Savings goals',
       subtitle: 'Start your first goal',
       onTap: () {
-        Navigator.of(context).pushNamed(
-          AppRoutes.savings,
-          arguments: {'showBackButton': true},
-        );
+        Navigator.of(
+          context,
+        ).pushNamed(AppRoutes.savings, arguments: {'showBackButton': true});
       },
     );
 
@@ -111,7 +107,9 @@ class ProfileMenuCard extends StatelessWidget {
         final currentUser = context.read<AuthBloc>().state.user;
         if (currentUser != null) {
           context.read<AuthBloc>().add(
-            AuthUserUpdated(currentUser.copyWith(monthlyBudget: newBudget * 100)),
+            AuthUserUpdated(
+              currentUser.copyWith(monthlyBudget: newBudget * 100),
+            ),
           );
         }
         AppToast.show(context, message: 'Monthly budget updated');
@@ -144,13 +142,9 @@ class ProfileMenuCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: _buildTabletItem(context, historyItem),
-                ),
+                Expanded(child: _buildTabletItem(context, historyItem)),
                 const SizedBox(width: 16),
-                Expanded(
-                  child: _buildTabletItem(context, budgetItem),
-                ),
+                Expanded(child: _buildTabletItem(context, budgetItem)),
               ],
             ),
           ),
@@ -159,13 +153,9 @@ class ProfileMenuCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: _buildTabletItem(context, savingsItem),
-                ),
+                Expanded(child: _buildTabletItem(context, savingsItem)),
                 const SizedBox(width: 16),
-                Expanded(
-                  child: _buildTabletItem(context, clearItem),
-                ),
+                Expanded(child: _buildTabletItem(context, clearItem)),
               ],
             ),
           ),

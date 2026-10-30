@@ -52,11 +52,8 @@ class AppBottomSheet extends StatelessWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       barrierColor: AppColors.ink.withValues(alpha: 0.5),
-      builder: (sheetContext) => AppBottomSheet(
-        title: title,
-        onClose: onClose,
-        child: child,
-      ),
+      builder: (sheetContext) =>
+          AppBottomSheet(title: title, onClose: onClose, child: child),
     );
   }
 
@@ -111,11 +108,7 @@ class AppBottomSheet extends StatelessWidget {
                     ),
                   ),
                   if (title != null) ...[
-                    Expanded(
-                      child: Center(
-                        child: title!,
-                      ),
-                    ),
+                    Expanded(child: Center(child: title!)),
                     SizedBox(width: 46.r),
                   ],
                 ],
@@ -198,11 +191,7 @@ class _TabletBottomSheetDialog extends StatelessWidget {
                             ),
                           ),
                           if (title != null) ...[
-                            Expanded(
-                              child: Center(
-                                child: title!,
-                              ),
-                            ),
+                            Expanded(child: Center(child: title!)),
                             const SizedBox(width: 40),
                           ],
                         ],

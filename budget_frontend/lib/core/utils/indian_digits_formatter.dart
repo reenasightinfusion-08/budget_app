@@ -8,11 +8,19 @@ class IndianDigitsFormatter extends TextInputFormatter {
   static const int maxDigits = 7;
 
   @override
-  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
     final digits = newValue.text.replaceAll(RegExp(r'\D'), '');
     if (digits.isEmpty) return const TextEditingValue();
-    final capped = digits.length > maxDigits ? digits.substring(0, maxDigits) : digits;
+    final capped = digits.length > maxDigits
+        ? digits.substring(0, maxDigits)
+        : digits;
     final text = AppFormatters.groupDigits(int.parse(capped));
-    return TextEditingValue(text: text, selection: TextSelection.collapsed(offset: text.length));
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
   }
 }

@@ -13,6 +13,7 @@ class DataRaw extends StatelessWidget {
   final Color? iconColor;
   final Color? iconBackgroundColor;
   final VoidCallback? onTap;
+  final bool isLoading;
 
   const DataRaw({
     super.key,
@@ -22,12 +23,13 @@ class DataRaw extends StatelessWidget {
     this.iconColor,
     this.iconBackgroundColor,
     this.onTap,
+    this.isLoading = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: onTap,
+      onTap: isLoading ? null : onTap,
       borderRadius: AppBorderRadius.card,
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
@@ -69,11 +71,22 @@ class DataRaw extends StatelessWidget {
               ),
             ),
             8.horizontalSpace,
-            Icon(
-              AppIcons.chevronRight,
-              color: AppColors.faint,
-              size: 22.sp,
-            ),
+            isLoading
+                ? SizedBox(
+                    width: 18.sp,
+                    height: 18.sp,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.2,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        iconColor ?? AppColors.accent,
+                      ),
+                    ),
+                  )
+                : Icon(
+                    AppIcons.chevronRight,
+                    color: AppColors.faint,
+                    size: 22.sp,
+                  ),
           ],
         ),
       ),

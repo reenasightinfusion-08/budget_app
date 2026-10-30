@@ -96,6 +96,10 @@ class AmountInputDialogState extends State<AmountInputDialog> {
               borderSide: BorderSide.none,
             ),
             hintText: widget.hint,
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: isTablet ? 16 : 14.w,
+              vertical: isTablet ? 16.5 : 16.h,
+            ),
           ),
         ),
       ),

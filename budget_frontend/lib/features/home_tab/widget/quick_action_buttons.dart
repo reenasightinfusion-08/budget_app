@@ -1,12 +1,10 @@
-import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_layout.dart';
-import 'package:budget_frontend/core/widgets/app_card.dart';
+import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/features/home/widgets/spend_income_bottom_sheet.dart';
 
 class QuickActionButtons extends StatelessWidget {
@@ -16,25 +14,25 @@ class QuickActionButtons extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        // Spend button: bg surface, radius card, icon bg catShopping, icon color error
+        // Spend button: blue & white theme
         Expanded(
-          child: _ActionButton(
-            label: 'Spend',
+          child: _ActionCard(
+            title: 'Spend',
+            subtitle: 'Money out',
             icon: AppIcons.arrowUpRight,
-            iconBgColor: AppColors.catShopping.withValues(alpha: 0.15),
-            iconColor: AppColors.error,
-            onTap: () => SpendIncomeBottomSheet.show(context, initialTabIndex: 0),
+            onTap: () =>
+                SpendIncomeBottomSheet.show(context, initialTabIndex: 0),
           ),
         ),
         12.horizontalSpace,
-        // Income button: bg surface, radius card, icon bg catHealth, icon color success
+        // Income button: blue & white theme
         Expanded(
-          child: _ActionButton(
-            label: 'Income',
+          child: _ActionCard(
+            title: 'Income',
+            subtitle: 'Money in',
             icon: AppIcons.arrowDownLeft,
-            iconBgColor: AppColors.catHealth.withValues(alpha: 0.15),
-            iconColor: AppColors.success,
-            onTap: () => SpendIncomeBottomSheet.show(context, initialTabIndex: 1),
+            onTap: () =>
+                SpendIncomeBottomSheet.show(context, initialTabIndex: 1),
           ),
         ),
       ],
@@ -42,60 +40,117 @@ class QuickActionButtons extends StatelessWidget {
   }
 }
 
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
-    required this.label,
+class _ActionCard extends StatefulWidget {
+  const _ActionCard({
+    required this.title,
+    required this.subtitle,
     required this.icon,
-    required this.iconBgColor,
-    required this.iconColor,
     required this.onTap,
   });
 
-  final String label;
+  final String title;
+  final String subtitle;
   final IconData icon;
-  final Color iconBgColor;
-  final Color iconColor;
   final VoidCallback onTap;
+
+  @override
+  State<_ActionCard> createState() => _ActionCardState();
+}
+
+class _ActionCardState extends State<_ActionCard> {
+  bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
     final isTablet = AppLayout.isTablet(context);
 
     return GestureDetector(
-      onTap: onTap,
+      onTapDown: (_) => setState(() => _isPressed = true),
+      onTapUp: (_) => setState(() => _isPressed = false),
+      onTapCancel: () => setState(() => _isPressed = false),
+      onTap: widget.onTap,
       behavior: HitTestBehavior.opaque,
-      child: AppCard(
-        color: AppColors.surface,
-        radius: AppBorderRadius.navBar,
-        padding: isTablet
-            ? const EdgeInsets.symmetric(horizontal: 10, vertical: 10)
-            : EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              width: isTablet ? 32 : 36.w,
-              height: isTablet ? 32 : 36.h,
-              decoration: BoxDecoration(
-                color: iconBgColor,
-                borderRadius: AppBorderRadius.track,
-              ),
-              alignment: Alignment.center,
-              child: Icon(
-                icon,
-                size: isTablet ? 18 : 20.sp,
-                color: iconColor,
-              ),
+      child: AnimatedScale(
+        scale: _isPressed ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOutCubic,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: isTablet ? 14 : 13.w,
+            vertical: isTablet ? 13 : 12.h,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(20.r),
+            border: Border.all(
+              color: AppColors.line.withValues(alpha: 0.9),
+              width: 1.0,
             ),
-            isTablet ? const SizedBox(width: 8) : 12.horizontalSpace,
-            Flexible(
-              child: Text(
-                label,
-                style: AppTextStyle.subCardTitle,
-                overflow: TextOverflow.ellipsis,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.ink.withValues(alpha: 0.035),
+                blurRadius: 10.r,
+                offset: Offset(0, 3.h),
               ),
-            ),
-          ],
+            ],
+          ),
+          child: Row(
+            children: [
+              // Circular icon badge with soft blue background & signature blue icon
+              Container(
+                width: isTablet ? 36 : 38.r,
+                height: isTablet ? 36 : 38.r,
+                decoration: const BoxDecoration(
+                  color: AppColors.popSoft,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  widget.icon,
+                  size: isTablet ? 18 : 19.sp,
+                  color: AppColors.accent,
+                ),
+              ),
+              isTablet ? const SizedBox(width: 10) : 10.horizontalSpace,
+              // Title and Subtitle
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      widget.title,
+                      style: AppTextStyle.subCardTitle.copyWith(
+                        fontSize: isTablet ? 15.5 : 15.sp,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.2,
+                        color: AppColors.ink,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: isTablet ? 2 : 2.h),
+                    Text(
+                      widget.subtitle,
+                      style: AppTextStyle.description.copyWith(
+                        fontSize: isTablet ? 12 : 11.5.sp,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.muted,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              // Subtle mini chevron indicator
+              Icon(
+                AppIcons.chevronRight,
+                size: isTablet ? 15 : 15.sp,
+                color: AppColors.faint,
+              ),
+            ],
+          ),
         ),
       ),
     );

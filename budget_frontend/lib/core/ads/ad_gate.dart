@@ -14,7 +14,9 @@ class AdGate {
       final prefs = await SharedPreferences.getInstance();
       final at = prefs.getInt('ad_gate_$key');
       if (at == null) return false;
-      return DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(at)) <
+      return DateTime.now().difference(
+            DateTime.fromMillisecondsSinceEpoch(at),
+          ) <
           _validFor;
     } catch (_) {
       return false;
@@ -50,16 +52,18 @@ class AdGate {
     final watch = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.r)),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.w700),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.r),
         ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Not now', style: TextStyle(color: AppColors.muted)),
+            child: const Text(
+              'Not now',
+              style: TextStyle(color: AppColors.muted),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -92,7 +96,10 @@ class AdGate {
     }
 
     final shown = interstitialStyle
-        ? AdService.showRewardedInterstitial(onReward: onReward, onClosed: onClosed)
+        ? AdService.showRewardedInterstitial(
+            onReward: onReward,
+            onClosed: onClosed,
+          )
         : AdService.showRewarded(onReward: onReward, onClosed: onClosed);
 
     if (!shown) onUnlocked();

@@ -23,10 +23,7 @@ class SummaryCategoryItem {
 }
 
 class SummaryDailyItem {
-  const SummaryDailyItem({
-    required this.date,
-    required this.spentPaise,
-  });
+  const SummaryDailyItem({required this.date, required this.spentPaise});
 
   factory SummaryDailyItem.fromJson(Map<String, dynamic> json) {
     return SummaryDailyItem(
@@ -51,8 +48,12 @@ class SummaryMonthItem {
   factory SummaryMonthItem.fromJson(Map<String, dynamic> json) {
     return SummaryMonthItem(
       month: (json['month'] ?? '').toString(),
-      incomePaise: (json['income'] is num) ? (json['income'] as num).toInt() : 0,
-      expensePaise: (json['expense'] is num) ? (json['expense'] as num).toInt() : 0,
+      incomePaise: (json['income'] is num)
+          ? (json['income'] as num).toInt()
+          : 0,
+      expensePaise: (json['expense'] is num)
+          ? (json['expense'] as num).toInt()
+          : 0,
     );
   }
 
@@ -65,10 +66,7 @@ class SummaryMonthItem {
 }
 
 class SummaryCounts {
-  const SummaryCounts({
-    required this.entries,
-    required this.months,
-  });
+  const SummaryCounts({required this.entries, required this.months});
 
   factory SummaryCounts.fromJson(Map<String, dynamic> json) {
     return SummaryCounts(
@@ -135,13 +133,18 @@ class MonthSummaryModel {
     return MonthSummaryModel(
       month: (json['month'] ?? '').toString(),
       today: (json['today'] ?? '').toString(),
-      incomePaise: (json['income'] is num) ? (json['income'] as num).toInt() : 0,
-      expensePaise: (json['expense'] is num) ? (json['expense'] as num).toInt() : 0,
+      incomePaise: (json['income'] is num)
+          ? (json['income'] as num).toInt()
+          : 0,
+      expensePaise: (json['expense'] is num)
+          ? (json['expense'] as num).toInt()
+          : 0,
       byCategory: byCategory,
       weekStart: (json['weekStart'] ?? '').toString(),
       daily: daily,
-      previousMonthSoFarPaise:
-          (json['previousMonthSoFar'] is num) ? (json['previousMonthSoFar'] as num).toInt() : 0,
+      previousMonthSoFarPaise: (json['previousMonthSoFar'] is num)
+          ? (json['previousMonthSoFar'] as num).toInt()
+          : 0,
       months: months,
       recent: recent,
       counts: SummaryCounts.fromJson(countsJson),
@@ -177,7 +180,9 @@ class MonthSummaryModel {
 
   /// Highest spending expense category
   SummaryCategoryItem? get topExpenseCategory {
-    final expenseCategories = byCategory.where((c) => c.type == 'expense' && c.totalPaise > 0).toList();
+    final expenseCategories = byCategory
+        .where((c) => c.type == 'expense' && c.totalPaise > 0)
+        .toList();
     if (expenseCategories.isEmpty) return null;
     expenseCategories.sort((a, b) => b.totalPaise.compareTo(a.totalPaise));
     return expenseCategories.first;

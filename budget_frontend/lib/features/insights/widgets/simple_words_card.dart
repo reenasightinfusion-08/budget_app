@@ -33,7 +33,10 @@ class SimpleWordsCard extends StatelessWidget {
           Container(
             width: 36.r,
             height: 36.r,
-            decoration: const BoxDecoration(color: AppColors.popDeep, shape: BoxShape.circle),
+            decoration: const BoxDecoration(
+              color: AppColors.popDeep,
+              shape: BoxShape.circle,
+            ),
             child: Icon(AppIcons.autoAwesome, color: Colors.white, size: 18.sp),
           ),
           12.horizontalSpace,
@@ -51,11 +54,22 @@ class SimpleWordsCard extends StatelessWidget {
                     style: baseStyle,
                     children: [
                       const TextSpan(text: "You've spent "),
-                      TextSpan(text: '$paceDiff ${data.isUnderPace ? 'less' : 'more'}', style: bold),
-                      const TextSpan(text: ' than an even pace would allow by today. '),
+                      TextSpan(
+                        text: '$paceDiff ${data.isUnderPace ? 'less' : 'more'}',
+                        style: bold,
+                      ),
+                      const TextSpan(
+                        text: ' than an even pace would allow by today. ',
+                      ),
                       TextSpan(text: 'In ${data.previousMonthName} you kept '),
-                      TextSpan(text: AppFormatters.rupees(data.previousMonthSaved), style: bold),
-                      TextSpan(text: ', about ${data.previousMonthSavePercentage}% of what came in.'),
+                      TextSpan(
+                        text: AppFormatters.rupees(data.previousMonthSaved),
+                        style: bold,
+                      ),
+                      TextSpan(
+                        text:
+                            ', about ${data.previousMonthSavePercentage}% of what came in.',
+                      ),
                     ],
                   ),
                 ),

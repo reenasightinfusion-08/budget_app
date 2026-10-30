@@ -21,7 +21,10 @@ class SetupBloc extends Bloc<SetupEvent, SetupState> {
 
   final ProfileService profileService;
 
-  void onBudgetAmountChanged(SetupBudgetAmountChanged event, Emitter<SetupState> emit) {
+  void onBudgetAmountChanged(
+    SetupBudgetAmountChanged event,
+    Emitter<SetupState> emit,
+  ) {
     if (event.amount == state.budgetAmount) return;
     emit(state.copyWith(budgetAmount: event.amount));
   }
@@ -36,16 +39,26 @@ class SetupBloc extends Bloc<SetupEvent, SetupState> {
         name: event.name,
         monthlyBudgetPaise: state.budgetAmount * paisePerRupee,
       );
-      emit(state.copyWith(
-        isSaving: false,
-        savedUser: user,
-        profile: ProfileSetupModel(name: event.name, monthlyBudget: state.budgetAmount),
-      ));
+      emit(
+        state.copyWith(
+          isSaving: false,
+          savedUser: user,
+          profile: ProfileSetupModel(
+            name: event.name,
+            monthlyBudget: state.budgetAmount,
+          ),
+        ),
+      );
     } on ApiException catch (e) {
       emit(state.copyWith(isSaving: false, errorMessage: e.message));
     } catch (e, stack) {
       debugPrint('SetupBloc save error: $e\n$stack');
-      emit(state.copyWith(isSaving: false, errorMessage: 'Something went wrong. Please try again.'));
+      emit(
+        state.copyWith(
+          isSaving: false,
+          errorMessage: 'Something went wrong. Please try again.',
+        ),
+      );
     }
   }
 }

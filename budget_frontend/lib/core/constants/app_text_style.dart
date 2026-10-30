@@ -13,17 +13,16 @@ class AppTextStyle {
     Color? color,
     TextDecoration? decoration,
     Color? decorationColor,
-  }) =>
-      TextStyle(
-        fontFamily: fontFamily,
-        fontSize: fontSize,
-        fontWeight: fontWeight,
-        letterSpacing: letterSpacing,
-        height: height,
-        color: color,
-        decoration: decoration,
-        decorationColor: decorationColor,
-      );
+  }) => TextStyle(
+    fontFamily: fontFamily,
+    fontSize: fontSize,
+    fontWeight: fontWeight,
+    letterSpacing: letterSpacing,
+    height: height,
+    color: color,
+    decoration: decoration,
+    decorationColor: decorationColor,
+  );
 
   // Display & Amounts
   static TextStyle get amount => _dmSans(
@@ -131,31 +130,20 @@ class AppTextStyle {
   );
 
   // Body & Descriptions
-  static TextStyle get subtitle => _dmSans(
-    fontSize: 15.sp,
-    height: 1.45,
-    color: AppColors.onAccentMuted,
-  );
+  static TextStyle get subtitle =>
+      _dmSans(fontSize: 15.sp, height: 1.45, color: AppColors.onAccentMuted);
 
   static TextStyle get body =>
       _dmSans(fontSize: 14.sp, height: 1.45, color: AppColors.muted);
 
-  static TextStyle get cardSubtitle => _dmSans(
-    fontSize: 12.sp,
-    height: 1.25,
-    color: AppColors.onAccentMuted,
-  );
+  static TextStyle get cardSubtitle =>
+      _dmSans(fontSize: 12.sp, height: 1.25, color: AppColors.onAccentMuted);
 
-  static TextStyle get description => _dmSans(
-    fontSize: 12.sp,
-    height: 1.25,
-    color: AppColors.muted,
-  );
+  static TextStyle get description =>
+      _dmSans(fontSize: 12.sp, height: 1.25, color: AppColors.muted);
 
-  static TextStyle get emptyState => _dmSans(
-    fontSize: 14.sp,
-    color: AppColors.muted,
-  );
+  static TextStyle get emptyState =>
+      _dmSans(fontSize: 14.sp, color: AppColors.muted);
 
   // Tags & Labels
   static TextStyle get tag => _dmSans(
@@ -171,10 +159,8 @@ class AppTextStyle {
     color: AppColors.faint,
   );
 
-  static TextStyle get metricDescription => _dmSans(
-    fontSize: 13.sp,
-    color: AppColors.faint,
-  );
+  static TextStyle get metricDescription =>
+      _dmSans(fontSize: 13.sp, color: AppColors.faint);
 
   static TextStyle get chartLabel => _dmSans(
     fontSize: 10.sp,
@@ -249,11 +235,9 @@ class AppTextStyle {
   static TextStyle get toggleSubtitle =>
       _dmSans(fontSize: 12.sp, height: 1.3, color: AppColors.muted);
 
-  static TextStyle get input =>
-      _dmSans(fontSize: 16.sp, color: AppColors.ink);
+  static TextStyle get input => _dmSans(fontSize: 16.sp, color: AppColors.ink);
 
-  static TextStyle get hint =>
-      _dmSans(fontSize: 16.sp, color: AppColors.faint);
+  static TextStyle get hint => _dmSans(fontSize: 16.sp, color: AppColors.faint);
 
   // Feedback & Status
   static TextStyle get error => _dmSans(

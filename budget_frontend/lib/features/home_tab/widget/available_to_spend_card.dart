@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 import 'package:budget_frontend/core/constants/app_config.dart';
-import 'package:budget_frontend/core/constants/app_icons.dart';
 import 'package:budget_frontend/core/constants/app_layout.dart';
 import 'package:budget_frontend/core/constants/app_text_style.dart';
 import 'package:budget_frontend/core/utils/app_formatters.dart';
@@ -19,7 +17,7 @@ class AvailableToSpendCard extends StatelessWidget {
   String _getCurrentMonthLastDate() {
     final now = DateTime.now();
     final lastDay = DateTime(now.year, now.month + 1, 0).day;
-    return '${AppFormatters.monthShort(now.month)} $lastDay ';
+    return '${AppFormatters.monthShort(now.month)} $lastDay';
   }
 
   @override
@@ -29,8 +27,8 @@ class AvailableToSpendCard extends StatelessWidget {
     final int monthlyBudget = walletState.monthlyBudget > 0
         ? walletState.monthlyBudget
         : ((authState.user != null && authState.user!.monthlyBudget > 0)
-            ? (authState.user!.monthlyBudget ~/ 100)
-            : AppConfig.defaultMonthlyBudget);
+              ? (authState.user!.monthlyBudget ~/ 100)
+              : AppConfig.defaultMonthlyBudget);
     final int totalSpent = walletState.totalSpent;
     final int availableToSpend = walletState.availableToSpend;
     final double progress = walletState.spendProgress;
@@ -38,95 +36,220 @@ class AvailableToSpendCard extends StatelessWidget {
 
     final isTablet = AppLayout.isTablet(context);
 
-    return AppCard(
-      isGradient: true,
-      radius: AppBorderRadius.card,
-      padding: isTablet ? const EdgeInsets.all(24) : EdgeInsets.all(20.r),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return ClipRRect(
+      borderRadius: AppBorderRadius.card,
+      child: Stack(
         children: [
-          CircleAvatar(
-            backgroundColor: AppColors.glassFill,
-            foregroundColor: AppColors.onAccent,
-            radius: isTablet ? 24 : 25.r,
-            child: Icon(
-              AppIcons.wallet,
-              size: isTablet ? 22 : 25.sp,
-            ),
-          ),
-          isTablet ? const SizedBox(height: 12) : 14.verticalSpace,
-          Text(
-            'Available to spend',
-            style: AppTextStyle.title.copyWith(
-              fontSize: isTablet ? 20 : 22.sp,
-              fontWeight: FontWeight.w600,
-              color: AppColors.onAccent,
-            ),
-          ),
-          isTablet ? const SizedBox(height: 6) : 8.verticalSpace,
-          RichText(
-            text: TextSpan(
-              style: AppTextStyle.subtitle.copyWith(
-                fontSize: isTablet ? 15 : 16.sp,
-                color: AppColors.onAccentMuted,
-              ),
+          AppCard(
+            isGradient: true,
+            radius: AppBorderRadius.card,
+            padding: isTablet ? const EdgeInsets.all(24) : EdgeInsets.all(20.r),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextSpan(
-                  text: '${AppFormatters.rupees(isOverBudget ? -walletState.remainingBudget : availableToSpend)} ',
-                  style: AppTextStyle.title.copyWith(
-                    fontSize: isTablet ? 15 : 16.sp,
-                    fontWeight: FontWeight.w700,
+                // Top Header Row: Title & Status Chip
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Available to Spend',
+                      style: AppTextStyle.subtitle.copyWith(
+                        fontSize: isTablet ? 15 : 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.onAccentMuted,
+                        letterSpacing: 0.2,
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isTablet ? 10 : 9.w,
+                        vertical: isTablet ? 5 : 4.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isOverBudget
+                            ? AppColors.error.withValues(alpha: 0.3)
+                            : AppColors.glassFill,
+                        borderRadius: AppBorderRadius.pill,
+                        border: Border.all(
+                          color: isOverBudget
+                              ? AppColors.onAccentError.withValues(alpha: 0.45)
+                              : AppColors.glassBorder,
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 6.r,
+                            height: 6.r,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isOverBudget
+                                  ? AppColors.onAccentError
+                                  : const Color(0xFF68D391),
+                            ),
+                          ),
+                          6.horizontalSpace,
+                          Text(
+                            isOverBudget
+                                ? 'Over Budget'
+                                : '${(progress * 100).toInt()}% Used',
+                            style: AppTextStyle.tag.copyWith(
+                              color: isOverBudget
+                                  ? AppColors.onAccentError
+                                  : AppColors.onAccent,
+                              fontSize: isTablet ? 11 : 10.5.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                isTablet ? const SizedBox(height: 10) : 8.verticalSpace,
+
+                // Big Hero Amount
+                Text(
+                  AppFormatters.rupees(
+                    isOverBudget
+                        ? -walletState.remainingBudget
+                        : availableToSpend,
+                  ),
+                  style: AppTextStyle.amount.copyWith(
+                    fontSize: isTablet ? 36 : 32.sp,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -1.0,
                     color: AppColors.onAccent,
+                    height: 1.1,
                   ),
                 ),
-                TextSpan(
-                  text: isOverBudget ? 'over budget' : 'left this month',
+                isTablet ? const SizedBox(height: 4) : 4.verticalSpace,
+
+                // Explanatory Subtitle
+                Text(
+                  isOverBudget
+                      ? 'Exceeded monthly budget by ${AppFormatters.rupees(-walletState.remainingBudget)}'
+                      : '${AppFormatters.rupees(availableToSpend)} remaining for this month',
+                  style: AppTextStyle.subtitle.copyWith(
+                    fontSize: isTablet ? 13 : 12.5.sp,
+                    color: isOverBudget
+                        ? AppColors.onAccentError
+                        : AppColors.onAccentMuted,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                isTablet ? const SizedBox(height: 16) : 15.verticalSpace,
+
+                // Progress Bar
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(999),
+                  child: Container(
+                    height: isTablet ? 6 : 6.h,
+                    width: double.infinity,
+                    color: Colors.white.withValues(alpha: 0.18),
+                    alignment: Alignment.centerLeft,
+                    child: FractionallySizedBox(
+                      widthFactor: progress.clamp(0.0, 1.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: isOverBudget
+                              ? AppColors.onAccentError
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(999),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                isTablet ? const SizedBox(height: 14) : 12.verticalSpace,
+
+                // Bottom Stats Row: Spent vs Budget & Month-end date
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Spent ',
+                          style: AppTextStyle.chip.copyWith(
+                            color: AppColors.onAccentMuted,
+                            fontSize: isTablet ? 12 : 12.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Text(
+                          AppFormatters.rupees(totalSpent),
+                          style: AppTextStyle.chip.copyWith(
+                            color: AppColors.onAccent,
+                            fontSize: isTablet ? 12.5 : 12.5.sp,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(
+                          ' of ${AppFormatters.rupees(monthlyBudget)}',
+                          style: AppTextStyle.chip.copyWith(
+                            color: AppColors.onAccentMuted,
+                            fontSize: isTablet ? 12 : 12.sp,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isTablet ? 8 : 7.w,
+                        vertical: isTablet ? 3 : 2.5.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.glassFill,
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Text(
+                        _getCurrentMonthLastDate(),
+                        style: AppTextStyle.chip.copyWith(
+                          color: AppColors.onAccent,
+                          fontSize: isTablet ? 11 : 11.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          isTablet ? const SizedBox(height: 14) : 16.verticalSpace,
-          Container(
-            height: isTablet ? 8 : 8.h,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.25),
-              borderRadius: AppBorderRadius.track,
-            ),
-            alignment: Alignment.centerLeft,
-            child: FractionallySizedBox(
-              widthFactor: progress,
+
+          // Decorative Glassmorphism Background Circles
+          Positioned(
+            right: -25.r,
+            top: -25.r,
+            child: IgnorePointer(
               child: Container(
+                width: 125.r,
+                height: 125.r,
                 decoration: BoxDecoration(
-                  color: AppColors.onAccent,
-                  borderRadius: AppBorderRadius.track,
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.05),
                 ),
               ),
             ),
           ),
-          isTablet ? const SizedBox(height: 12) : 12.verticalSpace,
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              RichText(
-                text: TextSpan(
-                  style: AppTextStyle.chip.copyWith(
-                    color: AppColors.onAccentMuted,
-                    fontSize: isTablet ? 13 : 13.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  text: '${AppFormatters.rupees(totalSpent)} / ${AppFormatters.rupees(monthlyBudget)}',
+          Positioned(
+            right: 40.r,
+            top: -50.r,
+            child: IgnorePointer(
+              child: Container(
+                width: 105.r,
+                height: 105.r,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.03),
                 ),
               ),
-              Text(
-                _getCurrentMonthLastDate(),
-                style: AppTextStyle.chip.copyWith(
-                  color: AppColors.onAccentMuted,
-                  fontSize: isTablet ? 13 : 13.sp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),

@@ -27,17 +27,15 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState> {
     try {
       final list = await categoryService.getCategories();
       CategoryRegistry.setCategories(list);
-      emit(state.copyWith(
-        categories: list,
-        isLoading: false,
-        isLoaded: true,
-      ));
+      emit(state.copyWith(categories: list, isLoading: false, isLoaded: true));
     } catch (e) {
       debugPrint('CategoryBloc LoadCategories error: $e');
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: 'Failed to load categories',
-      ));
+      emit(
+        state.copyWith(
+          isLoading: false,
+          errorMessage: 'Failed to load categories',
+        ),
+      );
     }
   }
 }

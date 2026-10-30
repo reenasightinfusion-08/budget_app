@@ -36,83 +36,85 @@ class HistoryTransactionCard extends StatelessWidget {
         padding: isTablet
             ? const EdgeInsets.symmetric(horizontal: 16, vertical: 12)
             : EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
-      child: Row(
-        children: [
-          // Circle icon badge
-          Container(
-            width: isTablet ? 48 : 48.r,
-            height: isTablet ? 48 : 48.r,
-            decoration: BoxDecoration(
-              color: transaction.bgColor,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              transaction.icon,
-              size: isTablet ? 22 : 22.sp,
-              color: transaction.effectiveIconColor,
-            ),
-          ),
-          isTablet ? const SizedBox(width: 14) : 14.horizontalSpace,
-
-          // Description & Subtitle ("Food · Oct 11")
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  transaction.description,
-                  style: AppTextStyle.subCardTitle.copyWith(
-                    fontSize: isTablet ? 16 : 16.sp,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                isTablet ? const SizedBox(height: 3) : 3.verticalSpace,
-                Text(
-                  transaction.subtitle,
-                  style: AppTextStyle.description.copyWith(
-                    fontSize: isTablet ? 12.5 : 12.5.sp,
-                    color: AppColors.muted,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          isTablet ? const SizedBox(width: 10) : 10.horizontalSpace,
-
-          // Signed Amount ("-₹1,600")
-          Text(
-            transaction.signedFormattedAmount,
-            style: AppTextStyle.subCardTitle.copyWith(
-              fontSize: isTablet ? 16 : 16.sp,
-              fontWeight: FontWeight.w700,
-              color: transaction.isIncome ? AppColors.success : AppColors.ink,
-            ),
-          ),
-
-          // Delete icon button (only shown when onDelete callback is provided)
-          if (onDelete != null) ...[
-            isTablet ? const SizedBox(width: 12) : 12.horizontalSpace,
-            GestureDetector(
-              onTap: onDelete,
-              behavior: HitTestBehavior.opaque,
-              child: Padding(
-                padding: isTablet ? const EdgeInsets.all(4) : EdgeInsets.all(4.r),
-                child: Icon(
-                  AppIcons.delete,
-                  size: isTablet ? 20 : 20.sp,
-                  color: AppColors.faint,
-                ),
+        child: Row(
+          children: [
+            // Circle icon badge
+            Container(
+              width: isTablet ? 48 : 48.r,
+              height: isTablet ? 48 : 48.r,
+              decoration: BoxDecoration(
+                color: transaction.bgColor,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                transaction.icon,
+                size: isTablet ? 22 : 22.sp,
+                color: transaction.effectiveIconColor,
               ),
             ),
+            isTablet ? const SizedBox(width: 14) : 14.horizontalSpace,
+
+            // Description & Subtitle ("Food · Oct 11")
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    transaction.description,
+                    style: AppTextStyle.subCardTitle.copyWith(
+                      fontSize: isTablet ? 16 : 16.sp,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  isTablet ? const SizedBox(height: 3) : 3.verticalSpace,
+                  Text(
+                    transaction.subtitle,
+                    style: AppTextStyle.description.copyWith(
+                      fontSize: isTablet ? 12.5 : 12.5.sp,
+                      color: AppColors.muted,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            isTablet ? const SizedBox(width: 10) : 10.horizontalSpace,
+
+            // Signed Amount ("-₹1,600")
+            Text(
+              transaction.signedFormattedAmount,
+              style: AppTextStyle.subCardTitle.copyWith(
+                fontSize: isTablet ? 16 : 16.sp,
+                fontWeight: FontWeight.w700,
+                color: transaction.isIncome ? AppColors.success : AppColors.ink,
+              ),
+            ),
+
+            // Delete icon button (only shown when onDelete callback is provided)
+            if (onDelete != null) ...[
+              isTablet ? const SizedBox(width: 12) : 12.horizontalSpace,
+              GestureDetector(
+                onTap: onDelete,
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
+                  padding: isTablet
+                      ? const EdgeInsets.all(4)
+                      : EdgeInsets.all(4.r),
+                  child: Icon(
+                    AppIcons.delete,
+                    size: isTablet ? 20 : 20.sp,
+                    color: AppColors.faint,
+                  ),
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
-    ),
     );
   }
 }
@@ -140,8 +142,8 @@ class HistoryDateGroup extends StatelessWidget {
     final signedTotal = rounded > 0
         ? '-${AppFormatters.rupees(rounded.abs())}'
         : (rounded < 0
-            ? '+${AppFormatters.rupees(rounded.abs())}'
-            : AppFormatters.rupees(0));
+              ? '+${AppFormatters.rupees(rounded.abs())}'
+              : AppFormatters.rupees(0));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -173,8 +175,12 @@ class HistoryDateGroup extends StatelessWidget {
         for (final tx in transactions) ...[
           HistoryTransactionCard(
             transaction: tx,
-            onTap: onTapTransaction != null ? () => onTapTransaction!(tx) : null,
-            onDelete: onDeleteTransaction != null ? () => onDeleteTransaction!(tx) : null,
+            onTap: onTapTransaction != null
+                ? () => onTapTransaction!(tx)
+                : null,
+            onDelete: onDeleteTransaction != null
+                ? () => onDeleteTransaction!(tx)
+                : null,
           ),
           12.verticalSpace,
         ],
@@ -202,10 +208,7 @@ class HistoryTransactionList extends StatelessWidget {
       return Padding(
         padding: EdgeInsets.symmetric(vertical: 40.h),
         child: Center(
-          child: Text(
-            'No transactions found.',
-            style: AppTextStyle.emptyState,
-          ),
+          child: Text('No transactions found.', style: AppTextStyle.emptyState),
         ),
       );
     }

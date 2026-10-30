@@ -12,8 +12,8 @@ class SetupBudgetHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BlocBuilder<SetupBloc, SetupState>(
-        builder: (context, state) => buildHint(state.dailyAllowanceLabel),
-      );
+    builder: (context, state) => buildHint(state.dailyAllowanceLabel),
+  );
 
   Widget buildHint(String? dailyLabel) {
     return Container(
@@ -27,7 +27,8 @@ class SetupBudgetHint extends StatelessWidget {
         TextSpan(
           style: AppTextStyle.cardHint,
           children: [
-            if (dailyLabel == null) const TextSpan(text: 'Pick a number you can stick to.'),
+            if (dailyLabel == null)
+              const TextSpan(text: 'Pick a number you can stick to.'),
             if (dailyLabel != null) ...[
               const TextSpan(text: 'That’s about '),
               TextSpan(

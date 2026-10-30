@@ -44,17 +44,27 @@ class ChartPainting {
 
     for (final level in levels) {
       final y = yOf(level);
-      canvas.drawLine(Offset(leftMargin, y), Offset(size.width - rightMargin, y), gridPaint);
+      canvas.drawLine(
+        Offset(leftMargin, y),
+        Offset(size.width - rightMargin, y),
+        gridPaint,
+      );
       paintText(
         canvas,
         AppFormatters.compactRupees(level),
         labelStyle,
-        (textSize) => Offset(leftMargin - textSize.width - 6, y - textSize.height / 2),
+        (textSize) =>
+            Offset(leftMargin - textSize.width - 6, y - textSize.height / 2),
       );
     }
   }
 
-  static void drawDashedLine(Canvas canvas, Offset from, Offset to, Paint paint) {
+  static void drawDashedLine(
+    Canvas canvas,
+    Offset from,
+    Offset to,
+    Paint paint,
+  ) {
     const dash = 4.0;
     const gap = 4.0;
     final path = Path()
@@ -63,7 +73,10 @@ class ChartPainting {
 
     for (final metric in path.computeMetrics()) {
       for (var start = 0.0; start < metric.length; start += dash + gap) {
-        canvas.drawPath(metric.extractPath(start, math.min(start + dash, metric.length)), paint);
+        canvas.drawPath(
+          metric.extractPath(start, math.min(start + dash, metric.length)),
+          paint,
+        );
       }
     }
   }

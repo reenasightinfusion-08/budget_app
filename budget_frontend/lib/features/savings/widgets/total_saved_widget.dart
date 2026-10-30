@@ -112,7 +112,9 @@ class TotalSavedWidget extends StatelessWidget {
           else if (targetTotal > 0 && totalSaved >= targetTotal)
             Text(
               'All current goals reached! Great job!',
-              style: AppTextStyle.cardTitleWhite.copyWith(fontSize: isTablet ? 14 : 14.sp),
+              style: AppTextStyle.cardTitleWhite.copyWith(
+                fontSize: isTablet ? 14 : 14.sp,
+              ),
             )
           else
             RichText(
@@ -123,13 +125,15 @@ class TotalSavedWidget extends StatelessWidget {
                 children: [
                   const TextSpan(text: 'Your goals need about '),
                   TextSpan(
-                    text: '₹${AppFormatters.groupDigits(monthlyNeeded)} a month',
+                    text:
+                        '₹${AppFormatters.groupDigits(monthlyNeeded)} a month',
                     style: AppTextStyle.cardTitleWhite.copyWith(
                       fontSize: isTablet ? 14 : 14.sp,
                     ),
                   ),
                   const TextSpan(
-                    text: ". Add this month's income to see how much you can save.",
+                    text:
+                        ". Add this month's income to see how much you can save.",
                   ),
                 ],
               ),

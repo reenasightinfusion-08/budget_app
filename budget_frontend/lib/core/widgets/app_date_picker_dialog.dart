@@ -223,7 +223,10 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
             child: InkWell(
               onTap: isDisabled
                   ? null
-                  : () => _updateDisplayedMonthAndSyncSelected(_displayedMonth.year, m),
+                  : () => _updateDisplayedMonthAndSyncSelected(
+                      _displayedMonth.year,
+                      m,
+                    ),
               borderRadius: AppBorderRadius.chip,
               child: Container(
                 decoration: BoxDecoration(
@@ -291,7 +294,10 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
           return Material(
             color: Colors.transparent,
             child: InkWell(
-              onTap: () => _updateDisplayedMonthAndSyncSelected(year, _displayedMonth.month),
+              onTap: () => _updateDisplayedMonthAndSyncSelected(
+                year,
+                _displayedMonth.month,
+              ),
               borderRadius: AppBorderRadius.chip,
               child: Container(
                 decoration: BoxDecoration(
@@ -376,396 +382,401 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
             ],
           ),
           child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // 1. Top Section: Title & Interactive Selector Pills (Left) + Calendar Graphic (Right)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Select Date',
-                        style: AppTextStyle.dialogTitle.copyWith(
-                          fontSize: 22.sp,
-                          fontWeight: FontWeight.w800,
-                          color: AppColors.ink,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                      10.verticalSpace,
-                      Row(
-                        children: [
-                          // Month Selector Pill
-                          Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  _currentView =
-                                      _currentView == _PickerView.month
-                                      ? _PickerView.date
-                                      : _PickerView.month;
-                                });
-                              },
-                              borderRadius: AppBorderRadius.track,
-                              child: Container(
-                                height: 32.h,
-                                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                decoration: BoxDecoration(
-                                  color: _currentView == _PickerView.month
-                                      ? widget.accentColor.withValues(
-                                          alpha: 0.15,
-                                        )
-                                      : AppColors.fill,
-                                  borderRadius: AppBorderRadius.track,
-                                  border: _currentView == _PickerView.month
-                                      ? Border.all(
-                                          color: widget.accentColor,
-                                          width: 1.2,
-                                        )
-                                      : null,
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      AppFormatters.monthName(
-                                        _displayedMonth.month,
-                                      ),
-                                      style: AppTextStyle.dayLabelActive
-                                          .copyWith(
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.w600,
-                                            color:
-                                                _currentView ==
-                                                    _PickerView.month
-                                                ? widget.accentColor
-                                                : AppColors.ink,
-                                          ),
-                                    ),
-                                    4.horizontalSpace,
-                                    Icon(
-                                      _currentView == _PickerView.month
-                                          ? Icons.arrow_drop_up
-                                          : Icons.arrow_drop_down,
-                                      color: _currentView == _PickerView.month
-                                          ? widget.accentColor
-                                          : AppColors.ink,
-                                      size: 18.sp,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          8.horizontalSpace,
-
-                          // Year Selector Pill
-                          Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  _currentView =
-                                      _currentView == _PickerView.year
-                                      ? _PickerView.date
-                                      : _PickerView.year;
-                                });
-                              },
-                              borderRadius: AppBorderRadius.track,
-                              child: Container(
-                                height: 32.h,
-                                padding: EdgeInsets.symmetric(horizontal: 10.w),
-                                decoration: BoxDecoration(
-                                  color: _currentView == _PickerView.year
-                                      ? widget.accentColor.withValues(
-                                          alpha: 0.15,
-                                        )
-                                      : AppColors.fill,
-                                  borderRadius: AppBorderRadius.track,
-                                  border: _currentView == _PickerView.year
-                                      ? Border.all(
-                                          color: widget.accentColor,
-                                          width: 1.2,
-                                        )
-                                      : null,
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      '${_displayedMonth.year}',
-                                      style: AppTextStyle.dayLabelActive
-                                          .copyWith(
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.w600,
-                                            color:
-                                                _currentView == _PickerView.year
-                                                ? widget.accentColor
-                                                : AppColors.ink,
-                                          ),
-                                    ),
-                                    4.horizontalSpace,
-                                    Icon(
-                                      _currentView == _PickerView.year
-                                          ? Icons.arrow_drop_up
-                                          : Icons.arrow_drop_down,
-                                      color: _currentView == _PickerView.year
-                                          ? widget.accentColor
-                                          : AppColors.ink,
-                                      size: 18.sp,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                12.horizontalSpace,
-                _buildCalendarBadge(),
-              ],
-            ),
-            18.verticalSpace,
-
-            // 2. Main Middle Section: Date Grid OR In-Dialog Month/Year 3x4 Grid
-            if (_currentView == _PickerView.date) ...[
-              // Weekday Row
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 1. Top Section: Title & Interactive Selector Pills (Left) + Calendar Graphic (Right)
               Row(
-                children: _weekdays.map((day) {
-                  return Expanded(
-                    child: Center(
-                      child: Text(
-                        day,
-                        style: AppTextStyle.tag.copyWith(
-                          color: AppColors.ink,
-                          letterSpacing: 0.2,
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-              8.verticalSpace,
-
-              // Compact 7-column Calendar Grid
-              GridView.builder(
-                shrinkWrap: true,
-                padding: EdgeInsets.zero,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 7,
-                  mainAxisSpacing: 3.h,
-                  crossAxisSpacing: 3.w,
-                  childAspectRatio: 1.15,
-                ),
-                itemCount: totalGridCells,
-                itemBuilder: (context, index) {
-                  // Previous month days
-                  if (index < firstWeekday) {
-                    final prevDayNumber =
-                        daysInPrevMonth - firstWeekday + index + 1;
-                    return Center(
-                      child: Text(
-                        _twoDigits(prevDayNumber),
-                        style: AppTextStyle.dayLabel.copyWith(
-                          color: AppColors.faint.withValues(alpha: 0.5),
-                        ),
-                      ),
-                    );
-                  }
-
-                  // Next month days
-                  if (index >= totalDaysCovered) {
-                    final nextDayNumber = index - totalDaysCovered + 1;
-                    return Center(
-                      child: Text(
-                        _twoDigits(nextDayNumber),
-                        style: AppTextStyle.dayLabel.copyWith(
-                          color: AppColors.faint.withValues(alpha: 0.5),
-                        ),
-                      ),
-                    );
-                  }
-
-                  // Current month days
-                  final dayNumber = index - firstWeekday + 1;
-                  final cellDate = DateTime(
-                    _displayedMonth.year,
-                    _displayedMonth.month,
-                    dayNumber,
-                  );
-
-                  final isSelected = _isSameDay(cellDate, _selectedDate);
-                  final isTodayDate = _isSameDay(cellDate, today);
-                  final lastDateDay = DateTime(
-                    widget.lastDate.year,
-                    widget.lastDate.month,
-                    widget.lastDate.day,
-                  );
-                  final firstDateDay = DateTime(
-                    widget.firstDate.year,
-                    widget.firstDate.month,
-                    widget.firstDate.day,
-                  );
-                  final isDisabled =
-                      cellDate.isAfter(lastDateDay) ||
-                      cellDate.isBefore(firstDateDay);
-
-                  Color textColor;
-                  if (isDisabled) {
-                    textColor = AppColors.faint.withValues(alpha: 0.4);
-                  } else if (isSelected) {
-                    textColor = AppColors.onAccent;
-                  } else {
-                    textColor = AppColors.ink;
-                  }
-
-                  return InkWell(
-                    onTap: isDisabled
-                        ? null
-                        : () {
-                            setState(() {
-                              _selectedDate = cellDate;
-                            });
-                          },
-                    borderRadius: AppBorderRadius.dayCell,
-                    child: Container(
-                      decoration: isSelected
-                          ? BoxDecoration(
-                              color: widget.accentColor,
-                              borderRadius: AppBorderRadius.dayCell,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: widget.accentColor.withValues(
-                                    alpha: 0.3,
-                                  ),
-                                  blurRadius: 4,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            )
-                          : null,
-                      alignment: Alignment.center,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            _twoDigits(dayNumber),
-                            style: AppTextStyle.dayLabelActive.copyWith(
-                              fontWeight: (isSelected || isTodayDate)
-                                  ? FontWeight.w700
-                                  : FontWeight.w600,
-                              color: textColor,
-                            ),
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Select Date',
+                          style: AppTextStyle.dialogTitle.copyWith(
+                            fontSize: 22.sp,
+                            fontWeight: FontWeight.w800,
+                            color: AppColors.ink,
+                            letterSpacing: -0.5,
                           ),
-                          if (isTodayDate && !isSelected) ...[
-                            1.verticalSpace,
-                            Container(
-                              width: 14.w,
-                              height: 2.h,
-                              decoration: BoxDecoration(
-                                color: widget.accentColor,
-                                borderRadius: AppBorderRadius.indicator,
+                        ),
+                        10.verticalSpace,
+                        Row(
+                          children: [
+                            // Month Selector Pill
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    _currentView =
+                                        _currentView == _PickerView.month
+                                        ? _PickerView.date
+                                        : _PickerView.month;
+                                  });
+                                },
+                                borderRadius: AppBorderRadius.track,
+                                child: Container(
+                                  height: 32.h,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 10.w,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _currentView == _PickerView.month
+                                        ? widget.accentColor.withValues(
+                                            alpha: 0.15,
+                                          )
+                                        : AppColors.fill,
+                                    borderRadius: AppBorderRadius.track,
+                                    border: _currentView == _PickerView.month
+                                        ? Border.all(
+                                            color: widget.accentColor,
+                                            width: 1.2,
+                                          )
+                                        : null,
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        AppFormatters.monthName(
+                                          _displayedMonth.month,
+                                        ),
+                                        style: AppTextStyle.dayLabelActive
+                                            .copyWith(
+                                              fontSize: 12.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color:
+                                                  _currentView ==
+                                                      _PickerView.month
+                                                  ? widget.accentColor
+                                                  : AppColors.ink,
+                                            ),
+                                      ),
+                                      4.horizontalSpace,
+                                      Icon(
+                                        _currentView == _PickerView.month
+                                            ? Icons.arrow_drop_up
+                                            : Icons.arrow_drop_down,
+                                        color: _currentView == _PickerView.month
+                                            ? widget.accentColor
+                                            : AppColors.ink,
+                                        size: 18.sp,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            8.horizontalSpace,
+
+                            // Year Selector Pill
+                            Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    _currentView =
+                                        _currentView == _PickerView.year
+                                        ? _PickerView.date
+                                        : _PickerView.year;
+                                  });
+                                },
+                                borderRadius: AppBorderRadius.track,
+                                child: Container(
+                                  height: 32.h,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 10.w,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: _currentView == _PickerView.year
+                                        ? widget.accentColor.withValues(
+                                            alpha: 0.15,
+                                          )
+                                        : AppColors.fill,
+                                    borderRadius: AppBorderRadius.track,
+                                    border: _currentView == _PickerView.year
+                                        ? Border.all(
+                                            color: widget.accentColor,
+                                            width: 1.2,
+                                          )
+                                        : null,
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        '${_displayedMonth.year}',
+                                        style: AppTextStyle.dayLabelActive
+                                            .copyWith(
+                                              fontSize: 12.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color:
+                                                  _currentView ==
+                                                      _PickerView.year
+                                                  ? widget.accentColor
+                                                  : AppColors.ink,
+                                            ),
+                                      ),
+                                      4.horizontalSpace,
+                                      Icon(
+                                        _currentView == _PickerView.year
+                                            ? Icons.arrow_drop_up
+                                            : Icons.arrow_drop_down,
+                                        color: _currentView == _PickerView.year
+                                            ? widget.accentColor
+                                            : AppColors.ink,
+                                        size: 18.sp,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ],
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-
-              // Spacing between calendar grid and action buttons:
-              // When month has 6 weeks: tight/no extra space between last date row and buttons.
-              // Otherwise: space is added with the exact height that one date row occupies.
-              Builder(
-                builder: (context) {
-                  if (weeksCount >= 6) {
-                    return 6.verticalSpace;
-                  }
-                  final availableWidth = 285.w;
-                  final cellWidth = (availableWidth - (6 * 3.w)) / 7;
-                  final cellHeight = cellWidth / 1.15;
-                  final oneRowHeight = cellHeight + 3.h;
-                  final extraSpace = (6 - weeksCount) * oneRowHeight;
-                  return SizedBox(height: 6.h + extraSpace);
-                },
-              ),
-            ] else if (_currentView == _PickerView.month) ...[
-              _buildMonthGrid(),
-            ] else ...[
-              _buildYearGrid(),
-            ],
-
-            // 3. Action Buttons (Cancel & Confirm)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(
-                  height: 35.h,
-                  child: TextButton(
-                    onPressed: () {
-                      if (_currentView != _PickerView.date) {
-                        setState(() => _currentView = _PickerView.date);
-                      } else {
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 14.w),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      visualDensity: VisualDensity.compact,
-                    ),
-                    child: Text(
-                      'Cancel',
-                      style: AppTextStyle.buttonAction.copyWith(
-                        fontSize: 15.sp,
-                        color: AppColors.faint,
-                      ),
+                        ),
+                      ],
                     ),
                   ),
+                  12.horizontalSpace,
+                  _buildCalendarBadge(),
+                ],
+              ),
+              18.verticalSpace,
+
+              // 2. Main Middle Section: Date Grid OR In-Dialog Month/Year 3x4 Grid
+              if (_currentView == _PickerView.date) ...[
+                // Weekday Row
+                Row(
+                  children: _weekdays.map((day) {
+                    return Expanded(
+                      child: Center(
+                        child: Text(
+                          day,
+                          style: AppTextStyle.tag.copyWith(
+                            color: AppColors.ink,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
-                10.horizontalSpace,
-                SizedBox(
-                  width: 95.w,
-                  height: 35.h,
-                  child: ElevatedButton(
-                    onPressed: () => Navigator.of(context).pop(_selectedDate),
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 10.w),
-                      backgroundColor: widget.accentColor,
-                      foregroundColor: AppColors.onAccent,
-                      elevation: 2,
-                      shadowColor: widget.accentColor.withValues(alpha: 0.45),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: AppBorderRadius.chip,
-                      ),
-                    ),
-                    child: Text(
-                      'Confirm',
-                      style: AppTextStyle.buttonAction.copyWith(
-                        fontSize: 15.sp,
-                        color: AppColors.onAccent,
-                      ),
-                    ),
+                8.verticalSpace,
+
+                // Compact 7-column Calendar Grid
+                GridView.builder(
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 7,
+                    mainAxisSpacing: 3.h,
+                    crossAxisSpacing: 3.w,
+                    childAspectRatio: 1.15,
                   ),
+                  itemCount: totalGridCells,
+                  itemBuilder: (context, index) {
+                    // Previous month days
+                    if (index < firstWeekday) {
+                      final prevDayNumber =
+                          daysInPrevMonth - firstWeekday + index + 1;
+                      return Center(
+                        child: Text(
+                          _twoDigits(prevDayNumber),
+                          style: AppTextStyle.dayLabel.copyWith(
+                            color: AppColors.faint.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      );
+                    }
+
+                    // Next month days
+                    if (index >= totalDaysCovered) {
+                      final nextDayNumber = index - totalDaysCovered + 1;
+                      return Center(
+                        child: Text(
+                          _twoDigits(nextDayNumber),
+                          style: AppTextStyle.dayLabel.copyWith(
+                            color: AppColors.faint.withValues(alpha: 0.5),
+                          ),
+                        ),
+                      );
+                    }
+
+                    // Current month days
+                    final dayNumber = index - firstWeekday + 1;
+                    final cellDate = DateTime(
+                      _displayedMonth.year,
+                      _displayedMonth.month,
+                      dayNumber,
+                    );
+
+                    final isSelected = _isSameDay(cellDate, _selectedDate);
+                    final isTodayDate = _isSameDay(cellDate, today);
+                    final lastDateDay = DateTime(
+                      widget.lastDate.year,
+                      widget.lastDate.month,
+                      widget.lastDate.day,
+                    );
+                    final firstDateDay = DateTime(
+                      widget.firstDate.year,
+                      widget.firstDate.month,
+                      widget.firstDate.day,
+                    );
+                    final isDisabled =
+                        cellDate.isAfter(lastDateDay) ||
+                        cellDate.isBefore(firstDateDay);
+
+                    Color textColor;
+                    if (isDisabled) {
+                      textColor = AppColors.faint.withValues(alpha: 0.4);
+                    } else if (isSelected) {
+                      textColor = AppColors.onAccent;
+                    } else {
+                      textColor = AppColors.ink;
+                    }
+
+                    return InkWell(
+                      onTap: isDisabled
+                          ? null
+                          : () {
+                              setState(() {
+                                _selectedDate = cellDate;
+                              });
+                            },
+                      borderRadius: AppBorderRadius.dayCell,
+                      child: Container(
+                        decoration: isSelected
+                            ? BoxDecoration(
+                                color: widget.accentColor,
+                                borderRadius: AppBorderRadius.dayCell,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: widget.accentColor.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                    blurRadius: 4,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              )
+                            : null,
+                        alignment: Alignment.center,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _twoDigits(dayNumber),
+                              style: AppTextStyle.dayLabelActive.copyWith(
+                                fontWeight: (isSelected || isTodayDate)
+                                    ? FontWeight.w700
+                                    : FontWeight.w600,
+                                color: textColor,
+                              ),
+                            ),
+                            if (isTodayDate && !isSelected) ...[
+                              1.verticalSpace,
+                              Container(
+                                width: 14.w,
+                                height: 2.h,
+                                decoration: BoxDecoration(
+                                  color: widget.accentColor,
+                                  borderRadius: AppBorderRadius.indicator,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    );
+                  },
                 ),
+
+                // Spacing between calendar grid and action buttons:
+                // When month has 6 weeks: tight/no extra space between last date row and buttons.
+                // Otherwise: space is added with the exact height that one date row occupies.
+                Builder(
+                  builder: (context) {
+                    if (weeksCount >= 6) {
+                      return 6.verticalSpace;
+                    }
+                    final availableWidth = 285.w;
+                    final cellWidth = (availableWidth - (6 * 3.w)) / 7;
+                    final cellHeight = cellWidth / 1.15;
+                    final oneRowHeight = cellHeight + 3.h;
+                    final extraSpace = (6 - weeksCount) * oneRowHeight;
+                    return SizedBox(height: 6.h + extraSpace);
+                  },
+                ),
+              ] else if (_currentView == _PickerView.month) ...[
+                _buildMonthGrid(),
+              ] else ...[
+                _buildYearGrid(),
               ],
-            ),
-          ],
+
+              // 3. Action Buttons (Cancel & Confirm)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    height: 35.h,
+                    child: TextButton(
+                      onPressed: () {
+                        if (_currentView != _PickerView.date) {
+                          setState(() => _currentView = _PickerView.date);
+                        } else {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 14.w),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      child: Text(
+                        'Cancel',
+                        style: AppTextStyle.buttonAction.copyWith(
+                          fontSize: 15.sp,
+                          color: AppColors.faint,
+                        ),
+                      ),
+                    ),
+                  ),
+                  10.horizontalSpace,
+                  SizedBox(
+                    width: 95.w,
+                    height: 35.h,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(_selectedDate),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 10.w),
+                        backgroundColor: widget.accentColor,
+                        foregroundColor: AppColors.onAccent,
+                        elevation: 2,
+                        shadowColor: widget.accentColor.withValues(alpha: 0.45),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: AppBorderRadius.chip,
+                        ),
+                      ),
+                      child: Text(
+                        'Confirm',
+                        style: AppTextStyle.buttonAction.copyWith(
+                          fontSize: 15.sp,
+                          color: AppColors.onAccent,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }

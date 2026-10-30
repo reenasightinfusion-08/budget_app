@@ -8,7 +8,7 @@ import 'package:budget_frontend/core/constants/app_border_radius.dart';
 import 'package:budget_frontend/core/constants/app_colors.dart';
 
 /// A native-styled Banner Ad card designed to fit seamlessly into the app's aesthetic.
-/// 
+///
 /// Features:
 /// - Smooth fade-in animation on load.
 /// - Gracefully collapses to [SizedBox.shrink] if loading fails or platform is unsupported.
@@ -35,7 +35,8 @@ class AppAdBanner extends StatefulWidget {
   State<AppAdBanner> createState() => _AppAdBannerState();
 }
 
-class _AppAdBannerState extends State<AppAdBanner> with SingleTickerProviderStateMixin {
+class _AppAdBannerState extends State<AppAdBanner>
+    with SingleTickerProviderStateMixin {
   BannerAd? _bannerAd;
   bool _isLoaded = false;
   bool _hasFailed = false;
@@ -54,6 +55,33 @@ class _AppAdBannerState extends State<AppAdBanner> with SingleTickerProviderStat
       curve: Curves.easeOut,
     );
 
+    _loadBannerAd();
+    AdService.fullScreenDismissedNotifier.addListener(_onFullScreenDismissed);
+  }
+
+  @override
+  void dispose() {
+    AdService.fullScreenDismissedNotifier.removeListener(
+      _onFullScreenDismissed,
+    );
+    _animController.dispose();
+    _bannerAd?.dispose();
+    super.dispose();
+  }
+
+  void _onFullScreenDismissed() {
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        _reloadBannerAd();
+      }
+    });
+  }
+
+  void _reloadBannerAd() {
+    if (!mounted || !AdService.supported) return;
+    _bannerAd?.dispose();
+    _bannerAd = null;
+    _isLoaded = false;
     _loadBannerAd();
   }
 
@@ -94,13 +122,6 @@ class _AppAdBannerState extends State<AppAdBanner> with SingleTickerProviderStat
     );
 
     _bannerAd?.load();
-  }
-
-  @override
-  void dispose() {
-    _animController.dispose();
-    _bannerAd?.dispose();
-    super.dispose();
   }
 
   @override
@@ -147,7 +168,10 @@ class _AppAdBannerState extends State<AppAdBanner> with SingleTickerProviderStat
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Container(
-                      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.5.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6.w,
+                        vertical: 1.5.h,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.fill,
                         borderRadius: BorderRadius.circular(4.r),

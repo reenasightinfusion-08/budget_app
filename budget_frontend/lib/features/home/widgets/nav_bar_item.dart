@@ -38,7 +38,11 @@ class NavBarItem extends StatelessWidget {
             children: [
               Transform.scale(
                 scale: 1 + 0.18 * proximity,
-                child: Icon(data.icon, size: isTablet ? 22 : 22.sp, color: color),
+                child: Icon(
+                  data.icon,
+                  size: isTablet ? 22 : 22.sp,
+                  color: color,
+                ),
               ),
               isTablet ? const SizedBox(height: 2) : 2.verticalSpace,
               Text(

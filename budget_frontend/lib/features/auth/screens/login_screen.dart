@@ -9,13 +9,13 @@ import 'package:budget_frontend/core/widgets/app_link_button.dart';
 import 'package:budget_frontend/core/widgets/app_text_field.dart';
 import 'package:budget_frontend/core/widgets/sheet_scaffold.dart';
 import 'package:budget_frontend/features/auth/bloc/auth_bloc.dart';
-import 'package:budget_frontend/features/auth/widgets/auth_error_text.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_footer_link.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_google_button.dart';
-import 'package:budget_frontend/features/auth/widgets/auth_google_error_text.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_notice_banner.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_or_divider.dart';
 import 'package:budget_frontend/features/auth/widgets/auth_submit_button.dart';
+
+import 'package:budget_frontend/core/widgets/app_toast.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -48,14 +48,18 @@ class LoginScreenState extends State<LoginScreen> {
 
   void submit() {
     if (!formKey.currentState!.validate()) return;
-    context.read<AuthBloc>().add(AuthLoginRequested(
-          email: emailController.text.trim(),
-          password: passwordController.text,
-        ));
+    context.read<AuthBloc>().add(
+      AuthLoginRequested(
+        email: emailController.text.trim(),
+        password: passwordController.text,
+      ),
+    );
   }
 
   void googleSignIn() {
-    context.read<AuthBloc>().add(const AuthGoogleSignInRequested(isSignup: false));
+    context.read<AuthBloc>().add(
+      const AuthGoogleSignInRequested(isSignup: false),
+    );
   }
 
   @override
@@ -63,7 +67,12 @@ class LoginScreenState extends State<LoginScreen> {
     final arguments = ModalRoute.of(context)?.settings.arguments;
 
     return BlocListener<AuthBloc, AuthState>(
-      listenWhen: (previous, current) => previous.status != current.status,
+      listenWhen: (previous, current) =>
+          previous.status != current.status ||
+          (current.errorMessage != null &&
+              previous.errorMessage != current.errorMessage) ||
+          (current.googleErrorMessage != null &&
+              previous.googleErrorMessage != current.googleErrorMessage),
       listener: (context, state) {
         if (ModalRoute.of(context)?.isCurrent != true) return;
         if (state.status == AuthStatus.authenticated) {
@@ -71,13 +80,20 @@ class LoginScreenState extends State<LoginScreen> {
           Navigator.of(context).pushNamedAndRemoveUntil(
             AppRoutes.afterAuth(state.user),
             (route) => false,
-            arguments: {
-              'fromLogin': true,
-              'username': username,
-            },
+            arguments: {'fromLogin': true, 'username': username},
           );
         } else if (state.status == AuthStatus.verificationPending) {
           Navigator.of(context).pushNamed(AppRoutes.verifyEmail);
+        } else if (state.errorMessage != null &&
+            (state.errorSource == null ||
+                state.errorSource == AuthScreen.login)) {
+          AppToast.error(context, message: state.errorMessage!);
+          context.read<AuthBloc>().add(const AuthErrorCleared());
+        } else if (state.googleErrorMessage != null &&
+            (state.googleErrorSource == null ||
+                state.googleErrorSource == AuthScreen.login)) {
+          AppToast.error(context, message: state.googleErrorMessage!);
+          context.read<AuthBloc>().add(const AuthErrorCleared());
         }
       },
       child: SheetScaffold(
@@ -112,20 +128,21 @@ class LoginScreenState extends State<LoginScreen> {
                 autofillHints: const [AutofillHints.password],
                 onFieldSubmitted: (_) => submit(),
               ),
-              Row(
-                children: [
-                  const Expanded(child: AuthErrorText(screen: AuthScreen.login)),
-                  AppLinkButton(
-                    label: 'Forgot password?',
-                    onPressed: () {
-                      final authBloc = context.read<AuthBloc>();
-                      authBloc.add(const AuthErrorCleared());
-                      Navigator.of(context).pushNamed(AppRoutes.forgotPassword).then((_) {
-                        if (mounted) authBloc.add(const AuthErrorCleared());
-                      });
-                    },
-                  ),
-                ],
+              8.verticalSpace,
+              Align(
+                alignment: Alignment.centerRight,
+                child: AppLinkButton(
+                  label: 'Forgot password?',
+                  onPressed: () {
+                    final authBloc = context.read<AuthBloc>();
+                    authBloc.add(const AuthErrorCleared());
+                    Navigator.of(
+                      context,
+                    ).pushNamed(AppRoutes.forgotPassword).then((_) {
+                      if (mounted) authBloc.add(const AuthErrorCleared());
+                    });
+                  },
+                ),
               ),
               12.verticalSpace,
               AuthSubmitButton(label: 'Log in', onPressed: submit),
@@ -136,7 +153,6 @@ class LoginScreenState extends State<LoginScreen> {
                 label: 'Log in with Google',
                 onPressed: googleSignIn,
               ),
-              const AuthGoogleErrorText(screen: AuthScreen.login),
               const Spacer(),
               AuthFooterLink(
                 prompt: 'New here?',

@@ -38,18 +38,31 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     bool isGoogle = false,
     AuthScreen? screen,
   }) async {
-    emit(state.copyWith(status: AuthStatus.loading, isLoading: true, clearError: true));
+    emit(
+      state.copyWith(
+        status: AuthStatus.loading,
+        isLoading: true,
+        clearError: true,
+      ),
+    );
     try {
       await action();
     } on ApiException catch (e) {
       emit(failure(e.message, isGoogle, screen: screen));
     } catch (e, stack) {
       debugPrint('AuthBloc error: $e\n$stack');
-      emit(failure('Something went wrong. Please try again.', isGoogle, screen: screen));
+      emit(
+        failure(
+          'Something went wrong. Please try again.',
+          isGoogle,
+          screen: screen,
+        ),
+      );
     }
   }
 
-  AuthState failure(String message, bool isGoogle, {AuthScreen? screen}) => state.copyWith(
+  AuthState failure(String message, bool isGoogle, {AuthScreen? screen}) =>
+      state.copyWith(
         status: AuthStatus.unauthenticated,
         isLoading: false,
         errorMessage: isGoogle ? null : message,
@@ -59,43 +72,50 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
 
   AuthState authenticated(UserModel user) => state.copyWith(
-        status: AuthStatus.authenticated,
-        user: user,
-        isLoading: false,
-        clearDemoCode: true,
-      );
+    status: AuthStatus.authenticated,
+    user: user,
+    isLoading: false,
+    clearDemoCode: true,
+  );
 
   AuthState verificationPending(String email, String? code) => state.copyWith(
-        status: AuthStatus.verificationPending,
-        pendingEmail: email,
-        demoCode: code,
-        clearDemoCode: code == null,
-        isLoading: false,
-      );
+    status: AuthStatus.verificationPending,
+    pendingEmail: email,
+    demoCode: code,
+    clearDemoCode: code == null,
+    isLoading: false,
+  );
 
   Future<void> onStarted(AuthStarted event, Emitter<AuthState> emit) async {
     emit(state.copyWith(status: AuthStatus.loading));
     try {
       final user = await authService.restoreSession();
-      emit(user == null
-          ? state.copyWith(status: AuthStatus.unauthenticated)
-          : authenticated(user));
+      emit(
+        user == null
+            ? state.copyWith(status: AuthStatus.unauthenticated)
+            : authenticated(user),
+      );
     } catch (e, stack) {
       debugPrint('AuthBloc restoreSession error: $e\n$stack');
       emit(state.copyWith(status: AuthStatus.unauthenticated));
     }
   }
 
-  Future<void> onLoginRequested(AuthLoginRequested event, Emitter<AuthState> emit) =>
-      run(emit, () async {
-        try {
-          final user = await authService.login(email: event.email, password: event.password);
-          emit(authenticated(user));
-        } on ApiException catch (e) {
-          if (!e.needsVerification) rethrow;
-          emit(verificationPending(event.email, await resendQuietly(event.email)));
-        }
-      }, screen: AuthScreen.login);
+  Future<void> onLoginRequested(
+    AuthLoginRequested event,
+    Emitter<AuthState> emit,
+  ) => run(emit, () async {
+    try {
+      final user = await authService.login(
+        email: event.email,
+        password: event.password,
+      );
+      emit(authenticated(user));
+    } on ApiException catch (e) {
+      if (!e.needsVerification) rethrow;
+      emit(verificationPending(event.email, await resendQuietly(event.email)));
+    }
+  }, screen: AuthScreen.login);
 
   /// Sends a fresh code to an unverified account; the earlier code is still valid if this is rate limited.
   Future<String?> resendQuietly(String email) async {
@@ -106,48 +126,70 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     }
   }
 
-  Future<void> onSignupRequested(AuthSignupRequested event, Emitter<AuthState> emit) =>
-      run(emit, () async {
-        final code = await authService.signup(email: event.email, password: event.password);
-        emit(verificationPending(event.email, code));
-      }, screen: AuthScreen.signup);
+  Future<void> onSignupRequested(
+    AuthSignupRequested event,
+    Emitter<AuthState> emit,
+  ) => run(emit, () async {
+    final code = await authService.signup(
+      email: event.email,
+      password: event.password,
+    );
+    emit(verificationPending(event.email, code));
+  }, screen: AuthScreen.signup);
 
-  Future<void> onVerifyEmailRequested(AuthVerifyEmailRequested event, Emitter<AuthState> emit) =>
-      run(emit, () async {
-        final user = await authService.verifyEmail(email: state.pendingEmail, code: event.code);
-        emit(authenticated(user));
-      }, screen: AuthScreen.verifyEmail);
+  Future<void> onVerifyEmailRequested(
+    AuthVerifyEmailRequested event,
+    Emitter<AuthState> emit,
+  ) => run(emit, () async {
+    final user = await authService.verifyEmail(
+      email: state.pendingEmail,
+      code: event.code,
+    );
+    emit(authenticated(user));
+  }, screen: AuthScreen.verifyEmail);
 
   Future<void> onResendVerifyCodeRequested(
     AuthResendVerifyCodeRequested event,
     Emitter<AuthState> emit,
-  ) =>
-      run(emit, () async {
-        final code = await authService.resendVerificationCode(state.pendingEmail);
-        emit(verificationPending(state.pendingEmail, code));
-      }, screen: AuthScreen.verifyEmail);
+  ) => run(emit, () async {
+    final code = await authService.resendVerificationCode(state.pendingEmail);
+    emit(verificationPending(state.pendingEmail, code));
+  }, screen: AuthScreen.verifyEmail);
 
-  Future<void> onGoogleSignInRequested(AuthGoogleSignInRequested event, Emitter<AuthState> emit) =>
-      run(emit, () async {
-        emit(authenticated(await authService.googleSignIn(isSignup: event.isSignup)));
-      }, isGoogle: true, screen: event.isSignup ? AuthScreen.signup : AuthScreen.login);
+  Future<void> onGoogleSignInRequested(
+    AuthGoogleSignInRequested event,
+    Emitter<AuthState> emit,
+  ) => run(
+    emit,
+    () async {
+      emit(
+        authenticated(await authService.googleSignIn(isSignup: event.isSignup)),
+      );
+    },
+    isGoogle: true,
+    screen: event.isSignup ? AuthScreen.signup : AuthScreen.login,
+  );
 
   Future<void> onForgotPasswordRequested(
     AuthForgotPasswordRequested event,
     Emitter<AuthState> emit,
-  ) =>
-      run(emit, () async {
-        final code = await authService.requestPasswordReset(event.email);
-        emit(state.copyWith(
-          status: AuthStatus.passwordResetSent,
-          resetEmail: event.email,
-          demoCode: code,
-          clearDemoCode: code == null,
-          isLoading: false,
-        ));
-      }, screen: AuthScreen.forgotPassword);
+  ) => run(emit, () async {
+    final code = await authService.requestPasswordReset(event.email);
+    emit(
+      state.copyWith(
+        status: AuthStatus.passwordResetSent,
+        resetEmail: event.email,
+        demoCode: code,
+        clearDemoCode: code == null,
+        isLoading: false,
+      ),
+    );
+  }, screen: AuthScreen.forgotPassword);
 
-  void onResendResetCodeRequested(AuthResendResetCodeRequested event, Emitter<AuthState> emit) {
+  void onResendResetCodeRequested(
+    AuthResendResetCodeRequested event,
+    Emitter<AuthState> emit,
+  ) {
     if (state.resetEmail.isEmpty) return;
     add(AuthForgotPasswordRequested(email: state.resetEmail));
   }
@@ -155,62 +197,82 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> onResetPasswordRequested(
     AuthResetPasswordRequested event,
     Emitter<AuthState> emit,
-  ) =>
-      run(emit, () async {
-        await authService.resetPassword(
-          email: state.resetEmail,
-          code: event.code,
-          newPassword: event.newPassword,
-        );
-        emit(state.copyWith(
-          status: AuthStatus.passwordResetSuccess,
-          resetEmail: '',
-          clearDemoCode: true,
-          successMessage: 'Password updated. Log in with your new password.',
-          isLoading: false,
-        ));
-      }, screen: AuthScreen.resetPassword);
+  ) => run(emit, () async {
+    await authService.resetPassword(
+      email: state.resetEmail,
+      code: event.code,
+      newPassword: event.newPassword,
+    );
+    emit(
+      state.copyWith(
+        status: AuthStatus.passwordResetSuccess,
+        resetEmail: '',
+        clearDemoCode: true,
+        successMessage: 'Password updated. Log in with your new password.',
+        isLoading: false,
+      ),
+    );
+  }, screen: AuthScreen.resetPassword);
 
   void onUserUpdated(AuthUserUpdated event, Emitter<AuthState> emit) =>
       emit(state.copyWith(user: event.user));
 
-  Future<void> onLogoutRequested(AuthLogoutRequested event, Emitter<AuthState> emit) async {
-    await authService.logout();
-    emit(state.copyWith(
-      status: AuthStatus.unauthenticated,
-      clearUser: true,
-      clearError: true,
-      clearSuccessMessage: true,
-    ));
+  Future<void> onLogoutRequested(
+    AuthLogoutRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    try {
+      await authService.logout();
+    } catch (_) {}
+    emit(
+      state.copyWith(
+        status: AuthStatus.unauthenticated,
+        clearUser: true,
+        clearError: true,
+        clearSuccessMessage: true,
+      ),
+    );
   }
 
   Future<void> onDeleteAccountRequested(
     AuthDeleteAccountRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(state.copyWith(status: AuthStatus.loading, isLoading: true, clearError: true));
+    emit(
+      state.copyWith(
+        status: AuthStatus.loading,
+        isLoading: true,
+        clearError: true,
+      ),
+    );
     try {
       await authService.deleteAccount();
-      emit(state.copyWith(
-        status: AuthStatus.unauthenticated,
-        clearUser: true,
-        clearError: true,
-        clearSuccessMessage: true,
-        isLoading: false,
-      ));
+      emit(
+        state.copyWith(
+          status: AuthStatus.unauthenticated,
+          clearUser: true,
+          clearError: true,
+          clearSuccessMessage: true,
+          isLoading: false,
+        ),
+      );
     } on ApiException catch (e) {
-      emit(state.copyWith(
-        status: AuthStatus.authenticated,
-        isLoading: false,
-        errorMessage: e.message,
-      ));
+      emit(
+        state.copyWith(
+          status: AuthStatus.authenticated,
+          isLoading: false,
+          errorMessage: e.message,
+        ),
+      );
     } catch (e, stack) {
       debugPrint('AuthBloc deleteAccount error: $e\n$stack');
-      emit(state.copyWith(
-        status: AuthStatus.authenticated,
-        isLoading: false,
-        errorMessage: 'Something went wrong. Please try again.',
-      ));
+      emit(
+        state.copyWith(
+          status: AuthStatus.authenticated,
+          isLoading: false,
+          errorMessage: 'Something went wrong. Please try again.',
+        ),
+      );
     }
   }
 
@@ -222,22 +284,23 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       await authService.clearData();
       final updatedUser = state.user?.copyWith(hasExampleData: false);
-      emit(state.copyWith(
-        isLoading: false,
-        user: updatedUser,
-        successMessage: 'All data cleared successfully',
-      ));
+      emit(
+        state.copyWith(
+          isLoading: false,
+          user: updatedUser,
+          successMessage: 'All data cleared successfully',
+        ),
+      );
     } on ApiException catch (e) {
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: e.message,
-      ));
+      emit(state.copyWith(isLoading: false, errorMessage: e.message));
     } catch (e, stack) {
       debugPrint('AuthBloc clearData error: $e\n$stack');
-      emit(state.copyWith(
-        isLoading: false,
-        errorMessage: 'Something went wrong. Please try again.',
-      ));
+      emit(
+        state.copyWith(
+          isLoading: false,
+          errorMessage: 'Something went wrong. Please try again.',
+        ),
+      );
     }
   }
 

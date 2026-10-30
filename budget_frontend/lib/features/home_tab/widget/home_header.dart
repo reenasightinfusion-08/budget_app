@@ -41,8 +41,9 @@ class HomeHeader extends StatelessWidget {
       profileName: setupState.profile?.name,
       user: authState.user,
     );
-    final String firstLetter =
-        userName.isNotEmpty ? userName[0].toUpperCase() : 'U';
+    final String firstLetter = userName.isNotEmpty
+        ? userName[0].toUpperCase()
+        : 'U';
 
     return Row(
       children: [
@@ -98,11 +99,7 @@ class HomeHeader extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                AppIcons.calendar,
-                size: 14.sp,
-                color: AppColors.ink,
-              ),
+              Icon(AppIcons.calendar, size: 14.sp, color: AppColors.ink),
               6.horizontalSpace,
               Text(
                 _getFormattedDate(),

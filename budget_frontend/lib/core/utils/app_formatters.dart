@@ -5,7 +5,10 @@ class AppFormatters {
     if (digits.length <= 3) return digits;
     final head = digits.substring(0, digits.length - 3);
     final tail = digits.substring(digits.length - 3);
-    final groupedHead = head.replaceAllMapped(RegExp(r'\B(?=(\d{2})+(?!\d))'), (_) => ',');
+    final groupedHead = head.replaceAllMapped(
+      RegExp(r'\B(?=(\d{2})+(?!\d))'),
+      (_) => ',',
+    );
     return '$groupedHead,$tail';
   }
 
@@ -18,8 +21,18 @@ class AppFormatters {
   }
 
   static const List<String> monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
 
   static String monthName(int month) => monthNames[month - 1];
@@ -38,5 +51,6 @@ class AppFormatters {
   static String dateSlash(DateTime date) =>
       '${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}/${date.year}';
 
-  static int parseDigits(String text) => int.tryParse(text.replaceAll(RegExp(r'\D'), '')) ?? 0;
+  static int parseDigits(String text) =>
+      int.tryParse(text.replaceAll(RegExp(r'\D'), '')) ?? 0;
 }

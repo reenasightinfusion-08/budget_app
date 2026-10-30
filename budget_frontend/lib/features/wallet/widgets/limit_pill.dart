@@ -9,7 +9,12 @@ import 'package:budget_frontend/core/widgets/app_card.dart';
 
 /// Tappable "spent / limit" chip.
 class LimitPill extends StatelessWidget {
-  const LimitPill({super.key, required this.spent, required this.limit, required this.onTap});
+  const LimitPill({
+    super.key,
+    required this.spent,
+    required this.limit,
+    required this.onTap,
+  });
 
   final int spent;
   final int limit;
@@ -33,10 +38,7 @@ class LimitPill extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               ),
             ),
-            Text(
-              AppFormatters.rupees(limit),
-              style: AppTextStyle.chip,
-            ),
+            Text(AppFormatters.rupees(limit), style: AppTextStyle.chip),
           ],
         ),
       ),

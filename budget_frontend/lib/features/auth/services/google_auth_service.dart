@@ -35,8 +35,11 @@ class GoogleAuthService {
   }
 
   Future<void> signOut() async {
+    if (!initialized) return;
     try {
-      await GoogleSignIn.instance.signOut();
+      await GoogleSignIn.instance
+          .signOut()
+          .timeout(const Duration(seconds: 1), onTimeout: () {});
     } catch (e) {
       debugPrint('Google sign-out error: $e');
     }

@@ -25,10 +25,7 @@ class ProfileHeader extends StatelessWidget {
           ),
         ),
         15.horizontalSpace,
-        Text(
-          'Profile',
-          style: AppTextStyle.screenTitle
-        ),
+        Text('Profile', style: AppTextStyle.screenTitle),
       ],
     );
   }
